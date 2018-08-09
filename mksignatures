@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+
+import os
+import util
+import sys
+
+INSIDE_MARGIN = 40
+OUTSIDE_MARGIN = 0
+TOP_MARGIN = 0
+BOTTOM_MARGIN = 0
+
+src = sys.argv[3]
+paper_size_given_arg = sys.argv[1]
+
+paper_size_args = ["a4", "a3", "letter", "tabloid"]
+paper_size_translated = ["a4paper", "a3paper", "letterpaper", "ansibpaper"]
+
+if paper_size_given_arg not in paper_size_args:
+  print("Sorry, I don't know paper size '" + paper_size_given_arg + \
+      "', please use any of " + ",".join(paper_size_args))
+  sys.exit(1)
+
+for i in range(len(paper_size_args)):
+  allowed_arg = paper_size_args[i]
+  if paper_size_given_arg == allowed_arg:
+    paper_size = paper_size_translated[i]
+    break
+
+n_paper_sheets_signature = int(sys.argv[2])
+BOOKLET_SIZE = n_paper_sheets_signature * 4
+
+# a4paper, a3paper, letterpaper, ansibpaper
+#paper_size = 'a4paper'
+print("Using '" + paper_size + "' paper size")
+
+n_pages = util.get_pdf_pages(src)
+n_booklets = int(n_pages / BOOKLET_SIZE)
+n_extra_pages = n_pages - (BOOKLET_SIZE * n_booklets)
+
+if n_extra_pages > 0:
+  n_booklets = n_booklets + 1
+
+n_blank_pages_to_add = BOOKLET_SIZE - n_extra_pages
+(width, height) = util.get_pdf_dimension(src)
+
+os.system("convert xc:none -page " + str(width) + "x" + str(height) + " blank.pdf")
+padded_file = src.replace(".pdf", "-padded.pdf")
+pad_command = "pdftk A=" + src + " B=blank.pdf cat A "
+for i in range(n_blank_pages_to_add):
+  pad_command = pad_command + "B "
+pad_command = pad_command + "output " + padded_file
+os.system(pad_command)
+
+booklets = []
+for i in range(n_booklets):
+  print("Booklet " + str(i + 1) + "...")
+  output = src.replace(".pdf", "_booklet_" + str(i + 1).zfill(3) + ".pdf")
+  booklets.append(output)
+  command = "pdftk " + padded_file + " cat " + str(1 + i * BOOKLET_SIZE) + \
+      "-" + str((i + 1) * BOOKLET_SIZE) + " output " + output
+  os.system(command)
+  util.silent("pdfbook2 --no-crop --paper=" + paper_size + \
+      " --short-edge " + \
+      " -o " + str(OUTSIDE_MARGIN) + \
+      " -i " + str(INSIDE_MARGIN) + \
+      " -t " + str(TOP_MARGIN) + \
+      " -b " + str(BOTTOM_MARGIN) + \
+      " " + output)
+  book_output = output.replace(".pdf", "-book.pdf")
+  os.system("rm " + output)
+  os.system("mv " + book_output + " " + output)
+
+all_booklets = src.replace(".pdf", "_booklets.pdf")
+os.system("pdftk " + " ".join(booklets) + " cat output " + all_booklets)
+
+os.system("rm " + " ".join(booklets))
+os.system("rm " + padded_file)
+os.system("rm blank.pdf")

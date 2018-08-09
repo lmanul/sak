@@ -16,3 +16,12 @@ def get_image_dimensions(img):
   height = int(parsed.group(2))
   return (width, height)
 
+# Returns the number of pages in the given PDF file
+def get_pdf_pages(pdf_path):
+  output = subprocess.check_output(["pdfinfo", pdf_path]).decode()
+  lines = output.split("\n")
+  for l in lines:
+    if "Pages:" in l:
+      value = l.replace("Pages:", "").strip()
+      return int(value)
+
