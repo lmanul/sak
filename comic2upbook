@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+leftToRight = False
+
+imgs = sys.argv[1:]
+n_imgs = len(imgs)
+
+if not os.path.exists("book"):
+  os.system("mkdir book")
+
+modulo = n_imgs % 4
+modulo_remain = 4 - modulo
+if modulo != 0:
+  print("Adding blank images...")
+  (w, h) = util.get_image_dimensions(imgs[n_imgs - 1])
+  for i in range(modulo_remain):
+    os.system("convert -size " + str(w) + "x" + str(h) + " xc:white book/zzzblank" + str(i) + ".png")
+    imgs.append("book/zzzblank" + str(i) + ".png")
+    n_imgs = n_imgs + 1
+
+t = "2x1"
+g = "+10+0 "
+
+if leftToRight:
+  print("Not implemented yet!")
+  sys.exit(1)
+
+for i in range(0, int((n_imgs) / 2), 2):
+  print(i)
+  pages = [
+    imgs[i],
+    imgs[n_imgs - i - 1],
+  ]
+  os.system("montage -tile " + t + " -geometry " + g + " ".join(pages) + \
+        " book/" +  (str(i) + "-" + str(n_imgs - i - 1)).zfill(12) + ".jpg")
+  pages = [
+    imgs[n_imgs - i - 2],
+    imgs[i + 1],
+  ]
+  os.system("montage -tile " + t + " -geometry " + g + " ".join(pages) + \
+        " book/" +  (str(i + 1) + "-" + str(n_imgs - i - 2)).zfill(12) + ".jpg")
+
+os.system("rm book/zzzblank*")
