@@ -1,0 +1,8 @@
+#!/usr/bin/python3
+
+import os
+
+home = os.path.expanduser("~")
+
+os.system("xdotool key XF86AudioRaiseVolume")
+os.system("play -q " + home + "/bus/reference/water_droplet.mp3")

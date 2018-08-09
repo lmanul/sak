@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("pactl set-sink-mute 0 0 ; pactl set-sink-mute 1 0")

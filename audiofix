@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import os
+import util
+
+util.run_bin_cmd("killgrep", "mpd")
+os.system("killall pulseaudio")
+util.run_bin_cmd("setup")
+util.run_bin_cmd("hi")
+util.run_bin_cmd("audiounmute")
