@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+file = sys.argv[1]
+
+bup = file + ".bup"
+
+os.system("cp " + file + " " + bup)
+# Unchanged H, increased S, unchanged L
+arg = "100,120,100"
+command = "convert -modulate " + arg + " " + file + " " + file
+#print command
+os.system(command)

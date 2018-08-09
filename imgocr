@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+img = sys.argv[1]
+# tesseract will add a "txt" extension itself.
+txt = util.remove_extension(img)
+
+cmd = "tesseract " + img + " " + txt
+os.system(cmd)

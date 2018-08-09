@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+file = sys.argv[1]
+
+bup = file + ".bup"
+os.system("cp " + file + " " + bup)
+command = "convert -auto-level " + file + " " + file
+#print command
+os.system(command)

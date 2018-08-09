@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+if len(sys.argv) <= 1:
+  imgs = [i for i in os.listdir(".") if not os.path.isdir(i)]
+else:
+  imgs = sys.argv[1:]
+
+ratios = {}
+
+for i in imgs:
+  sys.stdout.write(".")
+  sys.stdout.flush()
+  (width, height) = util.get_image_dimensions(i)
+  ratio = round(float(width) / float(height), 2)
+  if ratio in ratios:
+    ratios[ratio]['count'] += 1
+  else:
+    ratios[ratio] = {}
+    ratios[ratio]['count'] = 1
+    ratios[ratio]['example'] = i
+
+print("\n")
+for r in ratios:
+  print(str(r) + ": " + str(ratios[r]))
+
+min_ratio = 100
+max_ratio = 0
+for r in sorted(ratios):
+  if r < min_ratio:
+    min_ratio = r
+  if r > max_ratio:
+    max_ratio = r
+
+print("\n")
+print("Min: " + str(min_ratio) + " with for ex. " + ratios[min_ratio]['example'])
+print("Max: " + str(max_ratio) + " with for ex. " + ratios[max_ratio]['example'])

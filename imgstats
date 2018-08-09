@@ -1,0 +1,37 @@
+#!/usr/bin/python3
+
+import operator
+import os
+import util
+
+imgs = [i for i in os.listdir(".") if i.endswith(".jpg") or i.endswith(".png")]
+
+print("" + str(len(imgs)) + " images")
+
+size_recap = {}
+min_w = 100000
+min_h = 100000
+max_w = 0
+max_h = 0
+
+for i in imgs:
+  (w, h) = util.get_image_dimensions(i)
+  min_w = min(min_w, w)
+  min_h = min(min_h, h)
+  max_w = max(max_w, w)
+  max_h = max(max_h, h)
+  key = str(w) + "x" + str(h)
+  if key in size_recap:
+    size_recap[key] += 1
+  else:
+    size_recap[key] = 1
+
+ordered_size_recap = sorted(size_recap.items(), key=operator.itemgetter(1), reverse=True)
+for item in ordered_size_recap:
+  print(item[0] + ": " + str(item[1]))
+
+percent_diff_w = round(float(max_w - min_w) / float(max_w) * 100, 1)
+percent_diff_h = round(float(max_h - min_h) / float(max_h) * 100, 1)
+
+print("Max difference: " + str(percent_diff_w) + "% in width, " + \
+    str(percent_diff_h) + "% in height")

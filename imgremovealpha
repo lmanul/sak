@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+img = sys.argv[1]
+bup = img + ".bup"
+
+os.system("cp " + img + " " + bup)
+os.system("convert -flatten " + bup + " " + img)

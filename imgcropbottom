@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+pixels = int(sys.argv[1])
+f = sys.argv[2]
+
+bup = f + ".bup"
+
+os.system("cp " + f + " " + bup)
+
+(w, h) = util.get_image_dimensions(f)
+new_h = h - pixels
+
+command = "convert -crop " \
+    + str(w) + "x" + str(new_h)  + "+0+0 +repage -gravity North " + f + " " + f
+os.system(command)

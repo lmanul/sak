@@ -1,0 +1,94 @@
+#!/usr/bin/python3
+
+import multiprocessing
+import os
+import sys
+import util
+
+from multiprocessing.dummy import Pool as ThreadPool
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-d", "--dry-run", dest="dryrun",
+                  action="store_true",
+                  help="Dry run, do not actually resize images")
+parser.add_option("-s", "--scale", dest="scale",
+                  action="store_true",
+                  help="Scale images before padding them")
+
+(options, args) = parser.parse_args()
+
+ins = args[0:]
+
+if not options.scale:
+  print("--scale (-s) not passed, only padding images")
+
+max_width = 0
+max_width_file = ""
+max_height = 0
+max_height_file = ""
+
+def pad(i):
+  global max_width
+  global max_height
+  (w, h) = util.get_image_dimensions(i)
+  if w == max_width and h == max_height:
+    # Nothing to do
+    return
+  bup = i + ".bup"
+  os.system("mv " + i + " " + bup)
+  os.system("convert " + bup + " -gravity center -extent " + \
+    str(max_width) + "x" + str(max_height) + " " + i)
+
+def scale(i):
+  global max_width
+  global max_height
+  home = os.path.expanduser("~")
+  bup = i + ".bup"
+  #os.system("mv " + i + " " + bup)
+  cmd = os.path.join(home, "bus", "bin", "mkthumb") + " " + \
+    str(max(max_width, max_height)) + " " + i
+  os.system(cmd)
+
+def process_one_image(i):
+  global max_width
+  global max_height
+  global options
+  (w, h) = util.get_image_dimensions(i)
+  if w == max_width and h == max_height:
+    # Nothing to do
+    return
+  else:
+    if options.dryrun:
+      return
+    if options.scale:
+      scale(i)
+      pad(i)
+    else:
+      pad(i)
+
+if len(ins) == 0:
+  print("I need at least one argument")
+  sys.exit(1)
+
+print("Looking for maximum dimensions...")
+for i in ins:
+  (width, height) = util.get_image_dimensions(i)
+  sys.stdout.write(str(width) + "x" + str(height))
+  sys.stdout.flush()
+  if width > max_width:
+    max_width = width
+    max_width_file = i
+    sys.stdout.write(" <- new max width")
+    sys.stdout.flush()
+  if height > max_height:
+    max_height = height
+    max_height_file = i
+    sys.stdout.write(" <- new max height")
+    sys.stdout.flush()
+  sys.stdout.write("\n")
+print("Found max width in " + max_width_file + " and height in " + max_height_file)
+
+n_cpus = multiprocessing.cpu_count()
+pool = ThreadPool(n_cpus)
+results = pool.map(process_one_image, ins)

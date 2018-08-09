@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+pic = sys.argv[1]
+backup = pic + ".bup"
+
+command = "convert -rotate 90"
+
+os.system("cp " + pic + " " + backup)
+#print(command + " " + pic + " " + pic + "...")
+os.system(command + " " + pic + " " + pic)

@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+img = sys.argv[1]
+bup = img + ".bup"
+
+os.system("cp " + img + " " + bup)
+os.system("convert " + bup + \
+    " -bordercolor white -border 1x1 -fuzz 15% -trim +repage " + img)

@@ -1,0 +1,63 @@
+#!/usr/bin/python
+
+import os
+import random
+import string
+import sys
+import util
+
+# TODO: tiny bit of lambda magic to replace this
+def get_next_bounds(arrays):
+  print(arrays)
+  widths = [r[0] for r in arrays]
+  widths = sorted(widths)
+  retval = []
+  for r in arrays:
+    if r[0] == widths[0]:
+      retval.append(r[1])
+  for r in arrays:
+    if r[0] == widths[1]:
+      retval.append(r[1])
+  return (min(retval), max(retval))
+
+pic = sys.argv[1]
+backup = pic + ".bup"
+
+MAX_ANGLE_TO_TRY_DEGREES = 8
+PRECISION = 0.001
+
+(base, ext) = os.path.splitext(pic)
+to_clean = []
+
+high = MAX_ANGLE_TO_TRY_DEGREES
+low = -high
+
+interval = 1
+while interval > PRECISION:
+  c = low
+  results = []
+  while c < high:
+    print(str(c))
+    rotated = base + "-" + str(c) + ext
+    random_name = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(5))
+    tmp = "tmp_" + random_name + ".png"
+    os.system("convert -rotate " + str(c) + " " + pic + " " + rotated)
+    os.system("convert " + rotated + \
+        " -bordercolor white -border 1x1 -fuzz 3% -trim +repage " + tmp)
+    to_clean.append(rotated)
+    to_clean.append(tmp)
+    (w, h) = util.get_image_dimensions(tmp)
+    results.append([w + h, c])
+    c = c + interval
+  (low, high) = get_next_bounds(results)
+  print("Low " + str(low) + ", high " + str(high))
+  interval = float(interval) / 10.0
+  print("Now interval " + str(interval))
+
+print("Final low is " + str(low))
+os.system("mv " + base + "-" + str(low) + ext + \
+    " " + base + "-autorotated" + ext)
+
+for t in to_clean:
+  if os.path.exists(t):
+    os.system("rm " + t)
