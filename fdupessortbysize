@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+
+import subprocess
+import sys
+
+NUMBER_OF_ENTRIES_TO_SHOW = 20
+
+def size_key(item):
+  return item['size']
+
+print("Checking...")
+output = subprocess.check_output(["fdupes", "-rS", "."]).decode()
+
+groups = output.split("\n\n")
+entries = []
+
+for el in groups:
+  parts = el.split("\n")
+  if len(parts) < 3:
+    continue
+  if not "bytes each" in parts[0]:
+    continue
+  new_entry = {
+    'size': int(parts[0][:-len(' bytes each:')]),
+    'files': [parts[1], parts[2]]
+  }
+  files = new_entry['files']
+  if ".dropbox.cache" in files[0] or '.dropbox.cache' in files[1]:
+    continue
+    # Dupes are expected between BW and Goomics.
+  if "bonkersworld" in files[0] and 'goomics' in files[1]:
+    continue
+  if "bonkersworld" in files[1] and 'goomics' in files[0]:
+    continue
+  if "life_perfumes_data" in files[0] and 'life_perfumes_simultaneous_data' in files[1]:
+    continue
+  if "life_perfumes_data" in files[1] and 'life_perfumes_simultaneous_data' in files[0]:
+    continue
+
+  entries.append(new_entry)
+
+entries.sort(key=size_key, reverse=True)
+
+n_to_show = min(len(entries), NUMBER_OF_ENTRIES_TO_SHOW)
+if n_to_show == 0:
+  print("Nothing to show")
+  sys.exit(0)
+displayed_entries = 0
+for entry in entries:
+    print(str(int(entry['size'] / (1024 * 1024))) + "M:")
+    print("\t" + entry['files'][0])
+    print("\t" + entry['files'][1])
+    displayed_entries += 1
+    if displayed_entries >= n_to_show:
+      break
+
+print("(Only showing 20 biggest entries)")

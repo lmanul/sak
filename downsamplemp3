@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+rate = sys.argv[1]
+mp3 = sys.argv[2]
+bup = mp3.replace(".mp3", ".mp3.bup")
+
+os.system("mv " + mp3 + " " + bup)
+os.system("lame --mp3input -b " + rate + " " + bup + " " + mp3)

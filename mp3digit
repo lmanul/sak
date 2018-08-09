@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+
+=head1
+
+Le problème de mp3rename, c'est qu'il renomme les pistes en "1", "2", 
+..., "9", "10", etc. et donc que le 10 vient avant le 1 par ordre 
+alphabétique. Ce script remplace les chaînes "__X__" par "__0X__" 
+partout dans le répertoire courant. Il a besoin de "sub" pour 
+fonctionner.
+
+=cut
+
+
+$commande = "sub __1__ __01__ ; sub __2__ __02__ ; sub __3__ __03__ ;"
+		  . "sub __4__ __04__ ; sub __5__ __05__ ; sub __6__ __06__ ;" 
+		  . "sub __7__ __07__ ; sub __8__ __08__ ; sub __9__ __09__";
+
+system $commande;

@@ -1,0 +1,149 @@
+#!/usr/bin/python
+
+import multiprocessing
+import os
+import random
+import subprocess
+import sys
+
+from multiprocessing.dummy import Pool as ThreadPool
+
+n_cpus = multiprocessing.cpu_count()
+all_mp3_files = []
+all_genres = {}
+all_jpg_files = []
+all_pdf_files = []
+unknown_files = []
+missing_cover_art = []
+unknown_tags = []
+pool = ThreadPool(n_cpus)
+
+def silent(command):
+  os.system(command + " > /dev/null 2> /dev/null")
+
+for root, dirs, files in os.walk("."):
+  for file in sorted(files):
+    full_file = os.path.join(root, file)
+    if file.endswith(".mp3"):
+      all_mp3_files.append(full_file)
+      #print(full_file)
+    elif file.endswith(".jpg"):
+      all_jpg_files.append(full_file)
+    elif file.endswith(".pdf"):
+      all_pdf_files.append(full_file)
+    else:
+      if not full_file.endswith("todo.txt") and not full_file.endswith("README.txt"):
+        unknown_files.append(full_file)
+
+def remove_tag_if_present(tag_to_remove, all_tags, f):
+  if tag_to_remove + " " in all_tags:
+    silent('id3v2 -r "' + tag_to_remove + '" "' + f + '"')
+    sys.stderr.write("x")
+
+def get_genre(all_tags):
+  lines = all_tags.split("\n")
+  for l in lines:
+    if l.startswith("TCON"):
+      parts = l.split(":")
+      genre = parts[1].strip()
+      return genre
+  return "Unknown"
+
+def file_has_cover_img(f):
+  all_tags = subprocess.check_output(["id3v2", "-l", f])
+  return ("APIC " in all_tags)
+
+def try_to_fill_cover_from_siblings(f):
+  d = os.path.dirname(f)
+  all_sibling_mp3s = [os.path.join(d, m) for m in os.listdir(d) if m.endswith(".mp3")]
+  for m in all_sibling_mp3s:
+    if file_has_cover_img(m):
+      os.system("eyeD3 --write-images=" + d + " " + m + " > /dev/null")
+      produced_imgs = [i for i in os.listdir(d) if i.endswith(".jpg")]
+      if len(produced_imgs) > 0:
+        current = os.getcwd()
+        os.chdir(d)
+        os.system("mv " + produced_imgs[0] + " cover.jpg")
+        process_cover_image(d)
+        if len(produced_imgs) > 1:
+          os.system("rm " + " ".join(produced_imgs[1:]))
+        os.system("rm *.jpg")
+        os.chdir(current)
+      return
+
+def process_cover_image(directory):
+  mp3_siblings = [os.path.join(directory, m) for m in os.listdir(directory) if m.endswith(".mp3")]
+  if len(mp3_siblings) == 0:
+    return
+  siblings_all_have_pic = True
+  for m in mp3_siblings:
+    if not file_has_cover_img(m):
+      siblings_all_have_pic = False
+  if siblings_all_have_pic:
+    print("Removing '" + f + "' since all siblings have their cover set.")
+    os.system("rm '" + f + "'")
+  else:
+    for m in mp3_siblings:
+      if not file_has_cover_img(m):
+        cmd = "eyeD3 --add-image '" + f + "':FRONT_COVER '" + m + "'"
+        os.system(cmd)  
+
+def process_one_file(f):
+  sys.stderr.write(".")
+  sys.stderr.flush()
+  all_tags = subprocess.check_output(["id3v2", "-l", f])
+  remove_tag_if_present("COMM", all_tags, f) # Comment
+  remove_tag_if_present("TPE2", all_tags, f) # Album artist
+  remove_tag_if_present("TCOP", all_tags, f) # Copyright
+  remove_tag_if_present("TENC", all_tags, f) # Encoded by
+  if "No ID3v1" not in all_tags:
+    # Delete v1 tags
+    silent('id3v2 -s ' + f)
+    sys.stderr.write("x (" + f + ") ")
+  if "APIC " not in all_tags:
+    missing_cover_art.append(f)
+    #try_to_fill_cover_from_siblings(f)
+  if "Unknown" in all_tags or "unknown" in all_tags:
+    unknown_tags.append(f)
+  genre = get_genre(all_tags)
+  if genre not in all_genres:
+    all_genres[genre] = []
+  all_genres[genre].append(f)
+
+results = pool.map(process_one_file, all_mp3_files)
+
+for f in all_jpg_files:
+  d = os.path.dirname(f)
+  n = os.path.basename(f)
+  if n == "cover.jpg":
+    process_cover_image(d)
+  else:
+    all_sibling_jpgs = [os.path.join(d, j) for j in os.listdir(d) if j.endswith(".jpg")]
+    if len(all_sibling_jpgs) == 1:
+      print("Only one JPEG file")
+      os.system("mv '" + f + "' " + os.path.join(d, "cover.jpg"))
+    else:
+      print("Found jpg file not called 'cover.jpg': " + f)
+
+if len(unknown_tags) > 0:
+  print("\n" + str(len(unknown_tags)) + " files with unknown tags: " + str(unknown_tags))
+
+if len(unknown_files) > 0:
+  print("Unknown files: " + str(unknown_files))
+
+random_indices = []
+for i in range(10):
+  random_indices.append(int(random.random() * len(missing_cover_art)))
+if len(missing_cover_art) > 0:
+  percent_missing = 100 * (float(len(missing_cover_art)) / float(len(all_mp3_files)))
+  print("\n" + str(len(missing_cover_art)) + \
+    " files (" + str(percent_missing) + "%) are missing cover art, a few random: ")
+  for random_index in random_indices:
+    print(missing_cover_art[random_index])
+else:
+  print("All files have embedded cover art, yay!")
+
+print("Encountered genres: ")
+for g in all_genres:
+  print(g + " (" + str(len(all_genres[g])) + " files, e.g. " + all_genres[g][0] + ")")
+print("\n" + str(len(all_mp3_files)) + " mp3 files total.")

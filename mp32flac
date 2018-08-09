@@ -1,0 +1,10 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+mp3 = sys.argv[1]
+flac = mp3.replace("mp3", "flac")
+flac = flac.replace("MP3", "flac")
+
+os.system("ffmpeg -i " + mp3 + " " + flac)

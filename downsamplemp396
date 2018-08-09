@@ -1,0 +1,10 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+file = sys.argv[1]
+bup = file + ".bup"
+
+os.system("mv " + file + " " + bup)
+os.system("lame --mp3input -b 96 " + bup + " " + file)
