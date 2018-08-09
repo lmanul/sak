@@ -1,0 +1,41 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+leftToRight = True
+
+src = sys.argv[1]
+(width, height) = util.get_pdf_dimension(src)
+
+os.system("convert xc:none -page " + str(width) + "x" + str(height) + " blank.pdf")
+
+n_pages = util.get_pdf_pages(src)
+n_blank_pages_to_add = n_pages % 4
+n_pages = n_pages + n_blank_pages_to_add
+n_sheets = int(n_pages / 4)
+print("Sheets: " + str(n_sheets))
+
+padded_file = src.replace(".pdf", "-padded.pdf")
+pad_command = "pdftk A=" + src + " B=blank.pdf cat A "
+for i in range(n_blank_pages_to_add):
+  pad_command = pad_command + "B "
+pad_command = pad_command + "output " + padded_file
+os.system(pad_command)
+
+pages = ""
+for i in range(1, n_sheets + 1):
+  pages += " ".join([str(p) for p in [
+    2 * i - 1 + int(n_pages / 2),
+    2 * i - 1,
+    2 * i,
+    2 * i + int(n_pages / 2),
+  ]]) + " "
+print(pages)
+
+final_file = src.replace(".pdf", "-booktoslice.pdf")
+command = "pdftk " + padded_file + " cat " + pages + " output " + final_file
+os.system(command)
+
+os.system("pdfnup --nup 2x1 " + final_file)

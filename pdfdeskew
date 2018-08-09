@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+tmp_dir = "tmp_pdfdeskew"
+pdf = sys.argv[1]
+bup = pdf + ".bup"
+src = "src.pdf"
+
+os.mkdir(tmp_dir)
+os.system("cp " + pdf + " " + os.path.join(tmp_dir, src))
+os.system("mv " + pdf + " " + bup)
+os.chdir(tmp_dir)
+
+os.system("pdfimages " + src)
+
+os.chdir("extracted")
+imgs = [i for i in os.listdir(".")]
+
+deskew = os.path.join(os.path.expanduser("~"), "bus", "bin", "imgdeskew")
+
+os.system("map " + deskew + " " + " ".join(imgs))
+os.system("rm *.bup")
+mkpdf = os.path.join(os.path.expanduser("~"), "bus", "bin", "mkpdffromimgs")
+os.system(mkpdf + " *")
+os.system("mv output.pdf ../../" + pdf)
+os.chdir("../..")
+os.system("rm -rf " + tmp_dir)

@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+pdf = sys.argv[2]
+pattern = sys.argv[1]
+
+os.system("pdftk " + pdf + " output uncompressed.pdf uncompress")
+os.system("grep '" + pattern + "' uncompressed.pdf")
+os.system("rm uncompressed.pdf")

@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+pdf = sys.argv[1]
+rasterized = pdf.replace(".pdf", "_rasterized.pdf")
+
+n_pages = util.get_pdf_pages(pdf)
+
+for i in range(n_pages):
+  if not os.path.exists("rasterized"):
+    os.mkdir("rasterized")
+  os.system("convert -density 600 " + pdf + "[" + str(i) + "] rasterized/" + \
+      str(i).zfill(5) + ".jpg")
+os.chdir("rasterized")
+os.system("mkpdffromimgs *.jpg")
+os.system("mv output.pdf ../" + rasterized)

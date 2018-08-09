@@ -1,0 +1,9 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+pdf = sys.argv[1]
+jpg = pdf.replace(".pdf", ".jpg")
+
+os.system("convert " + pdf + "[0] " + jpg)

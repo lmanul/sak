@@ -1,0 +1,43 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+pdf = sys.argv[1]
+basename = pdf[:-4]
+
+print "Extracting images from PDF..."
+command = "~/bus/bin/pdfimages " + pdf
+print (command)
+os.system(command)
+os.system("mv extracted " + basename)
+os.chdir(basename)
+
+print "Renaming image files..."
+os.system("sanitizefilenames * > /dev/null")
+
+hasPpm = False
+files = [f for f in os.listdir('.') if os.path.isfile(f)]
+for f in files:
+  if f.endswith('.ppm'):
+    hasPpm = True
+    break
+
+if (hasPpm):
+  print "Converting all PPM files..."
+  os.system("map mkjpg *.ppm")
+
+  print "Removing PPM files..."
+  os.system("rm -f *.ppm")
+
+print "Creating ZIP archive..."
+os.chdir("..")
+os.system("zip -q -r " + basename + ".zip " + basename)
+
+os.system("mv " + basename + ".zip " + basename + ".cbz")
+
+print "Cleaning up..."
+
+os.system("rm -rf " + basename)
+
+print "All done!"

@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+
+pdf = sys.argv[1]
+jpg = pdf.replace(".pdf", ".jpg")
+
+n_pages = util.get_pdf_pages(pdf)
+os.system("convert " + pdf + "[" + str(n_pages - 1) + "] " + jpg)

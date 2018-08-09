@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+pdf = sys.argv[1]
+tmppdf = pdf + ".rotated"
+
+os.system("pdftk " + pdf + " cat 1-endwest output " + tmppdf)
+
+os.system("evince -s " + tmppdf + " 2> /dev/null > /dev/null")
+
+os.system("rm " + tmppdf)

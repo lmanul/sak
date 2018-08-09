@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+src = sys.argv[1]
+bup = src + ".bup"
+page = int(sys.argv[2])
+
+(width, height) = util.get_pdf_dimension(src)
+n_pages = util.get_pdf_pages(src)
+
+os.system("convert xc:none -page " + str(width) + "x" + str(height) + " blank.pdf")
+
+os.system("mv " + src + " " + bup)
+
+if page == 1:
+  cat_argument = "cat A1 B A2-end"
+elif page == n_pages:
+  cat_argument = "cat A B"
+else:
+  cat_argument = "cat A1-" + str(page) + " B A" + str(page + 1) + "-end"
+
+os.system("pdftk A=" + bup + " B=blank.pdf " + cat_argument + " output " + src)
+
+os.system("rm blank.pdf")

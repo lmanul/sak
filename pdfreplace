@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+pdf = sys.argv[2]
+bup = pdf.replace(".pdf", ".pdf.bup")
+pattern = sys.argv[1]
+
+os.system("pdftk " + pdf + " output uncompressed.pdf uncompress")
+os.system("sed -e '" + pattern + "' <uncompressed.pdf > modified.pdf")
+os.system("mv " + pdf + " " + bup)
+os.system("pdftk modified.pdf output " + pdf + " compress")

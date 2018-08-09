@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+if ".pdf" in sys.argv[1]:
+  pdf = sys.argv[1]
+  page = int(sys.argv[2])
+elif ".pdf" in sys.argv[2]:
+  pdf = sys.argv[2]
+  page = int(sys.argv[1])
+
+jpg = pdf.replace(".pdf", "_page_" + str(page) + ".jpg")
+
+os.system("convert " + pdf + "[" + str(page - 1) + "] " + jpg)
