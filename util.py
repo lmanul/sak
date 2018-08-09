@@ -25,3 +25,11 @@ def get_pdf_pages(pdf_path):
       value = l.replace("Pages:", "").strip()
       return int(value)
 
+# Returns the amount of RAM in gigabytes
+def get_ram_gb():
+  output = subprocess.check_output(shlex.split("free -g")).decode()
+  lines = output.split("\n")
+  for l in lines:
+    if l.startswith("Mem:"):
+      parsed = re.match(r"Mem:\s+([\d]+)\s+.*", l)
+      return int(parsed.group(1))
