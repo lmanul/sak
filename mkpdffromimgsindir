@@ -1,0 +1,36 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+dir = sys.argv[1]
+print "Making PDF from JPGs in " + dir
+
+os.chdir(dir)
+os.system("sanitizefilenames")
+os.system("sub JPG jpg")
+os.system("sub JPEG jpg")
+os.system("sub jpeg jpg")
+os.system("sub PNG png")
+
+pdfs = []
+images = os.listdir(".")
+images.sort()
+for img in images:
+	if not img.endswith(".jpg") and not img.endswith(".png"):
+		continue
+	print "Converting " + img + "..."
+	pdf = img.replace('.jpg', '.pdf')
+	pdf = pdf.replace('.png', '.pdf')
+	os.system("convert " + img + " " + pdf)
+	pdfs.append(pdf)
+allPdfs = " ".join(pdfs)
+print "Joining all PDFs..."
+os.system("pdftk " + allPdfs + " cat output output.pdf")
+print "Deleting temporary files..."
+for pdf in pdfs:
+	os.system("rm " + pdf)
+
+os.system("mv output.pdf ../" + dir + ".pdf")
+os.chdir("..")
+print "All done!"

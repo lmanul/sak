@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+i = sys.argv[1]
+
+last_dot = i.rfind(".")
+pdf = i[:last_dot] + ".pdf"
+#print(i + " -> " + pdf)
+os.system("convert " + i + " " + pdf)

@@ -1,0 +1,23 @@
+#!/usr/bin/python
+
+import os
+import random
+
+home = os.path.expanduser("~")
+directory = os.path.join(home, "Dropbox", "mobile", "reference", "wallpapers")
+wallpapers = [os.path.join(directory, f) for f in os.listdir(directory)]
+
+index = random.randint(0, len(wallpapers) - 1)
+selected_wallpaper = wallpapers[index]
+desktop_session = os.environ["DESKTOP_SESSION"].lower()
+
+if desktop_session == 'xubuntu':
+  command = "xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -s " + selected_wallpaper
+elif desktop_session == 'cinnamon':
+  command = 'gsettings set org.cinnamon.background picture-uri  "file:///%s"' % selected_wallpaper
+else:
+  # ubuntu-2d
+  # lubuntu (TODO, probably won't work)
+  command = "gsettings set org.gnome.desktop.background picture-uri \"file://" + selected_wallpaper + "\""
+
+os.system(command)

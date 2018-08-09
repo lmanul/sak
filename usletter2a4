@@ -1,0 +1,9 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+pdf = sys.argv[1]
+a4 = pdf.replace(".pdf", "_a4.pdf")
+
+os.system("pdfjam --outfile " + a4 + " --paper a4paper " + pdf)

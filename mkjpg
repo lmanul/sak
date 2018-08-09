@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+i = sys.argv[1]
+
+args = "-background white -flatten"
+
+if i.endswith(".pdf"):
+  args += " -density 600"
+
+last_dot = i.rfind(".")
+jpg = i[:last_dot] + ".jpg"
+
+if i.endswith(".webp"):
+  os.system("dwebp " + i + " -o " + jpg)
+else:
+  os.system("convert " + args + " " + i + " " + jpg)

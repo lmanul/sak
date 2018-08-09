@@ -1,0 +1,21 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+command = ""
+for file in sys.argv[1:]:
+  basename = os.path.splitext(file)[0]
+  png = basename + ".png"
+  if file.endswith("xcf"):
+    command = "xcf2png " + file + " > " + png
+  elif file.endswith(".pdf"):
+    command = "convert -density 600 " + file + " " + png
+  else:
+    command = "convert " + file + " " + png
+  #print command + "..."
+  os.system(command)
+  # Handle potential multiple pages.
+  #command = "optipng " + basename + "*.png"
+  #print command + "..."
+  #os.system(command)
