@@ -1,0 +1,33 @@
+#!/usr/bin/python3
+
+import os
+import shlex
+import subprocess
+
+exceptions_to_keep = ["SNAX", "Google", "Google-A", "GoogleGuest", "Off-Corp Wired"]
+
+deleted = 0
+os.system("nmcli radio wifi off")
+
+raw = subprocess.check_output(shlex.split("nmcli con")).decode()
+lines = raw.split("\n")
+offset = lines[0].index("UUID")
+
+for l in lines[1:]:
+  i = offset
+  if len(l) > 1:
+    while l[i] != " ":
+      i += 1
+    uuid = l[offset:i]
+    delete = True
+    for e in exceptions_to_keep:
+      if l.startswith(e):
+        delete = False
+        break
+    if delete:
+      os.system("nmcli connection delete " + uuid)
+      deleted += 1
+
+os.system("nmcli radio wifi on")
+
+print("Deleted " + str(deleted) + " saved connection(s).")

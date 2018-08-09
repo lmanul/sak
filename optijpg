@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+for imageName in sys.argv[1:]:
+  optimizedTemp = imageName + ".opti"
+  #print "Optimizing " + imageName
+  os.system("jpegtran -copy none -optimize " + imageName + " > " + optimizedTemp + \
+      " && rm -f " + imageName + " && mv " + optimizedTemp + " " + imageName)
+

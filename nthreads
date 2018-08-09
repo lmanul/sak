@@ -1,0 +1,8 @@
+#!/usr/bin/python3
+
+import multiprocessing
+
+from multiprocessing.dummy import Pool as ThreadPool
+
+n_cpus = multiprocessing.cpu_count()
+print("I can see " + str(multiprocessing.cpu_count()) + " parallel thread executors")

@@ -1,0 +1,23 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import sys
+import time
+
+LINE_WIDTH = 80
+
+first_time = True
+while True:
+  msg = subprocess.check_output(["dropbox", "status"]).decode("utf-8")
+  lines = msg.split("\n")
+
+  lines = [l for l in lines if l.strip() != ""]
+
+  sys.stdout.write('\r')
+  to_write = " - ".join(lines)
+  if len(to_write) > LINE_WIDTH:
+    to_write = to_write[:LINE_WIDTH - 3] + "..."
+  sys.stdout.write(to_write)
+  sys.stdout.write(" " * (LINE_WIDTH - len(to_write)))
+  time.sleep(0.3)

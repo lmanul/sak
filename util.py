@@ -33,3 +33,31 @@ def get_ram_gb():
     if l.startswith("Mem:"):
       parsed = re.match(r"Mem:\s+([\d]+)\s+.*", l)
       return int(parsed.group(1))
+
+def sanitize_for_filename(input):
+  output = ""
+  for c in input:
+    next = ""
+    if c in [
+      " ", "(", ")", ",", ";", ":", "?", "!", "-", "'", "\"", "/", "|",
+      "[", "]", "&",
+    ]:
+      if output[-1:] != "_":
+        next = "_"
+    elif ord(c) < 128:
+      next += c
+    elif c in ["é", "è", "ê", "ë"]:
+      next = "e"
+    elif c in ["à", "á", "â"]:
+      next = "a"
+    output += next
+    if len(output) > 256:
+      break
+  if output[-1:] in ["_", "."]:
+    output = output[:-1]
+  if output[0] in ["_"]:
+    output = output[1:]
+  output = output.replace("._", "_")
+  output = output.replace("_.", ".")
+  return output
+

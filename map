@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+
+import multiprocessing
+import os
+import sys
+
+from multiprocessing.dummy import Pool as ThreadPool
+
+command = sys.argv[1]
+n_args = len(sys.argv) - 2
+n_cpus = multiprocessing.cpu_count()
+# Leave one CPU for doing some other stuff
+n_threads = n_cpus - 1
+
+if n_args < 1:
+  print("I need at least one argument in addition to the command")
+  sys.exit(0)
+
+print("Running command " + command + " on " + str(n_args) + " arguments with " + str(n_threads) + " threads")
+
+pool = ThreadPool(n_threads)
+
+def process(the_file):
+  sys.stdout.write(".")
+  sys.stdout.flush()
+  #print(command + " " + the_file + "...")
+  os.system(command + " " + the_file)
+
+results = pool.map(process, sys.argv[2:])

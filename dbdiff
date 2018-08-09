@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+
+def diff_one_dir(directory):
+  if directory != ".":
+    os.chdir(directory)
+  if not os.path.exists("index.txt"):
+    print("No index.txt in " + os.getcwd() + ", skipping")
+    if directory != ".":
+      os.chdir("..")
+    return
+  os.system("find . | sort > new_index.txt")
+  os.system("sed -i '/.\/new_index.txt/d' new_index.txt")
+  os.system("diff -u index.txt new_index.txt")
+  os.system("rm new_index.txt")
+  if directory != ".":
+    os.chdir("..")
+
+if os.path.exists("index.txt"):
+  diff_one_dir(".")
+else:
+  all_dirs = [d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")]
+  for d in all_dirs:
+    diff_one_dir(d)
