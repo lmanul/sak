@@ -25,6 +25,15 @@ def get_pdf_pages(pdf_path):
       value = l.replace("Pages:", "").strip()
       return int(value)
 
+# Returns the dimensions of the given PDF file
+def get_pdf_dimension(pdf_path):
+  output = subprocess.check_output(["pdfinfo", pdf_path]).decode()
+  lines = output.split("\n")
+  for l in lines:
+    if "Page size:" in l:
+      parsed = re.match(r".*:\s+([\d\.]+)\s+x\s+([\d\.]+)\s+.*", l)
+      return (float(parsed.group(1)), float(parsed.group(2)))
+
 # Returns the amount of RAM in gigabytes
 def get_ram_gb():
   output = subprocess.check_output(shlex.split("free -g")).decode()
@@ -61,3 +70,21 @@ def sanitize_for_filename(input):
   output = output.replace("_.", ".")
   return output
 
+def get_date_prefix():
+  now = datetime.datetime.now()
+  return str(now.year) + "." + str(now.month).zfill(2) + "." + str(now.day).zfill(2)
+
+# TODO: this is a duplicate of what's in 'bus'
+def run_bin_cmd(cmd, args=None):
+  p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
+  sak_p = os.path.join(os.path.expanduser("~"), "repos", "sak", cmd)
+  if not os.path.exists(p) and not os.path.exists(sak_p):
+    print("Couldn't find '" + cmd + "', sorry!")
+    sys.exit(1)
+  good_path = p
+  if not os.path.exists(good_path):
+    good_path = sak_p
+  if args:
+    os.system(good_path + " " + args)
+  else:
+    os.system(good_path)
