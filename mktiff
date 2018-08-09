@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+file = sys.argv[1]
+
+partition = file.rpartition(".")
+tiff = partition[0] + ".tiff"
+print "" + file + " --> " + tiff
+
+os.system("convert " + file + " " + tiff)

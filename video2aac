@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+video = sys.argv[1]
+out = util.change_extension(video, "aac")
+
+os.system("ffmpeg -i " + video + " -vn -acodec copy " + out)
