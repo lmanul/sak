@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+flac = sys.argv[1]
+mp3 = flac.replace("flac", "mp3")
+mp3 = mp3.replace("FLAC", "mp3")
+
+os.system("flac -cd " + flac + " | lame -v -b 192 - " + mp3)
+
+#for f in *.flac; do flac -cd "$f" | lame -b 320 - "${f%.*}".mp3; done
