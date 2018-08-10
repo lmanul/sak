@@ -1,0 +1,134 @@
+#!/usr/bin/python3
+
+import os
+import re
+import shlex
+import subprocess
+import sys
+import util
+
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-b", "--bypass", action="store_true", help="Whether to bypass the copying of PDF", default=False)
+(options, args) = parser.parse_args()
+
+if len(args) != 1:
+  print("I need exactly one file to compile, but arguments were: " + str(args))
+  sys.exit(1)
+
+tex = args[0]
+log = tex.replace(".tex", ".log")
+pdf = tex.replace(".tex", ".pdf")
+
+latex = subprocess.Popen(shlex.split("pdflatex " + tex),
+  stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+
+
+#while True:
+#if outs:
+#  print("O: " + outs.decode())
+#if errs:
+#  print("E: " + errs.decode())
+#sleep(0.5)
+
+#log_lines = open(log, "r")
+
+#log_lines = open(log, 'r').readlines()
+#log_lines = []
+
+o_h = 0
+u_h = 0
+o_v = 0
+u_v = 0
+n_pages = 0
+undef_ref = False
+unavailable_fonts = False
+compile_errors = False
+
+page_number_regex = re.compile("\[(\d+)")
+current_page_number = 0
+u_h_pages = []
+o_h_pages = []
+u_v_pages = []
+o_v_pages = []
+
+while not latex.poll():
+  l = latex.stdout.readline().decode()
+  if l:
+    for match in page_number_regex.finditer(l):
+      current_page_number = str(int(match.group(1)))
+      sys.stdout.write(current_page_number + " ")
+      sys.stdout.flush()
+    maybe_problematic_lines = None
+    if l.startswith("!"):
+      compile_errors = True
+      os.system("rm *.aux")
+      break
+    if "in paragraph at lines" in l:
+      matches = re.match(".*graph at lines (\d+..\d+)", l)
+      if matches:
+        maybe_problematic_lines = str(matches.group(1))
+    if not maybe_problematic_lines:
+      maybe_problematic_lines = "?"
+    if l.startswith("Underfull \\hbox"):
+      u_h += 1
+      u_h_pages.append(current_page_number + "/" + maybe_problematic_lines)
+      sys.stdout.write("##Uh## ")
+      sys.stdout.flush()
+    if l.startswith("Overfull \\hbox"):
+      o_h += 1
+      o_h_pages.append(current_page_number + "/" + maybe_problematic_lines)
+      sys.stdout.write("##Oh## ")
+      sys.stdout.flush()
+    if l.startswith("Underfull \\vbox"):
+      u_v += 1
+      u_v_pages.append(current_page_number)
+      sys.stdout.write("##Uv## ")
+      sys.stdout.flush()
+    if l.startswith("Overfull \\vbox"):
+      o_v += 1
+      o_v_pages.append(current_page_number + "/" + maybe_problematic_lines)
+      sys.stdout.write("##Oh## ")
+      sys.stdout.flush()
+    if "There were undefined references" in l:
+      undef_ref = True
+    if "font shapes were not available" in l:
+      unavailable_fonts = True
+    if l.startswith("Output written on"):
+      matches = re.match(".*\((\d+).*\spages", l)
+      if matches:
+        n_pages = int(matches.group(1))
+  else:
+    break
+print("\n")
+
+total = o_h + u_h + o_v + u_v
+
+def print_one_report_line(name, number, pages):
+  details = ""
+  if len(pages) > 0:
+    details = " (" + ", ".join(pages) + ")"
+  print(name + ": " + str(number) + details)
+
+print_one_report_line("H Over",  o_h, o_h_pages)
+print_one_report_line("H Under", u_h, u_h_pages)
+print_one_report_line("V Over",  o_v, o_v_pages)
+print_one_report_line("V Under", u_v, u_v_pages)
+
+print("=============\n"
+      "Total  : " + str(total) + "\n"
+      "\n"
+      "" + str(n_pages) + " page(s)\n")
+
+if compile_errors:
+  print("!!! There were compilation errors !!!\n")
+if undef_ref:
+  print("Warning: undefined references.\n")
+if unavailable_fonts:
+  print("Warning: unavailable fonts.\n")
+
+if not options.bypass:
+  os.system("cp " + pdf + " " + pdf.replace(".pdf", "_stable.pdf"))
+
+latex.kill()
