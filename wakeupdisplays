@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system('for display in `ps aux | grep -oE "/usr/bin/X\s[^ ]+" | cut -d " " -f 2`; do xset -display $display dpms force on; done')
