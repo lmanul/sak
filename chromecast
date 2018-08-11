@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+
+import os
+import re
+import shlex
+import subprocess
+import sys
+import util
+import time
+
+CC_GROUPS = ["azabu", "jussieu", "mtw", "vanness"]
+
+if len(sys.argv) > 1:
+  cc_id = sys.argv[1]
+  if len(cc_id) == 1:
+    for group in CC_GROUPS:
+      if group[0] == cc_id:
+        cc_id = group + "_chromecast"
+        break
+  else:
+    cc_id = cc_id.replace(" ", "").lower() + "_chromecast"
+else:
+  cc_id = "everywhere_chromecast"
+#cc_id = "livingroom_chromecast"
+print("Connecting to " + cc_id + "...")
+
+if util.is_process_running("pulseaudio-dlna"):
+  print("Killing previous instance...")
+  os.system("killall pulseaudio-dlna")
+  time.sleep(0.3)
+print("Starting pulseaudio-dlna...")
+subprocess.Popen(shlex.split("pulseaudio-dlna --codec mp3 -p 8081 --encoder-backend=ffmpeg"))
+#subprocess.Popen(shlex.split("pulseaudio-dlna --codec mp3 -p 8081 --disable-ssdp-listener"))
+
+# Give everything time to connect
+time.sleep(3)
+
+sink_list = subprocess.check_output(shlex.split("pactl list short sinks")).decode("utf-8")
+sinks = []
+for l in sink_list.split("\n"):
+  parts = l.split("\t")
+  if len(parts) > 2:
+    sinks.append(parts[1])
+if cc_id not in sinks:
+   print("\n\nSorry, I couldn't find '" + cc_id + "'. Available sinks are " + str(sinks) + "\n\n")
+   os.system("killall pulseaudio-dlna")
+   time.sleep(1)
+   print("\n\n\n")
+   sys.exit(1)
+
+print("Setting default sink")
+os.system("pactl set-default-sink " + cc_id)
+
+inputs_raw = subprocess.check_output(shlex.split(
+    "pacmd list-sink-inputs")).decode("utf-8")
+
+print("Redirecting current streams...")
+for l in inputs_raw.split("\n"):
+  if "index" in l:
+    parsed = re.match(r".*index:\s+(\d+).*", l)
+    print("Ha: " + parsed.group(1))
+    os.system("pacmd move-sink-input " + parsed.group(1) + " " + cc_id)
+
+print("Setting default sink again")
+os.system("pactl set-default-sink " + cc_id)

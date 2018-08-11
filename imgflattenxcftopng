@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+xcf = sys.argv[1]
+png = xcf.replace(".xcf", ".png")
+
+command = "convert " + xcf + " -flatten -background transparent " + png
+print command + "..."
+os.system(command)
+
