@@ -20,6 +20,6 @@ for l in available_ssids_raw.split("\n"):
     candidate = candidate[1]
     if candidate != "" and candidate != "--":
       available_ssids.add(candidate)
-available_ssids_sorted = [s for s in available_ssids]
+available_ssids_sorted = ["'" + s + "'" for s in available_ssids]
 available_ssids_sorted.sort()
 print("Available: \n\n" + "\n".join(available_ssids_sorted))
