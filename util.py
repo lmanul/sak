@@ -74,6 +74,10 @@ def get_date_prefix():
   now = datetime.datetime.now()
   return str(now.year) + "." + str(now.month).zfill(2) + "." + str(now.day).zfill(2)
 
+def change_extension(f, new_ext):
+  last_dot = f.rfind(".")
+  return f[:last_dot] + "." + new_ext
+
 # TODO: this is a duplicate of what's in 'bus'
 def run_bin_cmd(cmd, args=None):
   p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
