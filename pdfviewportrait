@@ -8,6 +8,10 @@ tmppdf = pdf + ".rotated"
 
 os.system("pdftk " + pdf + " cat 1-endwest output " + tmppdf)
 
-os.system("evince -s " + tmppdf + " 2> /dev/null > /dev/null")
+os.system("gsettings set org.gnome.Evince.Default dual-page false")
+
+os.system("evince -f " + tmppdf + " 2> /dev/null > /dev/null")
+
+os.system("gsettings set org.gnome.Evince.Default dual-page true")
 
 os.system("rm " + tmppdf)
