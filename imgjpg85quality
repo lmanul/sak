@@ -9,3 +9,4 @@ bup = file + ".bup"
 
 #os.system("cp " + file + " " + bup)
 os.system("convert -quality 85 " + file + " " + file)
+os.system("optijpg " + file)
