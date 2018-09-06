@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import os
+import util
+
+(current, id) = util.get_current_brightness_and_display_id()
+
+if current < 1.0:
+  new = current + 0.1
+  os.system("xrandr --output " + id + " --brightness " + str(new))

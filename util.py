@@ -92,3 +92,18 @@ def run_bin_cmd(cmd, args=None):
     os.system(good_path + " " + args)
   else:
     os.system(good_path)
+
+def get_current_brightness_and_display_id():
+  raw = subprocess.check_output(shlex.split("xrandr --current --verbose")).decode()
+  current_display_id = ""
+  for l in raw.split("\n"):
+    if "connected" in l:
+      matches = re.match(r"(.+)\s+connected", l)
+      if matches:
+        current_display_id = matches.group(1)
+    if "Brightness" in l:
+      matches = re.match(r"\s*Brightness:\s+(.*)", l)
+      if matches:
+        brightness = float(matches.group(1))
+        return (brightness, current_display_id)
+  return None
