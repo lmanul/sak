@@ -26,4 +26,4 @@ def process(the_file):
   #print(command + " " + the_file + "...")
   os.system(command + " " + the_file)
 
-results = pool.map(process, sys.argv[2:])
+results = pool.map(process, sorted(sys.argv[2:]))
