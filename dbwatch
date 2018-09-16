@@ -1,14 +1,16 @@
 #!/usr/bin/python3
 
 import os
+import shutil
 import subprocess
 import sys
 import time
 
-LINE_WIDTH = 80
-
 first_time = True
 while True:
+  # Keep updating this, terminal may be resized.
+  cols = shutil.get_terminal_size().columns
+
   msg = subprocess.check_output(["dropbox", "status"]).decode("utf-8")
   lines = msg.split("\n")
 
@@ -16,8 +18,8 @@ while True:
 
   sys.stdout.write('\r')
   to_write = " - ".join(lines)
-  if len(to_write) > LINE_WIDTH:
-    to_write = to_write[:LINE_WIDTH - 3] + "..."
+  if len(to_write) > cols:
+    to_write = to_write[:cols - 3] + "..."
   sys.stdout.write(to_write)
-  sys.stdout.write(" " * (LINE_WIDTH - len(to_write)))
+  sys.stdout.write(" " * (cols - len(to_write)))
   time.sleep(0.3)
