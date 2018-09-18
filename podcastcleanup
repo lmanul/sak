@@ -72,9 +72,10 @@ for f in folders:
     if e != final_name:
       command = "mv '" + e + "' '" + final_name + "'"
       os.system(command)
-  #if "matins" in f:
-  #  if len(episodes) > 1:
-  #    os.system("rm " + " ".join(episodes[:-1]))
+  if "matins" in f.lower():
+    if len(episodes) > 1:
+      cmd = "rm " + " ".join(["'" + e + "'" for e in episodes[:-1]])
+      os.system(cmd)
 
   os.chdir("..")
   if len(episodes) == 0:

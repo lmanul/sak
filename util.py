@@ -78,8 +78,21 @@ def change_extension(f, new_ext):
   last_dot = f.rfind(".")
   return f[:last_dot] + "." + new_ext
 
-# TODO: this is a duplicate of what's in 'bus'
 def run_bin_cmd(cmd, args=None):
+  p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
+  sak_p = os.path.join(os.path.expanduser("~"), "repos", "sak", cmd)
+  if not os.path.exists(p) and not os.path.exists(sak_p):
+    print("Couldn't find '" + cmd + "', sorry!")
+    sys.exit(1)
+  good_path = p
+  if not os.path.exists(good_path):
+    good_path = sak_p
+  if args:
+    cmd = good_path + " " + args
+  else:
+    cmd = good_path
+  return subprocess.check_output(shlex.split(cmd)).decode()
+
   p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
   sak_p = os.path.join(os.path.expanduser("~"), "repos", "sak", cmd)
   if not os.path.exists(p) and not os.path.exists(sak_p):
