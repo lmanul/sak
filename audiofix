@@ -4,6 +4,10 @@ import os
 import util
 
 util.run_bin_cmd("killgrep", "mpd")
+
+os.chdir(os.path.expanduser("~"))
+os.system("rm -rf .pulse")
+
 os.system("killall pulseaudio")
 util.run_bin_cmd("setup")
 util.run_bin_cmd("hi")

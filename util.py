@@ -93,19 +93,6 @@ def run_bin_cmd(cmd, args=None):
     cmd = good_path
   return subprocess.check_output(shlex.split(cmd)).decode()
 
-  p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
-  sak_p = os.path.join(os.path.expanduser("~"), "repos", "sak", cmd)
-  if not os.path.exists(p) and not os.path.exists(sak_p):
-    print("Couldn't find '" + cmd + "', sorry!")
-    sys.exit(1)
-  good_path = p
-  if not os.path.exists(good_path):
-    good_path = sak_p
-  if args:
-    os.system(good_path + " " + args)
-  else:
-    os.system(good_path)
-
 def get_current_brightness_and_display_id():
   raw = subprocess.check_output(shlex.split("xrandr --current --verbose")).decode()
   current_display_id = ""
