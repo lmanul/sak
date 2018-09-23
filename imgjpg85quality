@@ -7,6 +7,18 @@ file = sys.argv[1]
 
 bup = file + ".bup"
 
-#os.system("cp " + file + " " + bup)
+os.system("cp " + file + " " + bup)
 os.system("convert -quality 85 " + file + " " + file)
 os.system("optijpg " + file)
+
+orig_size = os.path.getsize(bup)
+new_size = os.path.getsize(file)
+
+saved_percent = round((float(orig_size - new_size) / float(orig_size)) * 100, 1)
+
+sys.stdout.write("(" + str(saved_percent) + ")")
+
+if saved_percent > 5:
+  os.system("rm " + bup)
+else:
+  os.system("mv " + bup + " " + file)

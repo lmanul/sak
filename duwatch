@@ -1,0 +1,9 @@
+#!/usr/bin/python3
+
+import os
+import time
+
+while (True):
+  print("-------------------------------------")
+  os.system("du -hs * | sort -hr")
+  time.sleep(1)
