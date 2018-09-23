@@ -1,0 +1,18 @@
+#!/usr/bin/python3
+
+import os
+import re
+import subprocess
+import sys
+import util
+
+l = []
+
+initial_dir = os.getcwd()
+
+for root, dirs, files in os.walk("."):
+  for d in dirs:
+    os.chdir(os.path.join(root, d))
+    util.run_bin_cmd("sanitizefilenames")
+    os.chdir(initial_dir)
+
