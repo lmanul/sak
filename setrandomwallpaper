@@ -4,7 +4,7 @@ import os
 import random
 
 home = os.path.expanduser("~")
-directory = os.path.join(home, "Dropbox", "mobile", "reference", "wallpapers")
+directory = os.path.join(home, "Dropbox", "computer", "reference", "wallpapers")
 wallpapers = [os.path.join(directory, f) for f in os.listdir(directory)]
 
 index = random.randint(0, len(wallpapers) - 1)
