@@ -10,6 +10,6 @@ elif ".pdf" in sys.argv[2]:
   pdf = sys.argv[2]
   page = int(sys.argv[1])
 
-jpg = pdf.replace(".pdf", "_page_" + str(page) + ".jpg")
+jpg = pdf.replace(".pdf", "_page_" + str(page).zfill(5) + ".jpg")
 
-os.system("convert " + pdf + "[" + str(page - 1) + "] " + jpg)
+os.system("convert -density 600 " + pdf + "[" + str(page - 1) + "] " + jpg)

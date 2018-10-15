@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import sys
+import util
+
+pdf = sys.argv[1]
+pages = util.get_pdf_pages(pdf)
+
+for i in range(pages):
+  util.run_bin_cmd("pdfextractpage", pdf + " " + str(i + 1))
