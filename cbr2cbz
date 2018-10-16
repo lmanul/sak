@@ -1,0 +1,23 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+from os.path import expanduser
+
+home = expanduser("~")
+
+cbr = sys.argv[1]
+basename = cbr[:-4]
+cbz = basename + ".cbz"
+
+os.mkdir(basename)
+os.system("mv " + cbr + " " + basename)
+os.chdir(basename)
+os.system("unrar e " + cbr)
+util.run_bin_cmd("sanitizefilenames", "*")
+os.system("rm -rf " + cbr)
+os.chdir("..")
+os.system("zip -r " + cbz + " " + basename)
+os.system("rm -rf " + basename)
