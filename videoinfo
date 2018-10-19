@@ -7,4 +7,4 @@ import util
 video = sys.argv[1]
 
 if video.endswith(".mkv"):
-  os.ssytem("mkvmerge -i " + video)
+  os.system("mkvmerge -i " + video)
