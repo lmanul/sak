@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import os
+import re
+import shlex
+import subprocess
+import sys
+
+TRACK_ID_REGEXP = r"Track\s+ID\s+(.+)\:\s+.*"
+
+track = int(sys.argv[1])
+input = sys.argv[2]
+bup = input + ".bup"
+
+info = subprocess.check_output(shlex.split("mkvmerge -i " + input)).decode()
+
+subtitle_track_numbers = []
+for l in info.split("\n"):
+  if l.startswith("Track ID") and "subtitles" in l:
+    subtitle_track_numbers.append(int(re.match(TRACK_ID_REGEXP, l).group(1)))
+
+print("Subtitle tracks: " + str(subtitle_track_numbers))
+
+if track in subtitle_track_numbers:
+  print("Removing track " + str(track))
+  os.system("mv " + input + " " + bup)
+  os.system("mkvmerge -o " + input + " --subtitle-tracks !" + str(track) + " " + bup)
