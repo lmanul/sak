@@ -91,7 +91,13 @@ def run_bin_cmd(cmd, args=None):
     cmd = good_path + " " + args
   else:
     cmd = good_path
-  return subprocess.check_output(shlex.split(cmd)).decode()
+  process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
+  output = ""
+  for l in iter(process.stdout.readline, b''):
+    l = l.decode()
+    sys.stdout.write(l)
+    output += l
+  return output
 
 def get_current_brightness_and_display_id():
   raw = subprocess.check_output(shlex.split("xrandr --current --verbose")).decode()
