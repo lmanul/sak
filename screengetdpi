@@ -1,6 +1,12 @@
 #!/usr/bin/python3
 
 import util
+import sys
 
-dpis = util.get_screen_dpi()
+if len(sys.argv) > 1:
+  index = int(sys.argv[1])
+else:
+  index = None
+
+dpis = util.get_screen_dpi(index=index)
 print(str(dpis))

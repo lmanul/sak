@@ -114,7 +114,7 @@ def get_current_brightness_and_display_id():
         return (brightness, current_display_id)
   return None
 
-def get_screen_dpi():
+def get_screen_dpi(index=None):
   raw = subprocess.check_output(shlex.split("xrandr --listactivemonitors")).decode()
   dpis = []
   for i in range(10):
@@ -133,4 +133,7 @@ def get_screen_dpi():
         dpi = int(float((dpi_x + dpi_y) / 2))
         dpis.append(dpi)
 
-  return dpis
+  if index is not None:
+    return dpis[index]
+  else:
+    return dpis
