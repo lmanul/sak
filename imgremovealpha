@@ -2,9 +2,17 @@
 
 import os
 import sys
+import util
 
-img = sys.argv[1]
-bup = img + ".bup"
+png = sys.argv[1]
 
-os.system("cp " + img + " " + bup)
-os.system("convert -flatten " + bup + " " + img)
+if not png.endswith(".png"):
+  print("The given file is not PNG format")
+  sys.exit(1)
+
+bup = png + ".bup"
+
+os.system("cp " + png + " " + bup)
+
+command = "convert " + bup + " -background white -alpha remove " + png
+os.system(command)

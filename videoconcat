@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+videos = sys.argv[1:]
+
+cmd = "ffmpeg -i \"concat:" + "|".join(videos) + "\" -c copy output.mp4"
+print(cmd)
