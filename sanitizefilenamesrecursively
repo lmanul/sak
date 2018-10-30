@@ -12,7 +12,9 @@ initial_dir = os.getcwd()
 
 for root, dirs, files in os.walk("."):
   for d in dirs:
-    os.chdir(os.path.join(root, d))
-    util.run_bin_cmd("sanitizefilenames")
+    full_dir = os.path.join(root, d)
+    os.chdir(full_dir)
+    print("Sanitizing in " + full_dir + "...")
+    util.run_bin_cmd("sanitizefilenames", " ".join(["'" + f + "'" for f in os.listdir(".")]))
     os.chdir(initial_dir)
 
