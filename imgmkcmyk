@@ -1,0 +1,18 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+pic = sys.argv[1]
+
+if pic.endswith("png"):
+  print("The PNG format doesn't support CMYK")
+  sys.exit(1)
+
+backup = pic + ".bup"
+
+command = "convert -colorspace CMYK -profile ~/USWebCoatedSWOP.icc"
+
+os.system("cp " + pic + " " + backup)
+#print command + " " + pic + " " + pic + "..."
+os.system(command + " " + pic + " " + pic)
