@@ -24,10 +24,14 @@ pdf = tex.replace(".tex", ".pdf")
 latex = subprocess.Popen(shlex.split("pdflatex " + tex),
   stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 
-o_h = 0
-u_h = 0
-o_v = 0
-u_v = 0
+# Short name: regexp match, long name, count, pages
+fulls = {
+  "Uh": ["Underfull \\hbox", "H Under", 0, []],
+  "Uv": ["Underfull \\vbox", "V Under", 0, []],
+  "Oh": ["Overfull \\hbox",  "H Over",  0, []],
+  "Ov": ["Overfull \\vbox",  "V Over",  0, []],
+}
+
 n_pages = 0
 undef_ref = False
 unavailable_fonts = False
@@ -35,10 +39,6 @@ compile_errors = False
 
 page_number_regex = re.compile("\[(\d+)")
 current_page_number = 0
-u_h_pages = []
-o_h_pages = []
-u_v_pages = []
-o_v_pages = []
 
 while not latex.poll():
   l = latex.stdout.readline().decode()
@@ -58,26 +58,13 @@ while not latex.poll():
         maybe_problematic_lines = str(matches.group(1))
     if not maybe_problematic_lines:
       maybe_problematic_lines = "?"
-    if l.startswith("Underfull \\hbox"):
-      u_h += 1
-      u_h_pages.append(current_page_number + "/" + maybe_problematic_lines)
-      sys.stdout.write("##Uh## ")
-      sys.stdout.flush()
-    if l.startswith("Overfull \\hbox"):
-      o_h += 1
-      o_h_pages.append(current_page_number + "/" + maybe_problematic_lines)
-      sys.stdout.write("##Oh## ")
-      sys.stdout.flush()
-    if l.startswith("Underfull \\vbox"):
-      u_v += 1
-      u_v_pages.append(current_page_number)
-      sys.stdout.write("##Uv## ")
-      sys.stdout.flush()
-    if l.startswith("Overfull \\vbox"):
-      o_v += 1
-      o_v_pages.append(current_page_number + "/" + maybe_problematic_lines)
-      sys.stdout.write("##Oh## ")
-      sys.stdout.flush()
+    for f in fulls:
+      v = fulls[f]
+      if l.startswith(v[0]):
+        v[2] += 1
+        v[3].append(current_page_number + "/" + maybe_problematic_lines)
+        sys.stdout.write("##" + f + "## ")
+        sys.stdout.flush()
     if "There were undefined references" in l:
       undef_ref = True
     if "font shapes were not available" in l:
@@ -90,7 +77,9 @@ while not latex.poll():
     break
 print("\n")
 
-total = o_h + u_h + o_v + u_v
+total = 0
+for f in fulls:
+  total += fulls[f][2]
 
 def print_one_report_line(name, number, pages):
   details = ""
@@ -98,10 +87,9 @@ def print_one_report_line(name, number, pages):
     details = " (" + ", ".join(pages) + ")"
   print(name + ": " + str(number) + details)
 
-print_one_report_line("H Over",  o_h, o_h_pages)
-print_one_report_line("H Under", u_h, u_h_pages)
-print_one_report_line("V Over",  o_v, o_v_pages)
-print_one_report_line("V Under", u_v, u_v_pages)
+for f in fulls:
+  v = fulls[f]
+  print_one_report_line(v[1], v[2], v[3])
 
 print("=============\n"
       "Total  : " + str(total) + "\n"
