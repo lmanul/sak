@@ -83,7 +83,7 @@ while not latex.poll():
     if "font shapes were not available" in l:
       unavailable_fonts = True
     if l.startswith("Output written on"):
-      matches = re.match(".*\((\d+).*\spages", l)
+      matches = re.match(".*\((\d+).*\spages?", l)
       if matches:
         n_pages = int(matches.group(1))
   else:
