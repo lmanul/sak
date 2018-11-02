@@ -24,4 +24,5 @@ print("Audio tracks: " + str(audio_track_numbers))
 if track in audio_track_numbers:
   print("Removing track " + str(track))
   os.system("mv " + input + " " + bup)
-  os.system("mkvmerge -o " + input + " --audio-tracks !" + str(track) + " " + bup)
+  cmd = "mkvmerge -o " + input + " --audio-tracks !" + str(track) + " " + bup
+  os.system(cmd)
