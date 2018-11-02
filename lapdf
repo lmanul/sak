@@ -24,19 +24,6 @@ pdf = tex.replace(".tex", ".pdf")
 latex = subprocess.Popen(shlex.split("pdflatex " + tex),
   stderr=subprocess.PIPE, stdout=subprocess.PIPE)
 
-
-#while True:
-#if outs:
-#  print("O: " + outs.decode())
-#if errs:
-#  print("E: " + errs.decode())
-#sleep(0.5)
-
-#log_lines = open(log, "r")
-
-#log_lines = open(log, 'r').readlines()
-#log_lines = []
-
 o_h = 0
 u_h = 0
 o_v = 0
