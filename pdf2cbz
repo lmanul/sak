@@ -7,7 +7,7 @@ pdf = sys.argv[1]
 basename = pdf[:-4]
 
 print "Extracting images from PDF..."
-command = "~/bus/bin/pdfimages " + pdf
+command = "pdfimages " + pdf
 print (command)
 os.system(command)
 os.system("mv extracted " + basename)
