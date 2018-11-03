@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import os
+import util
+
+from optparse import OptionParser
+
+parser = OptionParser()
+(options, args) = parser.parse_args()
+
+cbz = args[0]
+bup = cbz + ".bup"
+os.system("cp " + cbz + " " + bup)
+base = cbz.replace(".cbz", "")
+os.system("unzip -d " + base + " " + cbz)
+os.chdir(base)
+util.run_bin_cmd("sanitizefilenames", "*")
+util.run_bin_cmd("sanitizefilenamesrecursively")
+os.system("mv */* .")
+
+util.run_bin_cmd("comicsplitvertically")
+os.system("rm *.bup")
+
+os.chdir("..")
+os.system("mkzip " + base)
+os.system("mv " + base + ".zip " + cbz)
+os.system("rm -rf " + base)
