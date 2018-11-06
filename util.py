@@ -92,7 +92,8 @@ def run_bin_cmd(cmd, args=None):
     cmd = good_path + " " + args
   else:
     cmd = good_path
-  process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
+  #print(cmd)
+  process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
   output = ""
   for l in iter(process.stdout.readline, b''):
     l = l.decode()

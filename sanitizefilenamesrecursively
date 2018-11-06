@@ -9,6 +9,7 @@ import util
 l = []
 
 initial_dir = os.getcwd()
+util.run_bin_cmd("sanitizefilenames", "*")
 
 for root, dirs, files in os.walk("."):
   for d in dirs:

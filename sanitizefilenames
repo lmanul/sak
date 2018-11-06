@@ -6,7 +6,7 @@ import subprocess
 import sys
 import util
 
-def renameAndMove(path):
+def rename_and_move(path):
   path = path.decode("utf-8")
   newName = ""
   dontModify = ""
@@ -37,8 +37,8 @@ for argument in sys.argv[1:]:
     #    filesToRename.append(os.path.join(argument, file))
 
 for file in filesToRename:
-  renameAndMove(file)
+  rename_and_move(file)
 
 for directory in dirsToRename:
-  renameAndMove(directory)
+  rename_and_move(directory)
 
