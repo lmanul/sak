@@ -68,6 +68,7 @@ def sanitize_for_filename(input):
     output = output[1:]
   output = output.replace("._", "_")
   output = output.replace("_.", ".")
+  output = output.replace("__", "_")
   return output
 
 def get_date_prefix():
