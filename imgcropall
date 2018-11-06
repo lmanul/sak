@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+pixels = int(sys.argv[1])
+f = sys.argv[2]
+
+bup = f + ".bupall"
+
+os.system("cp " + f + " " + bup)
+
+arg = str(pixels) + " " + f
+# TODO: Very inefficient. Do all four steps in just one.
+util.run_bin_cmd("imgcroptop", arg)
+util.run_bin_cmd("imgcropbottom", arg)
+util.run_bin_cmd("imgcropleft", arg)
+util.run_bin_cmd("imgcropright", arg)
+
+os.system("mv " + bup + " " + f + ".bup")
