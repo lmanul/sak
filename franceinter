@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("vlc http://direct.franceinter.fr/live/franceinter-midfi.mp3")
