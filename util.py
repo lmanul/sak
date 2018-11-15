@@ -189,3 +189,6 @@ def is_online():
   except Exception as ex:
     return False
 
+# Runs the given command and silence stdout and stderr.
+def silent(command):
+  os.system(command + " > /dev/null 2>&1")
