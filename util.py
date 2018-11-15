@@ -9,6 +9,37 @@ import socket
 import subprocess
 import sys
 
+def is_android():
+  uname = subprocess.check_output(["uname", "-a"]).decode('utf-8')
+  return uname.lower().find("android") != -1
+
+def is_mac():
+  uname = subprocess.check_output(["uname", "-a"]).decode('utf-8')
+  return uname.lower().find("darwin") != -1
+
+def is_linux():
+  uname = subprocess.check_output(["uname", "-a"]).decode('utf-8')
+  return uname.lower().find("linux") != -1
+
+def get_platform():
+  if is_android():
+    return "android"
+  if is_mac():
+    return "mac"
+  if is_linux():
+    return "linux"
+  return "unknown"
+
+# Returns whether a process containing the given name is running.
+def is_process_running(process):
+  s = subprocess.Popen(["ps", "axw"],stdout=subprocess.PIPE)
+  for x in s.stdout:
+    l = x.decode()
+    if re.search(process, l):
+      if not "defunct" in l:
+        return True
+  return False
+
 def get_image_dimensions(img):
   identify = subprocess.check_output(shlex.split("identify '" + img + "'")).decode().strip()
   parsed = re.match(r".*\s(\d+)x(\d+)\s.*", identify)
