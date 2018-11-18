@@ -101,9 +101,9 @@ def sanitize_for_filename(input):
   if output.endswith(".jpeg"):
     output = output.replace(".jpeg", ".jpg")
   if output.endswith(".JPG"):
-    output.replace(".JPG", ".jpg")
+    output = output.replace(".JPG", ".jpg")
   if output.endswith(".PNG"):
-    output.replace(".PNG", ".png")
+    output = output.replace(".PNG", ".png")
   output = output.replace("._", "_")
   output = output.replace("_.", ".")
   output = output.replace("__", "_")
