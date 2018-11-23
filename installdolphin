@@ -1,0 +1,7 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("sudo add-apt-repository ppa:dolphin-emu/ppa")
+os.system("sudo apt update")
+os.system("sudo apt install dolphin-emu")
