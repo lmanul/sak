@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+
+import os
+import subprocess
+import sys
+
+NUMBER_OF_ENTRIES_TO_SHOW = 20
+
+def size_key(item):
+  return item['size']
+
+print("Checking...")
+output = subprocess.check_output(["fdupes", "-rS", "."]).decode()
+
+groups = output.split("\n\n")
+entries = []
+
+for el in groups:
+  parts = el.split("\n")
+  if len(parts) < 3:
+    continue
+  if not "bytes each" in parts[0]:
+    continue
+  new_entry = {
+    'size': int(parts[0][:-len(' bytes each:')]),
+    'files': [parts[1], parts[2]]
+  }
+  files = new_entry['files']
+  entries.append(new_entry)
+
+entries.sort(key=size_key, reverse=True)
+
+for e in entries:
+  first = e['files'][0]
+  second = e['files'][1]
+  deletion_candidate = first
+  if len(second) > len(first):
+    deletion_candidate = second
+  print("\nSame files:")
+  print("\t" + first +  (" X" if first == deletion_candidate else ""))
+  print("\t" + second + (" X" if second == deletion_candidate else ""))
+  answer = input("--> Delete? [Enter] for Yes, n for No: ")
+  if answer.strip() == "":
+    print("Deleting")
+    os.system("rm " + deletion_candidate)
+  elif answer.strip() == "n":
+    print("Skipping")
+  else:
+    print("Not sure what that means. Skipping.")
