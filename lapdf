@@ -41,7 +41,11 @@ page_number_regex = re.compile("\[(\d+)")
 current_page_number = 0
 
 while not latex.poll():
-  l = latex.stdout.readline().decode()
+  l = latex.stdout.readline()
+  try:
+    l = l.decode()
+  except UnicodeDecodeError:
+    l = str(l)
   if l:
     for match in page_number_regex.finditer(l):
       current_page_number = str(int(match.group(1)))
