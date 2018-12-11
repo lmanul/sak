@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import os
 import shlex
 import subprocess
 
@@ -11,6 +12,7 @@ def collapse_spaces(s):
       final_parts.append(p)
   return " ".join(final_parts)
 
+os.system("nmcli device wifi rescan")
 available_ssids_raw = subprocess.check_output(
     shlex.split("nmcli --terse device wifi list")).decode()
 available_ssids = set()
