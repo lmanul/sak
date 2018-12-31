@@ -11,15 +11,15 @@ import sys
 
 def is_android():
   uname = subprocess.check_output(["uname", "-a"]).decode('utf-8')
-  return uname.lower().find("android") != -1
+  return "android" in uname.lower()
 
 def is_mac():
   uname = subprocess.check_output(["uname", "-a"]).decode('utf-8')
-  return uname.lower().find("darwin") != -1
+  return "darwin" in uname.lower()
 
 def is_linux():
   uname = subprocess.check_output(["uname", "-a"]).decode('utf-8')
-  return uname.lower().find("linux") != -1
+  return "linux" in uname.lower() and "android" not in uname.lower()
 
 def get_platform():
   if is_android():
