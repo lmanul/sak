@@ -1,0 +1,7 @@
+#!/usr/bin/python3
+
+print("Actual script TODO. Look at source for how to do for now.")
+
+# pdf2ps input.pdf tmp.ps
+#ps2pdf -dPDFSETTINGS=/screen -dDownsampleColorImages=true -dColorImageResolution=200 -dColorImageDownsampleType=/Bicubic tmp.ps output.pdf
+
