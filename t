@@ -8,8 +8,10 @@ TZ = [
     ['America/New_York', 'New York'],
     ['Etc/UTC', 'UTC'],
     ['Europe/Paris', 'Paris'],
+    ['Asia/Bangkok', 'Bangkok'],
     ['Asia/Shanghai', 'Shanghai'],
     ['Asia/Tokyo', 'Tokyo'],
+    ['Australia/Sydney', 'Sydney'],
 ]
 
 for tz in TZ:
