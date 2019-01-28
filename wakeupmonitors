@@ -6,3 +6,7 @@ import time
 os.system("xset dpms force off")
 time.sleep(1)
 os.system("xset dpms force on")
+time.sleep(1)
+os.system("xset dpms force off")
+time.sleep(1)
+os.system("xset dpms force on")
