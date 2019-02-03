@@ -3,8 +3,21 @@
 import os
 import util
 
-(current, id) = util.get_current_brightness_and_display_id()
+can_sudo = True
 
-if current < 1.0:
-  new = current + 0.1
-  os.system("xrandr --output " + id + " --brightness " + str(new))
+max_brightness_file = "/sys/class/backlight/intel_backlight/max_brightness"
+cur_brightness_file = "/sys/class/backlight/intel_backlight/brightness"
+if can_sudo and os.path.exists(max_brightness_file) and os.path.exists(cur_brightness_file):
+  max_brightness = int(open(max_brightness_file).read().strip())
+  print("Max brightness is " + str(max_brightness))
+  cur_brightness = int(open(cur_brightness_file).read().strip())
+  print("Cur brightness is " + str(cur_brightness))
+  if cur_brightness < max_brightness:
+    new = min(max_brightness, cur_brightness + 100)
+    os.system("echo '" + str(new) +  "' | sudo tee -a " + cur_brightness_file)
+else:
+  # Use xrandr as a fallback
+  (current, id) = util.get_current_brightness_and_display_id()
+  if current < 1.0:
+    new = current + 0.1
+    os.system("xrandr --output " + id + " --brightness " + str(new))
