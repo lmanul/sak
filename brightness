@@ -6,12 +6,21 @@ import util
 
 INCREMENT = 100
 
-up = (sys.argv[1] == "u")
+from optparse import OptionParser
 
-can_sudo = True
+parser = OptionParser()
+parser.add_option("-d", "--daemon", dest="daemon",
+                  action="store_true",
+                  help="Daemon mode, can't use sudo")
+(options, args) = parser.parse_args()
+
+up = (args[0] == "u")
+
+can_sudo = not options.daemon
 
 max_brightness_file = "/sys/class/backlight/intel_backlight/max_brightness"
 cur_brightness_file = "/sys/class/backlight/intel_backlight/brightness"
+
 if can_sudo and os.path.exists(max_brightness_file) and os.path.exists(cur_brightness_file):
   max_brightness = int(open(max_brightness_file).read().strip())
   print("Max brightness is " + str(max_brightness))
