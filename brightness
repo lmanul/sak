@@ -37,6 +37,10 @@ if can_sudo and os.path.exists(max_brightness_file) and os.path.exists(cur_brigh
 else:
   # Use xrandr as a fallback
   (current, id) = util.get_current_brightness_and_display_id()
-  if current < 1.0:
+  if up and current < 1.0:
     new = current + 0.1
     os.system("xrandr --output " + id + " --brightness " + str(new))
+  if down and current > 0.0:
+    new = current - 0.1
+    os.system("xrandr --output " + id + " --brightness " + str(new))
+
