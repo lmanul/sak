@@ -66,7 +66,7 @@ while not latex.poll():
       v = fulls[f]
       if l.startswith(v[0]):
         v[2] += 1
-        v[3].append(current_page_number + "/" + maybe_problematic_lines)
+        v[3].append(str(current_page_number) + "/" + maybe_problematic_lines)
         sys.stdout.write("##" + f + "## ")
         sys.stdout.flush()
     if "There were undefined references" in l:
