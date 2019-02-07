@@ -45,9 +45,12 @@ for item in ordered_size_recap:
 percent_diff_w = round(float(max_w - min_w) / float(max_w) * 100, 1)
 percent_diff_h = round(float(max_h - min_h) / float(max_h) * 100, 1)
 
-print("Max difference: " + str(percent_diff_w) + "% in width, " + \
-    str(percent_diff_h) + "% in height")
-print("Max width  seen in: " + max_w_img)
-print("    height        : " + max_h_img)
-print("Min width  seen in: " + min_w_img)
-print("    height        : " + min_h_img)
+if percent_diff_w > 0 or percent_diff_h > 0:
+  print("Max difference: " + str(percent_diff_w) + "% in width, " + \
+      str(percent_diff_h) + "% in height")
+  print("Max width  seen in: " + max_w_img)
+  print("    height        : " + max_h_img)
+  print("Min width  seen in: " + min_w_img)
+  print("    height        : " + min_h_img)
+else:
+  print("All images have the same size.")
