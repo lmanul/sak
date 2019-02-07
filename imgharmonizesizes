@@ -45,10 +45,10 @@ def scale(i):
   global max_height
   home = os.path.expanduser("~")
   bup = i + ".bup"
-  #os.system("mv " + i + " " + bup)
-  cmd = os.path.join(home, "bus", "bin", "mkthumb") + " " + \
-    str(max(max_width, max_height)) + " " + i
-  os.system(cmd)
+  thumb = i + "_thumbnail.bup"
+  os.system("mv " + i + " " + bup)
+  util.run_bin_cmd("mkthumb", str(max(max_width, max_height)) + " " + bup)
+  os.system("mv " + thumb + " " + i)
 
 def process_one_image(i):
   global max_width
