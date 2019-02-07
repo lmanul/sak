@@ -13,13 +13,19 @@ min_w = 100000
 min_h = 100000
 max_w = 0
 max_h = 0
+max_w_img = ""
+max_h_img = ""
 
 for i in imgs:
   (w, h) = util.get_image_dimensions(i)
   min_w = min(min_w, w)
   min_h = min(min_h, h)
-  max_w = max(max_w, w)
-  max_h = max(max_h, h)
+  if w > max_w:
+    max_w = w
+    max_w_img = i
+  if h > max_h:
+    max_h = h
+    max_h_img = i
   key = str(w) + "x" + str(h)
   if key in size_recap:
     size_recap[key] += 1
@@ -35,3 +41,5 @@ percent_diff_h = round(float(max_h - min_h) / float(max_h) * 100, 1)
 
 print("Max difference: " + str(percent_diff_w) + "% in width, " + \
     str(percent_diff_h) + "% in height")
+print("Max width  seen in: " + max_w_img)
+print("    height        : " + max_h_img)

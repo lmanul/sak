@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+file = sys.argv[1]
+
+bup = file + ".bup"
+
+os.system("mv " + file + " " + bup)
+os.system("convert -fuzz 5% -trim +repage " + bup + " " + file)
