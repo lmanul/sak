@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+
+pdf = sys.argv[1]
+reversed = pdf.replace(".pdf", "_reversed.pdf")
+
+n_pages = util.get_pdf_pages(pdf)
+os.system("pdftk " + pdf + " cat " + str(n_pages) + "-1 output " + reversed)
