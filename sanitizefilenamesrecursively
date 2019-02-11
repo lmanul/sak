@@ -16,6 +16,6 @@ for root, dirs, files in os.walk("."):
     full_dir = os.path.join(root, d)
     os.chdir(full_dir)
     print("Sanitizing in " + full_dir + "...")
-    util.run_bin_cmd("sanitizefilenames", " ".join(["'" + f + "'" for f in os.listdir(".")]))
+    util.run_bin_cmd("sanitizefilenames", " ".join(["\"" + f + "\"" for f in os.listdir(".")]))
     os.chdir(initial_dir)
 
