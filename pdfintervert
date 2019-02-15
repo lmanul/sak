@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+
+pdf = sys.argv[1]
+page_1 = int(sys.argv[2])
+page_2 = int(sys.argv[3])
+
+bup = pdf + ".bup"
+os.system("mv " + pdf + " " + bup)
+
+os.system("pdftk " + bup + " cat 1-" + str(page_1 - 1) + " " + \
+    str(page_2) + " " + str(page_1) + \
+    " " + str(page_2 + 1) + "-end output " + pdf)

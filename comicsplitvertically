@@ -9,6 +9,9 @@ parser = OptionParser()
 parser.add_option("-d", "--dry-run", dest="dryrun",
                   action="store_true",
                   help="Dry run, do not actually resize images")
+parser.add_option("-r", "--right-to-left", dest="rtl",
+                  action="store_true",
+                  help="Dry run, do not actually resize images")
 
 (options, args) = parser.parse_args()
 
@@ -25,6 +28,9 @@ for i in all_images:
       continue
     first_half = i[:-4] + "_first_half" + i[-4:]
     second_half = i[:-4] + "_second_half" + i[-4:]
+    if options.rtl:
+      first_half = i[:-4] + "_second_half" + i[-4:]
+      second_half = i[:-4] + "_first_half" + i[-4:]
     os.system("convert " + i + " -crop " + \
         str(width / 2) + "x" + str(height) + "+0+0 +repage " + first_half)
     os.system("convert " + i + " -crop " + \
