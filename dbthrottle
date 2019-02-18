@@ -2,4 +2,4 @@
 
 import os
 
-os.system("dropbox throttle 300 200")
+os.system("dropbox throttle 50 20")
