@@ -29,6 +29,8 @@ name = input("What is the candidate's name? ").strip()
 resume_question = input("Resume question? ").strip()
 first_question = input("First question? ").strip()
 second_question = input("Second question? [Hit return for none] ").strip()
+is_phone_screen = input("Is this a phone screen? 1 for Yes, 0 for No ").strip()
+is_phone_screen = True if int(is_phone_screen) == 1 else False
 
 new_file = os.path.join(
     NEW_FILE_PATH,
@@ -63,6 +65,7 @@ if second_question != "":
   output += question_section(second_question)
 
 output += question_section("Questions for me?", add_time=False)
+output += question_section("Appendix: Shared doc copy-pasted 'as is'", add_time=False)
 
 f = open(new_file, "w")
 f.write(output)
