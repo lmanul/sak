@@ -19,7 +19,7 @@ def separation(title):
 def question_section(title, add_time=True):
   output = separation(title) + "\n"
   if add_time:
-    output += "Time:\n\n\n"
+    output += "Time: \n\n\n"
   output += "\n"
   return output
 
