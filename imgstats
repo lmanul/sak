@@ -48,9 +48,9 @@ percent_diff_h = round(float(max_h - min_h) / float(max_h) * 100, 1)
 if percent_diff_w > 0 or percent_diff_h > 0:
   print("Max difference: " + str(percent_diff_w) + "% in width, " + \
       str(percent_diff_h) + "% in height")
-  print("Max width  seen in: " + max_w_img)
-  print("    height        : " + max_h_img)
-  print("Min width  seen in: " + min_w_img)
-  print("    height        : " + min_h_img)
+  print("Max width  seen in: " + max_w_img + " (" + str(max_w) + ")")
+  print("    height        : " + max_h_img + " (" + str(max_h) + ")")
+  print("Min width  seen in: " + min_w_img + " (" + str(min_w) + ")")
+  print("    height        : " + min_h_img + " (" + str(min_h) + ")")
 else:
   print("All images have the same size.")
