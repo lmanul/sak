@@ -41,8 +41,11 @@ def is_process_running(process):
   return False
 
 def get_image_dimensions(img):
-  identify = subprocess.check_output(shlex.split("identify '" + img + "'")).decode().strip()
-  parsed = re.match(r".*\s(\d+)x(\d+)\s.*", identify)
+  if img.endswith(".xcf"):
+    output = subprocess.check_output(shlex.split("xcfinfo '" + img + "'")).decode().strip().split("\n")[0]
+  else:
+    output = subprocess.check_output(shlex.split("identify '" + img + "'")).decode().strip()
+  parsed = re.match(r".*\s(\d+)x(\d+)\s.*", output)
   width = int(parsed.group(1))
   height = int(parsed.group(2))
   return (width, height)

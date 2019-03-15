@@ -3,8 +3,13 @@
 import operator
 import os
 import util
+import sys
 
-imgs = [i for i in os.listdir(".") if i.endswith(".jpg") or i.endswith(".png")]
+if len(sys.argv) > 1:
+  imgs = sys.argv[1:]
+else:
+  imgs = [i for i in os.listdir(".") if i.endswith(".jpg") or 
+i.endswith(".png")]
 
 print("" + str(len(imgs)) + " images")
 
