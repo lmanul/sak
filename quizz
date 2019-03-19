@@ -1,0 +1,8 @@
+#!/usr/bin/python3
+
+import sys
+
+LANGS = ["jp", "en", "fr"]
+
+if len(sys.argv) < 2:
+  print("Please tell me which language. Choices are: " + ", ".join(LANGS))
