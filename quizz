@@ -7,7 +7,14 @@ import sys
 from random import shuffle
 
 LANGS = ["cn", "en", "fr", "jp"]
-CARD_LENGTH = 75
+CARD_LENGTH = 78
+ACCENTED_VOWELS = [
+  "ā", "á", "à", "ǎ", "â",
+  "ē", "é", "è", "ě", "ê",
+  "ī", "í", "ì", "ǐ", "î",
+  "ō", "ó", "ò", "ǒ", "ô",
+  "ū", "ù", "ǔ", "ú", "û",
+]
 
 def gather_data(lang):
   raw = open(os.path.join(
@@ -21,11 +28,24 @@ def gather_data(lang):
     entries.append(l.strip().split("|"))
   return entries
 
+def is_char_double_width(c):
+  if ord(c) < 128:
+    return False
+  if c in ACCENTED_VOWELS or c in ["↘"]:
+    return False
+  return True
+
+def measure(text):
+  size = 0
+  for l in text:
+    size += 2 if is_char_double_width(l) else 1
+  return size
+
 def print_card_sep():
   print("-" * CARD_LENGTH)
 
 def print_centered_on_card(what):
-  space_len = CARD_LENGTH - 2 - len(what)
+  space_len = CARD_LENGTH - 2 - measure(what)
   half = int(space_len / 2)
   print("|" + " " * half + what + " " * (space_len - half) + "|")
 
