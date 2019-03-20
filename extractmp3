@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+input = sys.argv[1]
+
+output = util.change_extension(input, "mp3")
+
+os.system("ffmpeg -i " + input + " " + output)
