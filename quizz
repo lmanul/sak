@@ -1,8 +1,55 @@
 #!/usr/bin/python3
 
+import random
+import os
 import sys
 
-LANGS = ["jp", "en", "fr"]
+from random import shuffle
 
-if len(sys.argv) < 2:
+LANGS = ["cn", "en", "fr", "jp"]
+CARD_LENGTH = 75
+
+def gather_data(lang):
+  raw = open(os.path.join(
+      os.path.expanduser("~"), "bus", "reference", "languages", lang + ".txt")).readlines()
+  if not len(raw):
+    print("Didn't find any content. Aborting.")
+  print("Found " + str(len(raw)) + " entries.")
+
+  entries = []
+  for l in raw:
+    entries.append(l.strip().split("|"))
+  return entries
+
+def print_card_sep():
+  print("-" * CARD_LENGTH)
+
+def print_centered_on_card(what):
+  space_len = CARD_LENGTH - 2 - len(what)
+  half = int(space_len / 2)
+  print("|" + " " * half + what + " " * (space_len - half) + "|")
+
+def ask_one(entry):
+  index_of_data_to_show = int(random.random() * len(entry))
+  print("|" + " " * (CARD_LENGTH - 2) + "|")
+  print_centered_on_card(entry[index_of_data_to_show])
+  quit = input("|" + " " * (CARD_LENGTH - 2) + "|")
+  print_centered_on_card(" ".join(entry))
+  print_card_sep()
+  return quit.strip() != "q"
+
+def quizz(entries):
+  shuffle(entries)
+  print_card_sep()
+  for e in entries:
+    should_continue = ask_one(e)
+    if not should_continue:
+      break
+
+if len(sys.argv) < 2 or sys.argv[1] not in LANGS:
   print("Please tell me which language. Choices are: " + ", ".join(LANGS))
+  sys.exit(1)
+
+lang = sys.argv[1]
+entries = gather_data(lang)
+quizz(entries)
