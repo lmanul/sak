@@ -1,7 +1,6 @@
 # coding=utf-8
 
 import datetime
-import leather
 import os
 import re
 import shlex
@@ -202,6 +201,7 @@ def silent(command):
 # |values| is a list of series. A series is a list of points. A point is a 
 # [date, value] pair.
 def make_time_graph(values, out_file, names=[]):
+  import leather
   first_date = values[0][0][0].split(".")
   last_date = values[0][-1][0].split(".")
   chart = leather.Chart('')
