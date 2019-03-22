@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import datetime
+import leather
 import os
 import re
 import shlex
@@ -8,6 +9,8 @@ import socket
 #import ssh_agent_setup
 import subprocess
 import sys
+
+from datetime import date
 
 def is_android():
   uname = subprocess.check_output(["uname", "-a"]).decode('utf-8')
@@ -195,3 +198,24 @@ def is_online():
 # Runs the given command and silence stdout and stderr.
 def silent(command):
   os.system(command + " > /dev/null 2>&1")
+
+# |values| is a list of series. A series is a list of points. A point is a 
+# [date, value] pair.
+def make_time_graph(values, out_file, names=[]):
+  first_date = values[0][0][0].split(".")
+  last_date = values[0][-1][0].split(".")
+  chart = leather.Chart('')
+  chart.add_x_scale(
+      date(int(first_date[0]), int(first_date[1]), int(first_date[2])), 
+      date(int(last_date[0]),  int(last_date[1]),   int(last_date[2])))
+  for i in range(len(values)):
+    name = names[i] if names[i] is not None else ""
+    series = []
+    for point in values[i]:
+      date_parts = [int(p) for p in point[0].split(".")]
+      d = date(date_parts[0], date_parts[1], date_parts[2])
+      series.append([d, float(point[1])])
+    chart.add_line(series, name=name)
+  chart.to_svg('temp.svg')
+  os.system("convert -density 200 temp.svg " + out_file)
+  os.system("rm temp.svg")
