@@ -1,0 +1,14 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+res = sys.argv[1]
+img = sys.argv[2]
+
+command = "exiftool " + \
+    "-Xresolution=" + str(res) + " " + \
+    "-Yresolution=" + str(res) + " " + \
+    img
+
+os.system(command)
