@@ -215,7 +215,7 @@ def make_time_graph(values, out_file, names=[]):
       date_parts = [int(p) for p in point[0].split(".")]
       d = date(date_parts[0], date_parts[1], date_parts[2])
       series.append([d, float(point[1])])
-    chart.add_line(series, name=name)
+    chart.add_line(series, name=name, width=0.75)
   chart.to_svg('temp.svg')
   os.system("convert -density 500 temp.svg " + out_file)
   os.system("rm temp.svg")
