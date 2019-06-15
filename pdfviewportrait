@@ -1,17 +1,21 @@
 #!/usr/bin/python3
 
 import os
+import shlex
 import sys
+import subprocess
 
 pdf = sys.argv[1]
 tmppdf = pdf + ".rotated"
 
 os.system("pdftk " + pdf + " cat 1-endwest output " + tmppdf)
-
 os.system("gsettings set org.gnome.Evince.Default dual-page false")
-
 os.system("evince -f " + tmppdf + " 2> /dev/null > /dev/null")
+# Emulate space bar with left Shift, easy to press when holding laptop at 90 deg
+# TODO: Why isn't this working? xmodmap runs in some sandboxed environment?
+subprocess.call(['xmodmap -e', '"keycode 50 = space"'], shell=True)
 
+# Put things back the way they were
 os.system("gsettings set org.gnome.Evince.Default dual-page true")
-
+subprocess.call(['xmodmap -e', '"keycode 50 = Shift_L"'], shell=True)
 os.system("rm " + tmppdf)
