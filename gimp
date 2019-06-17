@@ -14,8 +14,8 @@ for a in arguments:
   full_arguments.append(os.path.join(orig_dir, a))
 
 home = os.path.expanduser("~")
-gimp_config_dir = os.path.join(os.path.expanduser("~"), "bus", "config", \
-    "gimp-2.8")
+gimp_config_dir = os.path.join(os.path.expanduser("~"), "bus", "config",
+    "config", "GIMP", "2.10")
 os.chdir(gimp_config_dir)
 
 ram_gb = util.get_ram_gb()
@@ -34,7 +34,7 @@ command = "sed -i 's/UNDO_SIZE/" + str(undo_size) + "G/' gimprc"
 os.system(command)
 
 os.chdir(home)
-os.system("/usr/bin/gimp " + " ".join(full_arguments))
+os.system("/usr/bin/gimp-2.10 " + " ".join(full_arguments))
 os.chdir(gimp_config_dir)
 os.system("git checkout gimprc")
 util.run_bin_cmd("regularcleanup")
