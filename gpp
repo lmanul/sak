@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+if "chrome" in os.getcwd() or "android" in os.getcwd():
+  print("You're in a Chrome or Android repo. I don't think you want to do that! :-)")
+
+os.system("git pull && git push")
+
+sys.exit(1)
