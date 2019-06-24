@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("dbus-send --print-reply --type=method_call --dest='org.gnome.Lollypop' /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause")
