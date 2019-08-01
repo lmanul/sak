@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+number = int(sys.argv[1])
+command = sys.argv[2]
+
+print("Running '" + command + "' " + str(number) + " times...")
+
+for i in range(number):
+  os.system(command)
