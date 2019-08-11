@@ -1,0 +1,10 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+spx = sys.argv[1]
+mp3 = spx.replace("spx", "mp3")
+mp3 = mp3.replace("SPX", "mp3")
+
+os.system("ffmpeg -i " +  spx +  " " + mp3)
