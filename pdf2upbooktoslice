@@ -39,3 +39,5 @@ command = "pdftk " + padded_file + " cat " + pages + " output " + final_file
 os.system(command)
 
 os.system("pdfnup --nup 2x1 " + final_file)
+os.system("rm " + padded_file)
+os.system("mv " + final_file.replace(".pdf", "-nup.pdf") + " " + final_file)
