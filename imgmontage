@@ -3,6 +3,10 @@
 import os
 import sys
 
-img = sys.argv[1:]
+imgs = sys.argv[1:]
 
-# TODO
+if "out.jpg" in imgs:
+  imgs.remove("out.jpg")
+cmd = "montage -geometry +0+0 " + " ".join(imgs) + " out.jpg"
+
+os.system(cmd)
