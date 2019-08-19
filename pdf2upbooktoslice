@@ -40,4 +40,5 @@ os.system(command)
 
 os.system("pdfnup --nup 2x1 " + final_file)
 os.system("rm " + padded_file)
+os.system("rm blank.pdf")
 os.system("mv " + final_file.replace(".pdf", "-nup.pdf") + " " + final_file)
