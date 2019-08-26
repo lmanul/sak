@@ -32,7 +32,17 @@ for i in range(1, n_sheets + 1):
     2 * i,
     2 * i + int(n_pages / 2),
   ]]) + " "
+# Remove the last space
+if pages[-1] == " ":
+  pages = pages[:-1]
 print(pages)
+if len(pages.split(" ")) != n_pages:
+  print("Houston, we have a problem, bad page count... Fix me!")
+  parsed_pages = [int(p) for p in pages.split(" ")]
+  for i in range(1, n_pages + 1):
+    if i not in parsed_pages:
+      print("Missing: " + str(i))
+  sys.exit(1)
 
 final_file = src.replace(".pdf", "-booktoslice.pdf")
 command = "pdftk " + padded_file + " cat " + pages + " output " + final_file
