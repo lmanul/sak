@@ -1,16 +1,22 @@
 #!/usr/bin/python3
 
 import os
+import re
 import shlex
 import subprocess
 import sys
 
-img = sys.argv[1]
+imgs = sys.argv[1:]
 
-command = "exiftool " + img
-
-lines = subprocess.check_output(shlex.split(command)).decode().split("\n")
-
-for l in lines:
-  if "Resolution" in l:
-    print(l)
+for img in imgs:
+  command = "exiftool " + img
+  lines = subprocess.check_output(shlex.split(command)).decode().split("\n")
+  for l in lines:
+    if "Resolution" in l:
+      if l.startswith("X Res"):
+        x_res = re.search(r"(\d+)", l).group(1)
+      if l.startswith("Y Res"):
+        y_res = re.search(r"(\d+)", l).group(1)
+  res_string = str(x_res) + "x" + y_res
+  spaces = " " * (20 - len(res_string))
+  print(res_string + spaces + img)
