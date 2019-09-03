@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import sys
+
+if len(sys.argv) < 2:
+  print("Please give me a branch name to check out as an argument.")
+  sys.exit(1)
+
+b = sys.argv[1]
+
+os.system("git stash && git checkout '" + b + "' && git stash apply")
