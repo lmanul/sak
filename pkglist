@@ -2,4 +2,4 @@
 
 import os
 
-os.system("dpkg --get-selections | awk '$2 == \"install\" {print $1}'")
+os.system("dpkg --get-selections | awk '$2 == \"install\" {print $1}' | sort")
