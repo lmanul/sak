@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("dpkg --get-selections | awk '$2 == \"install\" {print $1}'")

@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("pkglist | diff ~/bus/reference/packages.txt -")
