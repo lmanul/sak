@@ -33,8 +33,8 @@ util.run_bin_cmd("imgjpg85quality", out)
 os.system("rm " + " ".join(thumbs))
 
 # Now add the text
-text_img_width = W
-text_img_height = 150
+text_img_width = 4800
+text_img_height = 260
 textImageFontSize = 256
 textImageFontFace = "AvantGarde-Book"
 textImageText = d.replace("_", " ")
@@ -43,8 +43,6 @@ textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
     str(text_img_height) + " xc:white -font " + textImageFontFace + \
     " -pointsize " + str(textImageFontSize) + \
     " -linewidth 1 -fill white" + \
-    " -draw \"rectangle 0,40 " + str(text_img_width - 22) + "," + \
-        str(text_img_height - 1) + "\" " + \
     " -stroke transparent -fill black -annotate +20+200 '" + textImageText + \
     "' " + text_img_name
 os.system(textImageCreationCommand)
