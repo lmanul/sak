@@ -36,7 +36,7 @@ os.system("rm " + " ".join(thumbs))
 text_img_width = 4800
 text_img_height = 260
 textImageFontSize = 256
-textImageFontFace = "AvantGarde-Book"
+textImageFontFace = "Roboto-Thin"
 textImageText = d.replace("_", " ")
 text_img_name = "text_image.png"
 textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
@@ -50,8 +50,7 @@ os.system(textImageCreationCommand)
 out_tmp = out + ".tmp"
 os.system("mv " + " ".join([out, out_tmp]))
 
-os.system("convert -append " + \
-    " ".join([text_img_name, out_tmp, out]))
+os.system("convert -append " + " ".join([text_img_name, out_tmp, out]))
 
 os.system("rm " + text_img_name)
 os.system("rm " + out_tmp)
