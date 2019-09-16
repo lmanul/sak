@@ -28,7 +28,6 @@ cmd = "montage -geometry " + str(W) + "x" + str(H) + \
     "+" + str(MARGIN) + "+" + str(MARGIN) + " " + \
     " ".join(thumbs) + " " + out
 os.system(cmd)
-util.run_bin_cmd("imgjpg85quality", out)
 
 os.system("rm " + " ".join(thumbs))
 
@@ -51,6 +50,8 @@ out_tmp = out + ".tmp"
 os.system("mv " + " ".join([out, out_tmp]))
 
 os.system("convert -append " + " ".join([text_img_name, out_tmp, out]))
+
+util.run_bin_cmd("imgjpg85quality", out)
 
 os.system("rm " + text_img_name)
 os.system("rm " + out_tmp)
