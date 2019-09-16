@@ -4,8 +4,8 @@ import os
 import sys
 import util
 
-W = 1600
-H = 1200
+W = 1200
+H = 750
 MARGIN = 35
 THUMB_SIZE = 300
 
@@ -23,10 +23,37 @@ for i in imgs:
     thumbs.append(i.replace(".png", "_thumbnail.png"))
 os.system("map 'mkthumb " + str(THUMB_SIZE) + "' " + " ".join(imgs))
 
-out = d + "_thumbgallery.jpg"
+out = d + ".jpg"
 cmd = "montage -geometry " + str(W) + "x" + str(H) + \
     "+" + str(MARGIN) + "+" + str(MARGIN) + " " + \
     " ".join(thumbs) + " " + out
 os.system(cmd)
+util.run_bin_cmd("imgjpg85quality", out)
 
 os.system("rm " + " ".join(thumbs))
+
+# Now add the text
+text_img_width = W
+text_img_height = 150
+textImageFontSize = 256
+textImageFontFace = "AvantGarde-Book"
+textImageText = d.replace("_", " ")
+text_img_name = "text_image.png"
+textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
+    str(text_img_height) + " xc:white -font " + textImageFontFace + \
+    " -pointsize " + str(textImageFontSize) + \
+    " -linewidth 1 -fill white" + \
+    " -draw \"rectangle 0,40 " + str(text_img_width - 22) + "," + \
+        str(text_img_height - 1) + "\" " + \
+    " -stroke transparent -fill black -annotate +20+200 '" + textImageText + \
+    "' " + text_img_name
+os.system(textImageCreationCommand)
+
+out_tmp = out + ".tmp"
+os.system("mv " + " ".join([out, out_tmp]))
+
+os.system("convert -append " + \
+    " ".join([text_img_name, out_tmp, out]))
+
+os.system("rm " + text_img_name)
+os.system("rm " + out_tmp)
