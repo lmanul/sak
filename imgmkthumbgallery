@@ -4,9 +4,7 @@ import os
 import sys
 import util
 
-W = 1200
-H = 750
-MARGIN = 35
+MARGIN = 8
 THUMB_SIZE = 300
 
 if len(sys.argv) < 2:
@@ -24,25 +22,26 @@ for i in imgs:
 os.system("map 'mkthumb " + str(THUMB_SIZE) + "' " + " ".join(imgs))
 
 out = d + ".jpg"
-cmd = "montage -geometry " + str(W) + "x" + str(H) + \
+cmd = "montage -geometry " + str(THUMB_SIZE) + "x" + str(THUMB_SIZE) + \
     "+" + str(MARGIN) + "+" + str(MARGIN) + " " + \
     " ".join(thumbs) + " " + out
 os.system(cmd)
 
 os.system("rm " + " ".join(thumbs))
+(width, height) = util.get_image_dimensions(out)
 
 # Now add the text
-text_img_width = 4800
-text_img_height = 260
-textImageFontSize = 256
+text_img_width = width
+text_img_height = 150
+textImageFontSize = 100
 textImageFontFace = "Roboto-Thin"
 textImageText = d.replace("_", " ")
-text_img_name = "text_image.png"
+text_img_name = out + "text_image.png"
 textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
     str(text_img_height) + " xc:white -font " + textImageFontFace + \
     " -pointsize " + str(textImageFontSize) + \
     " -linewidth 1 -fill white" + \
-    " -stroke transparent -fill black -annotate +20+200 '" + textImageText + \
+    " -stroke transparent -fill black -annotate +0+115 '" + textImageText + \
     "' " + text_img_name
 os.system(textImageCreationCommand)
 
