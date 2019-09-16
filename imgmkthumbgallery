@@ -1,0 +1,32 @@
+#!/usr/bin/python
+
+import os
+import sys
+import util
+
+W = 1600
+H = 1200
+MARGIN = 20
+THUMB_SIZE = 500
+
+if len(sys.argv) < 2:
+  print("I need a folder as an argument.")
+  sys.exit(1)
+
+d = sys.argv[1]
+imgs = [os.path.join(d, f) for f in os.listdir(d)]
+thumbs = []
+for i in imgs:
+  if i.endswith(".jpg"):
+    thumbs.append(i.replace(".jpg", "_thumbnail.jpg"))
+  elif i.endswith(".png"):
+    thumbs.append(i.replace(".png", "_thumbnail.png"))
+os.system("map 'mkthumb " + str(THUMB_SIZE) + "' " + " ".join(imgs))
+
+out = d + "_thumbgallery.jpg"
+cmd = "montage -geometry " + str(W) + "x" + str(H) + \
+    "+" + str(MARGIN) + "+" + str(MARGIN) + " " + \
+    " ".join(thumbs) + " " + out
+os.system(cmd)
+
+os.system("rm " + " ".join(thumbs))
