@@ -6,8 +6,8 @@ import util
 
 W = 1600
 H = 1200
-MARGIN = 20
-THUMB_SIZE = 500
+MARGIN = 35
+THUMB_SIZE = 300
 
 if len(sys.argv) < 2:
   print("I need a folder as an argument.")
