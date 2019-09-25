@@ -4,5 +4,5 @@ import os
 
 home = os.path.expanduser("~")
 
-os.system("amixer -D pulse set 'Master' 5%+")
+os.system("amixer -D pulse set 'Master' toggle")
 os.system("play -q " + home + "/bus/reference/water_droplet.mp3")

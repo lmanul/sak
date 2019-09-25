@@ -4,5 +4,5 @@ import os
 
 home = os.path.expanduser("~")
 
-os.system("xdotool key XF86AudioLowerVolume")
+os.system("amixer -D pulse set 'Master' 5%-")
 os.system("play -q " + home + "/bus/reference/water_droplet.mp3")
