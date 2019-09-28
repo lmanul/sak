@@ -33,11 +33,13 @@ def get_platform():
   return "unknown"
 
 # Returns whether a process containing the given name is running.
-def is_process_running(process):
+def is_process_running(process, apart_from=None):
   s = subprocess.Popen(["ps", "axw"],stdout=subprocess.PIPE)
   for x in s.stdout:
     l = x.decode()
     if re.search(process, l):
+      if apart_from != None and str(apart_from) in l:
+        continue
       if not "defunct" in l:
         return True
   return False
