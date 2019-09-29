@@ -13,6 +13,8 @@ parser.add_option("-e", "--except_pid", help="Don't kill the process with this I
     dest="except_pid")
 parser.add_option("-d", "--dryrun", action="store_true",
     help="Don't actually do anything", default=False)
+parser.add_option("-n", "--nine", action="store_true",
+    help="Send a kill -9 signal", default=False)
 (options, args) = parser.parse_args()
 
 pattern = args[0]
@@ -37,7 +39,7 @@ for l in proc_to_kill:
     continue
   print("Killing " + str(proc_number) + "...")
   if not options.dryrun:
-    os.system("kill " + str(proc_number))
+    os.system("kill " + ("-9 " if options.nine else "") + str(proc_number))
 
 if len(proc_cant_kill) > 0:
   print("Some processes matched but aren't owned by me: " + \
