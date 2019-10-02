@@ -16,7 +16,7 @@ if desktop_session == 'xubuntu':
 elif desktop_session == 'cinnamon':
   command = 'gsettings set org.cinnamon.background picture-uri  "file:///%s"' % selected_wallpaper
 elif desktop_session == 'awesome':
-  command = 'feh --bg-scale ' + selected_wallpaper
+  command = 'feh --bg-fill ' + selected_wallpaper
 else:
   # ubuntu-2d
   # lubuntu (TODO, probably won't work)
