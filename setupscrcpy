@@ -1,0 +1,37 @@
+#!/usr/bin/python3
+
+import os
+
+print("Installing dependencies...")
+os.system("sudo apt install -y "
+    "ffmpeg libsdl2-2.0-0 gcc git pkg-config meson ninja-build libavcodec-dev "
+    "libavformat-dev libavutil-dev libsdl2-dev adb")
+
+print("Downloading scrcpy code...")
+os.system("git clone https://github.com/Genymobile/scrcpy.git")
+
+print("Configuring...")
+os.chdir("scrcpy")
+
+if (os.path.exists("x")):
+  os.system("rm -rf x")
+
+os.system("meson x --buildtype release --strip "
+          "-Db_lto=true "
+          "-Dprebuilt_server=/home/manucornet/bus//reference/scrcpy-server-v1.10.jar")
+
+print("Building...")
+os.chdir("x")
+os.system("ninja")
+
+print("Installing...")
+os.system("sudo ninja install")
+
+# For some reason, the installed binary isn't world-readable or executable, and 
+# the server directory isn't listable.
+print("Setting permissions...")
+os.system("sudo chmod a+xr /usr/local/bin/scrcpy")
+os.system("sudo chmod a+x /usr/local/share/scrcpy")
+os.system("sudo chmod a+r /usr/local/share/scrcpy/scrcpy-server.jar")
+
+print("All done.")
