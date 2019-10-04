@@ -1,0 +1,20 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+if len(sys.argv) < 2:
+  print("Please give me the replacement pattern as an argument")
+  sys.exit(1)
+
+patt = sys.argv[1]
+
+for path, _, filenames in os.walk(os.getcwd()):
+  for f in filenames:
+    f_full = os.path.join(path, f)
+    if not os.path.exists(f_full):
+      print(f_full + " doesn't seem to exist, skipping")
+      continue
+    cmd = "sed -i \"" + patt + "\" " + f_full
+    #print(cmd)
+    os.system(cmd)
