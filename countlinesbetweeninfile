@@ -5,9 +5,5 @@ import sys
 
 (p1, p2, file) = sys.argv[1:]
 
-print(p1)
-print(p2)
-
 sed_cmd = "sed -n '/^" + p1 + "/,/^" + p2 + "/p;/^" + p2 + "/q' " + file
-print(sed_cmd)
 os.system(sed_cmd + " | wc -l")
