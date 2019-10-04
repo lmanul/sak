@@ -9,14 +9,26 @@ if len(sys.argv) < 2:
 
 patt = sys.argv[1]
 
+extensions = sys.argv[2:] if len(sys.argv) > 2 else None
+
 for path, _, filenames in os.walk(os.getcwd()):
   for f in filenames:
-    f_full = os.path.join(path, f)
-    if not os.path.exists(f_full):
-      print(f_full + " doesn't seem to exist, skipping")
-      continue
-    cmd = "sed -i \"" + patt + "\" " + f_full
-    #print(cmd)
-    sys.stderr.write(".")
+    should_proceed = False
+    if extensions != None:
+      for e in extensions:
+        if f.endswith(e):
+          should_proceed = True
+          break
+    if should_proceed:
+      sys.stderr.write("X")
+      f_full = os.path.join(path, f)
+      if not os.path.exists(f_full):
+        print(f_full + " doesn't seem to exist, skipping")
+        continue
+      cmd = "sed -i \"" + patt + "\" " + f_full
+      #print(cmd)
+      os.system(cmd)
+    else:
+      sys.stderr.write(".")
     sys.stderr.flush()
-    os.system(cmd)
+
