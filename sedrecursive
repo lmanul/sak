@@ -17,4 +17,6 @@ for path, _, filenames in os.walk(os.getcwd()):
       continue
     cmd = "sed -i \"" + patt + "\" " + f_full
     #print(cmd)
+    sys.stderr.write(".")
+    sys.stderr.flush()
     os.system(cmd)
