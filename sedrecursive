@@ -1,34 +1,46 @@
 #!/usr/bin/python3
 
+import multiprocessing
 import os
 import sys
+
+from multiprocessing.dummy import Pool as ThreadPool
 
 if len(sys.argv) < 2:
   print("Please give me the replacement pattern as an argument")
   sys.exit(1)
 
 patt = sys.argv[1]
-
 extensions = sys.argv[2:] if len(sys.argv) > 2 else None
 
+n_cpus = multiprocessing.cpu_count()
+# Leave one CPU for doing some other stuff
+n_threads = n_cpus - 1
+pool = ThreadPool(n_threads)
+
+def process(one_file):
+  sys.stderr.write(".")
+  sys.stderr.flush()
+  cmd = "sed -i \"" + patt + "\" " + one_file
+  #print(cmd)
+  os.system(cmd)
+
+files_to_process = []
 for path, _, filenames in os.walk(os.getcwd()):
   for f in filenames:
     should_proceed = False
-    if extensions != None:
+    if not extensions:
+      should_proceed = True
+    else:
       for e in extensions:
         if f.endswith(e):
           should_proceed = True
           break
     if should_proceed:
-      sys.stderr.write("X")
       f_full = os.path.join(path, f)
       if not os.path.exists(f_full):
         print(f_full + " doesn't seem to exist, skipping")
         continue
-      cmd = "sed -i \"" + patt + "\" " + f_full
-      #print(cmd)
-      os.system(cmd)
-    else:
-      sys.stderr.write(".")
-    sys.stderr.flush()
+      files_to_process.append(f_full)
 
+results = pool.map(process, files_to_process)
