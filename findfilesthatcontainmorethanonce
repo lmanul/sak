@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+
+import os
+import multiprocessing
+import sys
+
+from multiprocessing.dummy import Pool as ThreadPool
+
+substring = sys.argv[1]
+n_cpus = multiprocessing.cpu_count()
+# Leave one CPU for doing some other stuff
+n_threads = n_cpus - 1
+pool = ThreadPool(n_threads)
+
+def find_number_of_occurences_in_file(file):
+  global substring
+  sys.stderr.write(".")
+  sys.stderr.flush()
+  handle = open(file, "r")
+  try:
+    contents = handle.read()
+  except UnicodeDecodeError:
+    # Ignore this file
+    return 0
+  handle.close()
+  return contents.count(substring)
+
+files_to_check = []
+print("Scanning file system...")
+for path, _, filenames in os.walk(os.getcwd()):
+  for f in filenames:
+    f_full = os.path.join(path, f)
+    if not os.path.exists(f_full):
+      continue
+    files_to_check.append(f_full)
+
+print("Counting occurrences...")
+counts = pool.map(find_number_of_occurences_in_file, files_to_check)
+
+print("\nThese files contain '" + substring + "' at least twice:")
+
+for i in range(len(counts)):
+  if counts[i] > 1:
+    print(files_to_check[i])
