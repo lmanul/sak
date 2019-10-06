@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+pic = sys.argv[1]
+backup = pic + ".bup"
+
+command = "convert -negate"
+
+os.system("mv " + pic + " " + backup)
+os.system(command + " " + backup + " " + pic)
