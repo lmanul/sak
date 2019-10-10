@@ -1,3 +1,26 @@
 #!/usr/bin/python3
 
+import os
+import re
+
 EXTENSIONS = ["cc", "h", "cpp"]
+NS_START = re.compile("^\s*namespace\s*{")
+
+def process_one_file(path):
+  print(path)
+  handle = open(path)
+  lines = handle.readlines()
+  handle.close()
+  namespace = ""
+  for l in lines:
+     matches = NS_START.match(l)
+  if matches:
+    print(matches.group[1])
+
+for path, _, filenames in os.walk(os.getcwd()):
+  for f in filenames:
+    ext = f.split(".")[-1]
+    if ext not in EXTENSIONS:
+      continue
+    full = os.path.join(path, f)
+    process_one_file(full)
