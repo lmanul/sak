@@ -4,18 +4,21 @@ import os
 import re
 
 EXTENSIONS = ["cc", "h", "cpp"]
-NS_START = re.compile("^\s*namespace\s*{")
+NS_START = re.compile("^\s*namespace\s*([a-z_]*)\s*{")
+#NS_START = re.compile(".*namespace(.*)")
 
 def process_one_file(path):
   print(path)
   handle = open(path)
-  lines = handle.readlines()
+  lines = [l.strip() for l in handle.readlines()]
   handle.close()
   namespace = ""
   for l in lines:
-     matches = NS_START.match(l)
-  if matches:
-    print(matches.group[1])
+    matches = NS_START.match(l)
+    if matches:
+      namespace = matches.group(1)
+    print("Line: " + l)
+    print("NS  : " + namespace)
 
 for path, _, filenames in os.walk(os.getcwd()):
   for f in filenames:
