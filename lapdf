@@ -54,7 +54,7 @@ while not latex.poll():
     maybe_problematic_lines = None
     if l.startswith("!"):
       compile_errors = True
-      os.system("rm *.aux")
+      os.system("rm -f *.aux")
       break
     if "in paragraph at lines" in l:
       matches = re.match(".*graph at lines (\d+..\d+)", l)
