@@ -186,14 +186,17 @@ def get_screen_dpi(index=None):
     return dpis
 
 def is_online():
-  host = "8.8.8.8"
-  timeout = 2
-  port = 53
   try:
-    socket.setdefaulttimeout(timeout)
-    socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+    import httplib
+  except:
+    import http.client as httplib
+    conn = httplib.HTTPConnection("www.google.com", timeout=5)
+  try:
+    conn.request("HEAD", "/")
+    conn.close()
     return True
-  except Exception as ex:
+  except:
+    conn.close()
     return False
 
 # Runs the given command and silence stdout and stderr.
