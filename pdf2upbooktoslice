@@ -18,10 +18,9 @@ n_sheets = int(n_pages / 4)
 print("Sheets: " + str(n_sheets))
 
 padded_file = src.replace(".pdf", "-padded.pdf")
-pad_command = "pdftk A=" + src + " B=blank.pdf cat A "
-for i in range(n_blank_pages_to_add):
-  pad_command = pad_command + "B "
-pad_command = pad_command + "output " + padded_file
+pad_command = "pdfjoin " + src + " " + \
+    " ".join(["blank.pdf"] * n_blank_pages_to_add) + \
+    " --outfile " + padded_file
 os.system(pad_command)
 
 pages = ""
