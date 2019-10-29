@@ -1,6 +1,5 @@
 # coding=utf-8
 
-import datetime
 import os
 import re
 import shlex
@@ -10,6 +9,7 @@ import subprocess
 import sys
 
 from datetime import date
+from datetime import datetime
 
 def is_android():
   uname = subprocess.check_output(["uname", "-a"]).decode('utf-8')
@@ -207,28 +207,36 @@ def silent(command):
 # [date, value] pair. A date is formatted as YYYY.MM.DD.
 def make_time_graph(values, out_file, names=[]):
   import leather
+  colors = [
+    "#8c00e2",
+    "#1981d4",
+    "#00a22c",
+    "#ea8500",
+    "#e32d14",
+    "#ff72db",
+    "#00d69e",
+    "#1618db",
+  ]
   if len(names) != 0:
     if len(names) != len(values):
       print("You've given me " + str(len(values)) + ""
             " series but " + str(len(names)) + " names. Aborting.")
       return
-  first_date = values[0][0][0].split(".")
-  last_date = values[0][-1][0].split(".")
+  first_date_parts = [int(v) for v in values[0][0][0].split(".")]
+  last_date_parts = [int(v) for v in values[0][-1][0].split(".")]
+  first_date = datetime.combine(date(*first_date_parts), datetime.min.time())
+  last_date =  datetime.combine(date(*last_date_parts), datetime.min.time())
   chart = leather.Chart('')
-  chart.add_x_scale(
-      date(int(first_date[0]), int(first_date[1]), int(first_date[2])), 
-      date(int(last_date[0]),  int(last_date[1]),   int(last_date[2])))
+  chart.add_x_scale(first_date, last_date)
   for i in range(len(values)):
     name = names[i] if len(names) > i else ""
     series = []
     for point in values[i]:
       date_parts = [int(p) for p in point[0].split(".")]
-      d = date(date_parts[0], date_parts[1], date_parts[2])
-      value = point[1]
-      if isinstance(value, str):
-        value = float(value)
+      d = datetime.combine(date(*date_parts), datetime.min.time())
+      value = float(point[1])
       series.append([d, value])
-    chart.add_line(series, name=name, width=0.75)
+    chart.add_line(series, name=name, width=0.75, stroke_color=colors[i % len(colors)])
   chart.to_svg('temp.svg')
   os.system("convert -density 500 temp.svg " + out_file)
   os.system("rm temp.svg")
