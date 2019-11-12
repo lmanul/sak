@@ -50,16 +50,17 @@ for i in imgs:
   else:
     resolution_recap[res] = 1
 
-print("Size\n----\n")
+print("Size\n----")
 ordered_size_recap = sorted(size_recap.items(), key=operator.itemgetter(1), reverse=True)
 for item in ordered_size_recap:
   print(item[0] + ": " + str(item[1]))
 
-print("Resolution\n----------\n")
+print("Resolution\n----------")
 ordered_resolution_recap = sorted(resolution_recap.items(), key=operator.itemgetter(1), reverse=True)
 for item in ordered_resolution_recap:
   print(item[0] + ": " + str(item[1]))
 
+print("")
 percent_diff_w = round(float(max_w - min_w) / float(max_w) * 100, 1)
 percent_diff_h = round(float(max_h - min_h) / float(max_h) * 100, 1)
 
