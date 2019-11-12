@@ -14,6 +14,7 @@ i.endswith(".png")]
 print("" + str(len(imgs)) + " images")
 
 size_recap = {}
+resolution_recap = {}
 min_w = 100000
 min_h = 100000
 min_w_img = ""
@@ -23,8 +24,10 @@ max_h = 0
 max_w_img = ""
 max_h_img = ""
 
+# TODO: multithread
 for i in imgs:
   (w, h) = util.get_image_dimensions(i)
+  res = util.get_image_resolution(i)
   if w < min_w:
     min_w = w
     min_w_img = i
@@ -42,9 +45,19 @@ for i in imgs:
     size_recap[key] += 1
   else:
     size_recap[key] = 1
+  if res in resolution_recap:
+    resolution_recap[res] += 1
+  else:
+    resolution_recap[res] = 1
 
+print("Size\n----\n")
 ordered_size_recap = sorted(size_recap.items(), key=operator.itemgetter(1), reverse=True)
 for item in ordered_size_recap:
+  print(item[0] + ": " + str(item[1]))
+
+print("Resolution\n----------\n")
+ordered_resolution_recap = sorted(resolution_recap.items(), key=operator.itemgetter(1), reverse=True)
+for item in ordered_resolution_recap:
   print(item[0] + ": " + str(item[1]))
 
 percent_diff_w = round(float(max_w - min_w) / float(max_w) * 100, 1)

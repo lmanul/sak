@@ -54,6 +54,17 @@ def get_image_dimensions(img):
   height = int(parsed.group(2))
   return (width, height)
 
+def get_image_resolution(img):
+  command = "exiftool " + img
+  lines = subprocess.check_output(shlex.split(command)).decode().split("\n")
+  for l in lines:
+    if "Resolution" in l:
+      if l.startswith("X Res"):
+        x_res = re.search(r"(\d+)", l).group(1)
+      if l.startswith("Y Res"):
+        y_res = re.search(r"(\d+)", l).group(1)
+  return str(x_res) + "x" + y_res
+
 # Returns the number of pages in the given PDF file
 def get_pdf_pages(pdf_path):
   output = subprocess.check_output(["pdfinfo", pdf_path]).decode()
