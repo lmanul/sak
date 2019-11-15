@@ -128,7 +128,7 @@ def sanitize_for_filename(input):
   return output
 
 def get_date_prefix():
-  now = datetime.datetime.now()
+  now = datetime.now()
   return str(now.year) + "." + str(now.month).zfill(2) + "." + str(now.day).zfill(2)
 
 def change_extension(f, new_ext):

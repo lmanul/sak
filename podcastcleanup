@@ -31,6 +31,8 @@ def get_date(e):
         if line.startswith("TDAT"):
           thedate = line.split(":", 1)[1].strip()
           dateparts = thedate.split(".")
+          if len(dateparts) != 3:
+            return None
           # Reverse the date format.
           return ".".join([dateparts[2], dateparts[1], dateparts[0]])
   except UnicodeDecodeError:
