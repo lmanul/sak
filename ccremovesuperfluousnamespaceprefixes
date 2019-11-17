@@ -17,8 +17,7 @@ def process_one_file(path):
     matches = NS_START.match(l)
     if matches:
       namespace = matches.group(1)
-    print("Line: " + l)
-    print("NS  : " + namespace)
+    print(namespace + ": " + l.strip())
 
 for path, _, filenames in os.walk(os.getcwd()):
   for f in filenames:
