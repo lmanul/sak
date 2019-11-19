@@ -2,9 +2,14 @@
 
 import os
 import random
+import sys
 
 home = os.path.expanduser("~")
 directory = os.path.join(home, "Dropbox", "computer", "reference", "wallpapers")
+
+if not os.path.exists(directory):
+  sys.exit(1)
+
 wallpapers = [os.path.join(directory, f) for f in os.listdir(directory)]
 
 index = random.randint(0, len(wallpapers) - 1)
