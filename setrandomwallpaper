@@ -10,6 +10,9 @@ directory = os.path.join(home, "Dropbox", "computer", "reference", "wallpapers")
 if not os.path.exists(directory):
   sys.exit(1)
 
+if "SSH_CONNECTION" in os.environ and os.environ["SSH_CONNECTION"] != "":
+  sys.exit(0)
+
 wallpapers = [os.path.join(directory, f) for f in os.listdir(directory)]
 
 index = random.randint(0, len(wallpapers) - 1)
