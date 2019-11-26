@@ -2,4 +2,4 @@
 
 import os
 
-os.system("pkglist | diff -u --color=auto ~/bus/reference/packages.txt -")
+os.system("pkglist | diff -u --color=always ~/bus/reference/packages.txt -")
