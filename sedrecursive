@@ -19,6 +19,7 @@ n_threads = n_cpus - 1
 pool = ThreadPool(n_threads)
 
 def process(one_file):
+  # TODO: Give an idea of progress on the whole file set.
   sys.stderr.write(".")
   sys.stderr.flush()
   cmd = "sed -i \"" + patt + "\" " + one_file

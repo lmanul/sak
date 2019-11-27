@@ -55,6 +55,8 @@ def get_image_dimensions(img):
   return (width, height)
 
 def get_image_resolution(img):
+  x_res = "unknown"
+  y_res = "unknown"
   command = "exiftool " + img
   lines = subprocess.check_output(shlex.split(command)).decode().split("\n")
   for l in lines:
