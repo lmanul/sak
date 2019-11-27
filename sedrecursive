@@ -27,6 +27,8 @@ def process(one_file):
 
 files_to_process = []
 for path, _, filenames in os.walk(os.getcwd()):
+  if path.startswith("."):
+    continue
   for f in filenames:
     should_proceed = False
     if not extensions:
