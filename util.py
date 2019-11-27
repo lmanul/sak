@@ -55,6 +55,8 @@ def get_image_dimensions(img):
   return (width, height)
 
 def get_image_resolution(img):
+  if img.endswith(".png"):
+    return "0x0"
   x_res = "unknown"
   y_res = "unknown"
   command = "exiftool " + img
