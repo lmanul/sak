@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
 import os
+import util
 
-os.system("dbus-send --type=method_call --dest='org.gnome.Lollypop' /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause")
+destination = ""
+if util.is_process_running("lollypop"):
+  destination = "org.gnome.Lollypop"
+elif util.is_process_running("vlc"):
+  destination = "org.mpris.MediaPlayer2.vlc"
+
+if destination:
+  os.system("dbus-send --type=method_call --dest='" + destination + "' /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause")
