@@ -12,8 +12,12 @@ src = sys.argv[1]
 os.system("convert xc:none -page " + str(width) + "x" + str(height) + " blank.pdf")
 
 n_pages = util.get_pdf_pages(src)
-n_blank_pages_to_add = n_pages % 4
-n_pages = n_pages + n_blank_pages_to_add
+n_pages_padded = n_pages
+while n_pages_padded % 4 != 0:
+  n_pages_padded += 1
+
+n_blank_pages_to_add = n_pages_padded - n_pages
+n_pages = n_pages_padded
 n_sheets = int(n_pages / 4)
 print("Sheets: " + str(n_sheets))
 
@@ -25,12 +29,11 @@ os.system(pad_command)
 
 pages = ""
 for i in range(1, n_sheets + 1):
-  pages += " ".join([str(p) for p in [
-    2 * i - 1 + int(n_pages / 2),
-    2 * i - 1,
-    2 * i,
-    2 * i + int(n_pages / 2),
-  ]]) + " "
+  one =   2 * i - 1 + int(n_pages / 2)
+  two =   2 * i - 1
+  three = 2 * i
+  four =  2 * i + int(n_pages / 2)
+  pages += " ".join([str(p) for p in [one, two, three, four]]) + " "
 # Remove the last space
 if pages[-1] == " ":
   pages = pages[:-1]
