@@ -5,7 +5,7 @@ import random
 import sys
 
 home = os.path.expanduser("~")
-directory = os.path.join(home, "Dropbox", "computer", "reference", "wallpapers")
+directory = os.path.join(home, "pCloudDrive", "computer", "reference", "wallpapers")
 
 if not os.path.exists(directory):
   sys.exit(1)
