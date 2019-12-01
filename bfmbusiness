@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("cvlc https://chai5she.cdn.dvmr.fr/bfmbusiness")

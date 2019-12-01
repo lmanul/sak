@@ -2,4 +2,4 @@
 
 import os
 
-os.system("vlc http://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3")
+os.system("cvlc http://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3")

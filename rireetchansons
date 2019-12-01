@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("cvlc http://cdn.nrjaudio.fm/audio1/fr/30401/mp3_128.mp3")

@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("cvlc http://ais-live.cloud-services.paris:8000/europe1.mp3")

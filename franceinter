@@ -2,4 +2,4 @@
 
 import os
 
-os.system("vlc http://direct.franceinter.fr/live/franceinter-midfi.mp3")
+os.system("cvlc http://direct.franceinter.fr/live/franceinter-midfi.mp3")
