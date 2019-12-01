@@ -6,7 +6,7 @@ import util
 destination = ""
 if util.is_process_running("lollypop"):
   destination = "org.gnome.Lollypop"
-elif util.is_process_running("vlc"):
+elif util.is_process_running("vlc") or util.is_process_running("cvlc"):
   destination = "org.mpris.MediaPlayer2.vlc"
 
 if destination:
