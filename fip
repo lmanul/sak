@@ -1,5 +1,0 @@
-#!/usr/bin/python3
-
-import os
-
-os.system("cvlc http://direct.fipradio.fr/live/fip-midfi.mp3")
