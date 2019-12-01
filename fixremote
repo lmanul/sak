@@ -1,0 +1,8 @@
+#!/usr/bin/python3
+
+# For some reason, the git remote for this repository regularly gets changed to 
+# the http protocol instead of git. Fix this.
+
+import os
+
+os.system("sed -i 's#https://github.com/#git@github.com:#g' .git/config")
