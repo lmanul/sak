@@ -139,7 +139,7 @@ def change_extension(f, new_ext):
   last_dot = f.rfind(".")
   return f[:last_dot] + "." + new_ext
 
-def run_bin_cmd(cmd, args=None):
+def run_bin_cmd(cmd, want_output=True, args=None):
   p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
   sak_p = os.path.join(os.path.expanduser("~"), "repos", "sak", cmd)
   usr_bin_p = os.path.join("/usr", "bin", "", cmd)
@@ -156,13 +156,24 @@ def run_bin_cmd(cmd, args=None):
   else:
     cmd = good_path
   #print(cmd)
-  process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-  output = ""
-  for l in iter(process.stdout.readline, b''):
-    l = l.decode()
-    sys.stdout.write(l)
-    output += l
-  return output
+  if want_output:
+    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    output = ""
+    for l in iter(process.stdout.readline, b''):
+      l = l.decode()
+      sys.stdout.write(l)
+      output += l
+    return output
+  else:
+    silent("nohup " + cmd)
+
+def run_bin_cmd_if_not_running(cmd, want_output=True, args=None):
+  bin_name = cmd
+  if " " in cmd:
+    bin_name = cmd.split(" ")[1]
+  if is_process_running(cmd):
+    return
+  run_bin_cmd(cmd, want_output, args)
 
 def get_current_brightness_and_display_id():
   raw = subprocess.check_output(shlex.split("xrandr --current --verbose")).decode()
