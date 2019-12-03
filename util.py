@@ -165,7 +165,7 @@ def run_bin_cmd(cmd, want_output=True, args=None):
       output += l
     return output
   else:
-    silent("nohup " + cmd)
+    silent(cmd + " &")
 
 def run_bin_cmd_if_not_running(cmd, want_output=True, args=None):
   bin_name = cmd
