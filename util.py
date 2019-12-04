@@ -179,7 +179,7 @@ def run_bin_cmd_kill_existing(cmd, want_output=True, args=None):
   bin_name = cmd
   if " " in cmd:
     bin_name = cmd.split(" ")[1]
-  run_bin_cmd("killgrep", bin_name)
+  run_bin_cmd("killgrep", want_output, bin_name)
   run_bin_cmd(cmd, want_output, args)
 
 def get_current_brightness_and_display_id():
