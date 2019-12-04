@@ -17,6 +17,9 @@ parser.add_option("-n", "--nine", action="store_true",
     help="Send a kill -9 signal", default=False)
 (options, args) = parser.parse_args()
 
+if len(args) < 1:
+  print("I need an argument, but I got: " + str(sys.argv))
+  sys.exit(1)
 pattern = args[0]
 
 running = subprocess.check_output(shlex.split("ps aux")).decode()
