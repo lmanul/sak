@@ -12,6 +12,7 @@ streams = [
   ["franceinfo", "http://direct.franceinfo.fr/live/franceinfo-midfi.mp3"],
   ["franceinter", "http://direct.franceinter.fr/live/franceinter-midfi.mp3"],
   ["francemusique", "http://icecast.radiofrance.fr/francemusique-hifi.aac"],
+  ["kcsm", "http://ice5.securenetsystems.net/KCSM"],
   ["rireetchansons", "http://cdn.nrjaudio.fm/audio1/fr/30401/mp3_128.mp3"],
   ["tsfjazz", "http://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3"],
 ]
