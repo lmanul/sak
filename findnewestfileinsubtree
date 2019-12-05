@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 
 newest_file = None
-newest_mtime = time.time()
+newest_mtime = 0
 
 for path, _, filenames in os.walk(os.getcwd()):
   for f in filenames:
