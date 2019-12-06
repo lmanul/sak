@@ -8,3 +8,4 @@ videos = sys.argv[1:]
 
 cmd = "ffmpeg -i \"concat:" + "|".join(videos) + "\" -c copy output.mp4"
 print(cmd)
+os.system(cmd)
