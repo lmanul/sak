@@ -151,7 +151,6 @@ def run_bin_cmd(cmd, want_output=True, args=None):
     good_path = sak_p
   if not os.path.exists(good_path):
     good_path = usr_bin_p
-  print("Running " + good_path)
   if args:
     cmd = good_path + " " + args
   else:
