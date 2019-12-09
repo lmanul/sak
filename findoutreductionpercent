@@ -1,24 +1,46 @@
 #!/usr/bin/python3
 
 import os
+import subprocess
 import util
 
 xcfdir = "/home/manucornet/repos/goomics/xcf"
 pngdir = "/home/manucornet/Dropbox/computer/drawings/goomics/png"
 
+with open("/home/manucornet/repos/goomics/reduction_percentages.txt") as f:
+  percents_input = f.readlines()
+  f.close()
+
+percents = {}
+for l in percents_input:
+  img, percent = l.strip().split(":")
+  percents[img] = percent
+
 xcfs = os.listdir(xcfdir)
 
+new_percents = {}
 os.chdir(xcfdir)
 for x in xcfs:
   zip = x
   xcf = zip.replace(".zip", "")
+  if xcf in percents:
+    continue
   png = xcf.replace(".xcf", ".png")
   os.system("unzip " + zip)
-  W, H = util.get_image_dimensions(xcf)
-  w, h = util.get_image_dimensions(pngdir + "/" + png)
-  print(str(W) + "X" + str(H))
-  print(str(w) + "x" + str(h))
-  ratio = int(float(w) / float(W) * 100)
-  print(ratio)
+  try:
+    W, H = util.get_image_dimensions(xcf)
+    w, h = util.get_image_dimensions(pngdir + "/" + png)
+    #print(str(W) + "X" + str(H))
+    #print(str(w) + "x" + str(h))
+    ratio = int(float(w) / float(W) * 100)
+    #print(ratio)
+    new_percents[xcf] = ratio
+  except subprocess.CalledProcessError:
+    print("Oops " + xcf)
   os.system("rm " + xcf)
 os.chdir("/home/manucornet")
+
+with open("/home/manucornet/repos/goomics/reduction_percentages.txt", "a") as f:
+  for x in new_percents:
+    f.write(x + ":" + str(new_percents[x]) + "\n")
+  f.close()
