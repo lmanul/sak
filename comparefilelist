@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+a = sys.argv[1]
+b = sys.argv[2]
+
+def get_file_list(the_dir):
+  files = []
+  for path, _, filenames in os.walk(the_dir):
+    for f in filenames:
+      files.append(os.path.join(path, f)[len(the_dir) + 1:])
+  return sorted(files)
+
+a_files = get_file_list(a)
+b_files = get_file_list(b)
+
+if len(a_files) != len(b_files):
+  print("First dir has " + str(len(a_files)) + " files")
+  print("Secnd dir has " + str(len(b_files)) + " files")
+else:
+  print("Same number of files.")
+
+for i in range(max(len(a_files), len(b_files))):
+  if a_files[i] != b_files[i]:
+    print("First difference:\n" + \
+        "\t" + a_files[i] + "\n" + \
+        "\t" + b_files[i] + "\n")
+    break
+print("All done")
