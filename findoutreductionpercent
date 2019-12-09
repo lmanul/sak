@@ -1,0 +1,24 @@
+#!/usr/bin/python3
+
+import os
+import util
+
+xcfdir = "/home/manucornet/repos/goomics/xcf"
+pngdir = "/home/manucornet/Dropbox/computer/drawings/goomics/png"
+
+xcfs = os.listdir(xcfdir)
+
+os.chdir(xcfdir)
+for x in xcfs:
+  zip = x
+  xcf = zip.replace(".zip", "")
+  png = xcf.replace(".xcf", ".png")
+  os.system("unzip " + zip)
+  W, H = util.get_image_dimensions(xcf)
+  w, h = util.get_image_dimensions(pngdir + "/" + png)
+  print(str(W) + "X" + str(H))
+  print(str(w) + "x" + str(h))
+  ratio = int(float(w) / float(W) * 100)
+  print(ratio)
+  os.system("rm " + xcf)
+os.chdir("/home/manucornet")
