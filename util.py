@@ -282,7 +282,9 @@ def make_time_graph(values, out_file, names=[]):
   os.system("rm temp.svg")
 
 def get_cloud_path(path):
-  potentially_cached = os.path.join(os.path.expanduser("~"), path)
-  if os.path.exists(potentially_cached):
-    return potentially_cached
-  return os.path.join(os.path.expanduser("~"), "pCloudDrive", path)
+  # Nevermind, switching back to Dropbox for now.
+  return os.path.join(os.path.expanduser("~"), "Dropbox", path)
+  #potentially_cached = os.path.join(os.path.expanduser("~"), path)
+  #if os.path.exists(potentially_cached):
+  #  return potentially_cached
+  #return os.path.join(os.path.expanduser("~"), "pCloudDrive", path)
