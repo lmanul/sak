@@ -10,7 +10,11 @@ def get_file_list(the_dir):
   files = []
   for path, _, filenames in os.walk(the_dir):
     for f in filenames:
-      files.append(os.path.join(path, f)[len(the_dir) + 1:])
+      # TODO: Add an option to also look at invisible files
+      intermediate = os.path.join(path, f)[len(the_dir) + 1:]
+      if f.startswith(".") or intermediate.startswith("."):
+        continue
+      files.append(intermediate)
   return sorted(files)
 
 a_files = get_file_list(a)
