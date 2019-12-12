@@ -30,7 +30,7 @@ cmd = "montage " + \
     "-geometry " + str(THUMB_SIZE) + "x" + str(THUMB_SIZE) + \
     "+" + str(MARGIN) + "+" + str(MARGIN) + " " + \
     " ".join(thumbs) + " " + out
-print(cmd)
+#print(cmd)
 os.system(cmd)
 
 os.system("rm " + " ".join(thumbs))
@@ -63,6 +63,6 @@ util.run_bin_cmd("imgpadright", True, "120 " + out)
 util.run_bin_cmd("imgpadbottom", True, "40 " + out)
 util.run_bin_cmd("imgjpg85quality", True, out)
 
-#os.system("rm " + text_img_name)
+os.system("rm " + text_img_name)
 os.system("rm " + out_tmp)
-#os.system("rm *.bup")
+os.system("rm *.bup")
