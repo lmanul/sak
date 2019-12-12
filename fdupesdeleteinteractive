@@ -42,7 +42,7 @@ for e in entries:
   answer = input("--> Delete? [Enter] for Yes, n for No: ")
   if answer.strip() == "":
     print("Deleting")
-    os.system("rm " + deletion_candidate)
+    os.system("rm '" + deletion_candidate + "'")
   elif answer.strip() == "n":
     print("Skipping")
   else:

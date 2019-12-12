@@ -4,8 +4,11 @@ import os
 import sys
 import util
 
-MARGIN = 8
-THUMB_SIZE = 300
+PHOTOS_PER_ROW = 6
+THUMB_SIZE = 779
+IMAGE_SIZE = 4724 # 20 cm at 600 dpi
+MARGIN = (IMAGE_SIZE - (PHOTOS_PER_ROW * THUMB_SIZE)) / (PHOTOS_PER_ROW * 2)
+TEXT_MARGIN_BOTTOM = 50
 
 if len(sys.argv) < 2:
   print("I need a folder as an argument.")
@@ -22,9 +25,12 @@ for i in imgs:
 os.system("map 'mkthumb " + str(THUMB_SIZE) + "' " + " ".join(imgs))
 
 out = d + ".jpg"
-cmd = "montage -geometry " + str(THUMB_SIZE) + "x" + str(THUMB_SIZE) + \
+cmd = "montage " + \
+    "-tile " + str(PHOTOS_PER_ROW) + "x" + str(PHOTOS_PER_ROW) + " " + \
+    "-geometry " + str(THUMB_SIZE) + "x" + str(THUMB_SIZE) + \
     "+" + str(MARGIN) + "+" + str(MARGIN) + " " + \
     " ".join(thumbs) + " " + out
+print(cmd)
 os.system(cmd)
 
 os.system("rm " + " ".join(thumbs))
@@ -44,13 +50,19 @@ textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
     " -stroke transparent -fill black -annotate +0+115 '" + textImageText + \
     "' " + text_img_name
 os.system(textImageCreationCommand)
+util.run_bin_cmd("imgpadbottom", True,
+    str(TEXT_MARGIN_BOTTOM) + " " + text_img_name)
 
 out_tmp = out + ".tmp"
 os.system("mv " + " ".join([out, out_tmp]))
 
 os.system("convert -append " + " ".join([text_img_name, out_tmp, out]))
 
-util.run_bin_cmd("imgjpg85quality", out)
+util.run_bin_cmd("imgpadleft", True, "120 " + out)
+util.run_bin_cmd("imgpadright", True, "120 " + out)
+util.run_bin_cmd("imgpadbottom", True, "40 " + out)
+util.run_bin_cmd("imgjpg85quality", True, out)
 
-os.system("rm " + text_img_name)
+#os.system("rm " + text_img_name)
 os.system("rm " + out_tmp)
+#os.system("rm *.bup")
