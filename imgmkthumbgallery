@@ -20,7 +20,10 @@ def generate_text_image(d, width, text_img_name):
   text_img_width = width
   textImageFontSize = 100
   textImageFontFace = "Roboto-Thin"
-  textImageText = d.replace("_", " ")
+  textImageText = d
+  if "/" in textImageText:
+    textImageText = textImageText.split("/")[-1]
+  textImageText = textImageText.replace("_", " ")
   textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
       str(TEXT_IMG_HEIGHT) + " xc:white -font " + textImageFontFace + \
       " -pointsize " + str(textImageFontSize) + \
@@ -37,6 +40,13 @@ if len(sys.argv) < 2:
 
 d = sys.argv[1]
 #d = args[0]
+if not os.path.exists(d):
+  print("'" + d + "' does not exist, aborting.")
+  sys.exit(1)
+if not os.path.isdir(d):
+  print("'" + d + "' is not a directory, aborting.")
+  sys.exit(1)
+
 imgs = [os.path.join(d, f) for f in os.listdir(d)]
 thumbs = []
 for i in imgs:
