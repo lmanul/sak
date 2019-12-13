@@ -135,6 +135,14 @@ def get_date_prefix():
   now = datetime.now()
   return str(now.year) + "." + str(now.month).zfill(2) + "." + str(now.day).zfill(2)
 
+def remove_extension(f):
+  last_dot = f.rfind(".")
+  return f[:last_dot]
+
+def add_suffix_before_extension(f, suffix):
+  last_dot = f.rfind(".")
+  return f[:last_dot] + suffix + "." + f[last_dot + 1:]
+
 def get_extension(f):
   last_dot = f.rfind(".")
   return f[last_dot + 1:]

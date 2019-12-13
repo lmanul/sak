@@ -8,7 +8,23 @@ PHOTOS_PER_ROW = 6
 THUMB_SIZE = 779
 IMAGE_SIZE = 4724 # 20 cm at 600 dpi
 MARGIN = (IMAGE_SIZE - (PHOTOS_PER_ROW * THUMB_SIZE)) / (PHOTOS_PER_ROW * 2)
+TEXT_IMG_HEIGHT = 150
 TEXT_MARGIN_BOTTOM = 50
+
+def generate_text_image(d, width, text_img_name):
+  text_img_width = width
+  textImageFontSize = 100
+  textImageFontFace = "Roboto-Thin"
+  textImageText = d.replace("_", " ")
+  textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
+      str(TEXT_IMG_HEIGHT) + " xc:white -font " + textImageFontFace + \
+      " -pointsize " + str(textImageFontSize) + \
+      " -linewidth 1 -fill white" + \
+      " -stroke transparent -fill black -annotate +0+115 '" + textImageText + \
+      "' " + text_img_name
+  os.system(textImageCreationCommand)
+  util.run_bin_cmd("imgpadbottom", True,
+      str(TEXT_MARGIN_BOTTOM) + " " + text_img_name)
 
 if len(sys.argv) < 2:
   print("I need a folder as an argument.")
@@ -34,35 +50,36 @@ cmd = "montage " + \
 os.system(cmd)
 
 os.system("rm " + " ".join(thumbs))
-(width, height) = util.get_image_dimensions(out)
 
-# Now add the text
-text_img_width = width
-text_img_height = 150
-textImageFontSize = 100
-textImageFontFace = "Roboto-Thin"
-textImageText = d.replace("_", " ")
-text_img_name = out + "text_image.png"
-textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
-    str(text_img_height) + " xc:white -font " + textImageFontFace + \
-    " -pointsize " + str(textImageFontSize) + \
-    " -linewidth 1 -fill white" + \
-    " -stroke transparent -fill black -annotate +0+115 '" + textImageText + \
-    "' " + text_img_name
-os.system(textImageCreationCommand)
-util.run_bin_cmd("imgpadbottom", True,
-    str(TEXT_MARGIN_BOTTOM) + " " + text_img_name)
+outs = []
+if os.path.exists(out):
+  outs = [out]
+else:
+  for i in range(10):
+    candidate = util.add_suffix_before_extension(out, "-" + str(i))
+    if os.path.exists(candidate):
+      outs.append(candidate)
 
-out_tmp = out + ".tmp"
-os.system("mv " + " ".join([out, out_tmp]))
+first_page = True
+for out in outs:
+  if first_page:
+    text_img_name = out + "text_image.png"
+    (width, height) = util.get_image_dimensions(out)
+    generate_text_image(d, width, text_img_name)
+    out_tmp = out + ".tmp"
+    os.system("mv " + " ".join([out, out_tmp]))
+    os.system("convert -append " + " ".join([text_img_name, out_tmp, out]))
+    os.system("rm " + out_tmp)
+  else:
+    util.run_bin_cmd("imgpadtop", True,
+        str(TEXT_IMG_HEIGHT + TEXT_MARGIN_BOTTOM) + " " + out)
 
-os.system("convert -append " + " ".join([text_img_name, out_tmp, out]))
+  util.run_bin_cmd("imgpadleft", True, "120 " + out)
+  util.run_bin_cmd("imgpadright", True, "120 " + out)
+  util.run_bin_cmd("imgpadbottom", True, "40 " + out)
+  util.run_bin_cmd("imgjpg85quality", True, out)
 
-util.run_bin_cmd("imgpadleft", True, "120 " + out)
-util.run_bin_cmd("imgpadright", True, "120 " + out)
-util.run_bin_cmd("imgpadbottom", True, "40 " + out)
-util.run_bin_cmd("imgjpg85quality", True, out)
+  first_page = False
 
 os.system("rm " + text_img_name)
-os.system("rm " + out_tmp)
 os.system("rm *.bup")
