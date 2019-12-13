@@ -4,6 +4,11 @@ import os
 import sys
 import util
 
+from optparse import OptionParser
+
+#parser = OptionParser()
+#(options, args) = parser.parse_args()
+
 PHOTOS_PER_ROW = 6
 THUMB_SIZE = 779
 IMAGE_SIZE = 4724 # 20 cm at 600 dpi
@@ -31,6 +36,7 @@ if len(sys.argv) < 2:
   sys.exit(1)
 
 d = sys.argv[1]
+#d = args[0]
 imgs = [os.path.join(d, f) for f in os.listdir(d)]
 thumbs = []
 for i in imgs:
