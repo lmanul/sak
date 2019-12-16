@@ -1,0 +1,18 @@
+#!/usr/bin/python3
+
+import os
+
+dry_run = False
+
+suzerain = os.path.join(os.path.expanduser("~"), "Dropbox")
+vassals = [
+  os.path.join(os.path.expanduser("~"), "pCloudDrive"),
+]
+
+for v in vassals:
+  cmd = ("rsync "
+         "-a -v " + ("-n " if dry_run else "") + ""
+         "" + suzerain + "/ "
+         "" + v + "/ --delete")
+  print(cmd)
+  os.system(cmd)

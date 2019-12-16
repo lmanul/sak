@@ -28,8 +28,13 @@ else:
 
 for i in range(max(len(a_files), len(b_files))):
   if a_files[i] != b_files[i]:
-    print("First difference:\n" + \
-        "\t" + a + "/" + a_files[i] + "\n" + \
-        "\t" + b + "/" + b_files[i] + "\n")
+    if   i < len(a_files) - 1 and a_files[i + 1] == b_files[i]:
+      print("Missing from 2: " + a_files[i + 1])
+    elif i < len(b_files) - 1 and b_files[i + 1] == a_files[i]:
+      print("Missing from 1: " + b_files[i + 1])
+    else:
+      print("First difference:\n" + \
+          "\t" + a + "/" + a_files[i] + "\n" + \
+          "\t" + b + "/" + b_files[i] + "\n")
     break
 print("All done")
