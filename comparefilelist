@@ -6,19 +6,21 @@ import sys
 a = sys.argv[1]
 b = sys.argv[2]
 
-def get_file_list(the_dir):
-  files = []
+def get_file_set(the_dir):
+  files = set()
   for path, _, filenames in os.walk(the_dir):
     for f in filenames:
       # TODO: Add an option to also look at invisible files
       intermediate = os.path.join(path, f)[len(the_dir) + 1:]
       if f.startswith(".") or intermediate.startswith("."):
         continue
-      files.append(intermediate)
-  return sorted(files)
+      files.add(intermediate)
+  return files
 
-a_files = get_file_list(a)
-b_files = get_file_list(b)
+# For some reason, pCloud sometimes shows more than one file with the exact same 
+# name and path. Very strange.
+a_files = sorted(list(get_file_set(a)))
+b_files = sorted(list(get_file_set(b)))
 
 if len(a_files) != len(b_files):
   print("First dir has " + str(len(a_files)) + " files")
@@ -28,10 +30,20 @@ else:
 
 for i in range(max(len(a_files), len(b_files))):
   if a_files[i] != b_files[i]:
+    # Check whether either of these two different files corresponds to the next 
+    # file on the other side.
+    #print("Not equal:")
+    #print("\n".join(a_files[i-3:i+3]))
+    #print("")
+    #print("\n".join(b_files[i-3:i+3]))
     if   i < len(a_files) - 1 and a_files[i + 1] == b_files[i]:
-      print("Missing from 2: " + a_files[i + 1])
+      print("Missing file from 2. To copy it over: ")
+      print("\n\tcp " + a + "/" +  a_files[i] + " " + b + "/" + a_files[i])
+      print("")
     elif i < len(b_files) - 1 and b_files[i + 1] == a_files[i]:
-      print("Missing from 1: " + b_files[i + 1])
+      print("Missing file from 1. To copy it over:")
+      print("\n\tcp " + b + "/" +  b_files[i] + " " + a + "/" + b_files[i])
+      print("")
     else:
       print("First difference:\n" + \
           "\t" + a + "/" + a_files[i] + "\n" + \
