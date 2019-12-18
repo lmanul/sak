@@ -15,7 +15,9 @@ os.system("convert xc:none -page " + str(width) + "x" + str(height) + " blank.pd
 
 os.system("mv " + src + " " + bup)
 
-if page == 1:
+if page == 0:
+  cat_argument = "cat B A"
+elif page == 1:
   cat_argument = "cat A1 B A2-end"
 elif page == n_pages:
   cat_argument = "cat A B"

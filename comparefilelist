@@ -12,7 +12,8 @@ def get_file_set(the_dir):
     for f in filenames:
       # TODO: Add an option to also look at invisible files
       intermediate = os.path.join(path, f)[len(the_dir) + 1:]
-      if f.startswith(".") or intermediate.startswith("."):
+      if f.startswith(".") or intermediate.startswith(".") or \
+          path.startswith("."):
         continue
       files.add(intermediate)
   return files

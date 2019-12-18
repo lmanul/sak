@@ -3,6 +3,8 @@
 import os
 
 dry_run = False
+# Careful! Don't set this to True because of chromium
+delete = False
 
 suzerain = os.path.join(os.path.expanduser("~"), "Dropbox")
 vassals = [
@@ -13,6 +15,8 @@ for v in vassals:
   cmd = ("rsync "
          "-a " + ("-n " if dry_run else "") + ""
          "" + suzerain + "/ "
-         "" + v + "/ --delete")
+         "" + v + "/")
+  if delete:
+    cmd += " --delete"
   print(cmd)
   os.system(cmd)
