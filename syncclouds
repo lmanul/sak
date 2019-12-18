@@ -11,7 +11,7 @@ vassals = [
 
 for v in vassals:
   cmd = ("rsync "
-         "-a -v " + ("-n " if dry_run else "") + ""
+         "-a " + ("-n " if dry_run else "") + ""
          "" + suzerain + "/ "
          "" + v + "/ --delete")
   print(cmd)

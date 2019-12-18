@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+speed = sys.argv[1]
+src = sys.argv[2]
+bup = src + ".bup"
+os.system("mv " + src + " " + bup)
+
+cmd = "ffmpeg -i " + bup + " -filter:a 'atempo=" + speed + "' -vn -y " + src
+#print(cmd)
+os.system(cmd)
