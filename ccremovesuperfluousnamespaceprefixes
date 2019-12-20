@@ -20,12 +20,12 @@ def process_one_file(path):
   #   corresponding location in 'stack' of opening paren
   # ]
   ns_stack = []
-  lines = [l.strip() for l in handle.readlines()]
   out = []
-  handle.close()
   namespace = ""
   rewrite = False
-  for l in lines:
+  for l in handle.readlines():
+    # Remove endline
+    l = l[:-1]
     out.append(l)
     # TODO: Support /* */ style comments
     if "//" in l:
@@ -34,10 +34,10 @@ def process_one_file(path):
     if matches:
       ns_stack.append([matches.group(1), len(stack)])
     current_ns = ns_stack[-1][0] if len(ns_stack) else ""
-    if current_ns and current_ns + "::" in l:
+    # "using" requires a qualified name.
+    if current_ns and current_ns + "::" in l and "using" not in l:
       rewrite = True
       out[-1] = out[-1].replace(current_ns + "::", "")
-      print("\n\nUnneeded: " + l + "\n\n")
     for c in l:
       if c in PARENS[1]:
         i = PARENS[1].index(c)
@@ -50,9 +50,13 @@ def process_one_file(path):
       elif c in PARENS[0]:
         stack.append(c)
     current_namespace = ns_stack[-1][0] if len(ns_stack) > 0 else ""
+    # Debug
     #print(l.strip() + ("." * (COLS - len(l))) + "(" + current_namespace + ")")
+  handle.close()
   if rewrite:
     with open(path, "w") as f:
+      # Add a blank newline at the end of the file
+      out.append("")
       f.write("\n".join(out))
       f.close()
 
