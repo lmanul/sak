@@ -6,18 +6,44 @@ import re
 EXTENSIONS = ["cc", "h", "cpp"]
 NS_START = re.compile("^\s*namespace\s*([a-z_]*)\s*{")
 #NS_START = re.compile(".*namespace(.*)")
+COLS = 80
+PARENS = [
+  ["(", "{", "["],
+  [")", "}", "]"],
+]
 
 def process_one_file(path):
   print(path)
   handle = open(path)
+  stack = []
+  # Each element is [
+  #   namespace,
+  #   corresponding location in 'stack' of opening paren
+  # ]
+  namespace_stack = []
   lines = [l.strip() for l in handle.readlines()]
   handle.close()
   namespace = ""
   for l in lines:
+    # TODO: Support /* */ style comments
+    if "//" in l:
+      l = l[:l.find("//")]
     matches = NS_START.match(l)
     if matches:
-      namespace = matches.group(1)
-    print(namespace + ": " + l.strip())
+      namespace_stack.append([matches.group(1), len(stack)])
+    for c in l:
+      if c in PARENS[1]:
+        i = PARENS[1].index(c)
+        if stack[-1] == PARENS[0][i]:
+          stack.pop()
+          if len(stack) == namespace_stack[-1][1]:
+            namespace_stack.pop()
+        else:
+          print("Invalid syntax: " + l)
+      elif c in PARENS[0]:
+        stack.append(c)
+    current_namespace = namespace_stack[-1][0] if len(namespace_stack) > 0 else ""
+    print(l.strip() + ("." * (COLS - len(l))) + "(" + current_namespace + ")")
 
 for path, _, filenames in os.walk(os.getcwd()):
   for f in filenames:
