@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-DEBUG = True
+DEBUG = False
 EXTENSIONS = ["cc", "h", "cpp"]
 NS_START = re.compile("^\s*namespace\s*([a-z_]*)\s*{")
 #NS_START = re.compile(".*namespace(.*)")
@@ -38,7 +38,10 @@ def process_one_file(path):
       ns_stack.append([matches.group(1), len(stack)])
     current_ns = ns_stack[-1][0] if len(ns_stack) else ""
     # "using" requires a qualified name.
-    if current_ns and current_ns + "::" in l and "using" not in l:
+    if current_ns \
+        and current_ns + "::" in l \
+        and "::" + current_ns + "::" not in l \
+        and "using" not in l:
       rewrite = True
       out[-1] = out[-1].replace(current_ns + "::", "")
     for c in l:
