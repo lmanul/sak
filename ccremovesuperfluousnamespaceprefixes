@@ -13,7 +13,6 @@ PARENS = [
 ]
 
 def process_one_file(path):
-  print(path)
   handle = open(path)
   stack = []
   # Each element is [
@@ -22,9 +21,12 @@ def process_one_file(path):
   # ]
   ns_stack = []
   lines = [l.strip() for l in handle.readlines()]
+  out = []
   handle.close()
   namespace = ""
+  rewrite = False
   for l in lines:
+    out.append(l)
     # TODO: Support /* */ style comments
     if "//" in l:
       l = l[:l.find("//")]
@@ -33,6 +35,8 @@ def process_one_file(path):
       ns_stack.append([matches.group(1), len(stack)])
     current_ns = ns_stack[-1][0] if len(ns_stack) else ""
     if current_ns and current_ns + "::" in l:
+      rewrite = True
+      out[-1] = out[-1].replace(current_ns + "::", "")
       print("\n\nUnneeded: " + l + "\n\n")
     for c in l:
       if c in PARENS[1]:
@@ -47,6 +51,10 @@ def process_one_file(path):
         stack.append(c)
     current_namespace = ns_stack[-1][0] if len(ns_stack) > 0 else ""
     #print(l.strip() + ("." * (COLS - len(l))) + "(" + current_namespace + ")")
+  if rewrite:
+    with open(path, "w") as f:
+      f.write("\n".join(out))
+      f.close()
 
 for path, _, filenames in os.walk(os.getcwd()):
   for f in filenames:
