@@ -15,7 +15,8 @@ os.system("map mkpdf " + " ".join(sys.argv[1:]))
 
 allPdfs = " ".join(pdfs_to_delete)
 print "Joining all PDFs..."
-os.system("pdfjoin " + allPdfs + " -o output.pdf")
+#os.system("pdfjoin " + allPdfs + " -o output.pdf")
+os.system("pdftk " + allPdfs + " cat output output.pdf")
 print "Deleting temporary files..."
 for pdf in pdfs_to_delete:
   os.system("rm " + pdf)

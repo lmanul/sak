@@ -2,17 +2,20 @@
 
 import os
 import re
+import sys
 
+DEBUG = True
 EXTENSIONS = ["cc", "h", "cpp"]
 NS_START = re.compile("^\s*namespace\s*([a-z_]*)\s*{")
 #NS_START = re.compile(".*namespace(.*)")
-COLS = 80
+COLS = 82
 PARENS = [
   ["(", "{", "["],
   [")", "}", "]"],
 ]
 
 def process_one_file(path):
+  sys.stderr.write(path + "...\n")
   handle = open(path)
   stack = []
   # Each element is [
@@ -27,8 +30,8 @@ def process_one_file(path):
     # Remove endline
     l = l[:-1]
     out.append(l)
-    # TODO: Support /* */ style comments
-    if "//" in l:
+    # TODO: Support /* */ style comments. This is simplistic parsing.
+    if l.startswith("//") or " //" in l:
       l = l[:l.find("//")]
     matches = NS_START.match(l)
     if matches:
@@ -43,15 +46,15 @@ def process_one_file(path):
         i = PARENS[1].index(c)
         if stack[-1] == PARENS[0][i]:
           stack.pop()
-          if len(stack) == ns_stack[-1][1]:
+          if len(ns_stack) and len(stack) == ns_stack[-1][1]:
             ns_stack.pop()
         else:
           print("Invalid syntax: " + l)
       elif c in PARENS[0]:
         stack.append(c)
     current_namespace = ns_stack[-1][0] if len(ns_stack) > 0 else ""
-    # Debug
-    #print(l.strip() + ("." * (COLS - len(l))) + "(" + current_namespace + ")")
+    if DEBUG:
+      print(l + ("." * (COLS - len(l))) + "(" + current_namespace + ") " + str(stack))
   handle.close()
   if rewrite:
     with open(path, "w") as f:
