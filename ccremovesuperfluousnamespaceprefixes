@@ -20,7 +20,7 @@ def process_one_file(path):
   #   namespace,
   #   corresponding location in 'stack' of opening paren
   # ]
-  namespace_stack = []
+  ns_stack = []
   lines = [l.strip() for l in handle.readlines()]
   handle.close()
   namespace = ""
@@ -30,20 +30,23 @@ def process_one_file(path):
       l = l[:l.find("//")]
     matches = NS_START.match(l)
     if matches:
-      namespace_stack.append([matches.group(1), len(stack)])
+      ns_stack.append([matches.group(1), len(stack)])
+    current_ns = ns_stack[-1][0] if len(ns_stack) else ""
+    if current_ns and current_ns + "::" in l:
+      print("\n\nUnneeded: " + l + "\n\n")
     for c in l:
       if c in PARENS[1]:
         i = PARENS[1].index(c)
         if stack[-1] == PARENS[0][i]:
           stack.pop()
-          if len(stack) == namespace_stack[-1][1]:
-            namespace_stack.pop()
+          if len(stack) == ns_stack[-1][1]:
+            ns_stack.pop()
         else:
           print("Invalid syntax: " + l)
       elif c in PARENS[0]:
         stack.append(c)
-    current_namespace = namespace_stack[-1][0] if len(namespace_stack) > 0 else ""
-    print(l.strip() + ("." * (COLS - len(l))) + "(" + current_namespace + ")")
+    current_namespace = ns_stack[-1][0] if len(ns_stack) > 0 else ""
+    #print(l.strip() + ("." * (COLS - len(l))) + "(" + current_namespace + ")")
 
 for path, _, filenames in os.walk(os.getcwd()):
   for f in filenames:
