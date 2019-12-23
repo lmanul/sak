@@ -17,8 +17,8 @@ for p in pages:
 
 os.system("cp " + pdf + " " + pdf + ".bup")
 
-command = "pdfjoin --rotateoversize false --fitpaper false " + pdf + " " + \
-  ",".join([str(p) for p in pages_to_keep]) + " --outfile " + tempo
+command = "pdftk " + pdf + " cat " + \
+  " ".join([str(p) for p in pages_to_keep]) + " output " + tempo
 os.system(command)
 
 os.system("mv " + tempo + " " + pdf)

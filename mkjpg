@@ -5,7 +5,7 @@ import sys
 
 i = sys.argv[1]
 
-args = "-background white -flatten"
+args = "-background white -flatten -quality 100"
 
 if i.endswith(".pdf"):
   args += " -density 600"
