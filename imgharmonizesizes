@@ -79,12 +79,12 @@ for i in ins:
   if width > max_width:
     max_width = width
     max_width_file = i
-    sys.stdout.write(" <- new max width")
+    sys.stdout.write(" <- new max width for " + i)
     sys.stdout.flush()
   if height > max_height:
     max_height = height
     max_height_file = i
-    sys.stdout.write(" <- new max height")
+    sys.stdout.write(" <- new max height for " + i)
     sys.stdout.flush()
   sys.stdout.write("\n")
 print("Found max width in " + max_width_file + " and height in " + max_height_file)
