@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+p = sys.argv[1]
+f = sys.argv[2]
+
+os.system("cp " + f + " " + f + ".bup")
+os.system("sed -n -i '/" + p + "/q;p' " + f)
