@@ -1,0 +1,9 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+f = sys.argv[1]
+
+os.system("mv " + f + " " + f + ".bup")
+os.system("sort " + f + ".bup > " + f)

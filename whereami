@@ -1,0 +1,12 @@
+#!/usr/bin/python3
+
+import shlex
+import subprocess
+import util
+
+if util.is_online():                                                                                                                                                     
+  my_ip = subprocess.check_output(shlex.split("curl -s ipinfo.io/ip")).decode()                                                                                          
+  location_info = subprocess.check_output(shlex.split("curl -s ipinfo.io/" + my_ip)).decode()
+  print(location_info)
+else:
+  print("You are offline")
