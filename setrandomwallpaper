@@ -6,7 +6,7 @@ import sys
 import util
 
 home = os.path.expanduser("~")
-directory = util.get_cloud_path("computer/reference/wallpapers")
+directory = util.get_cloud_path("main/reference/wallpapers")
 
 if not os.path.exists(directory):
   sys.exit(1)
