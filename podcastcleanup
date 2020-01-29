@@ -46,7 +46,7 @@ def get_duration(e):
   return duration
 
 home = os.path.expanduser("~")
-podcasts_dir = os.path.join(home, "Dropbox", "mobile", "in_progress", "podcasts")
+podcasts_dir = os.path.join(home, "Dropbox", "mini", "podcasts")
 
 os.chdir(podcasts_dir)
 util.run_bin_cmd("sanitizefilenames", "*")
