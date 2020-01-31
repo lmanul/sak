@@ -270,8 +270,17 @@ def make_time_graph(values, out_file, names=[]):
       print("You've given me " + str(len(values)) + ""
             " series but " + str(len(names)) + " names. Aborting.")
       return
-  first_date_parts = [int(v) for v in values[0][0][0].split(".")]
-  last_date_parts = [int(v) for v in values[0][-1][0].split(".")]
+  # Find the earliest and latest dates in all series.
+  first_date_string = values[0][0][0]
+  last_date_string = values[0][-1][0]
+  for series in values:
+    for point in series:
+      if point[0] < first_date_string:
+        first_date_string = point[0]
+      if point[0] > last_date_string:
+        last_date_string = point[0]
+  first_date_parts = [int(v) for v in first_date_string.split(".")]
+  last_date_parts = [int(v) for v in last_date_string.split(".")]
   first_date = datetime.combine(date(*first_date_parts), datetime.min.time())
   last_date =  datetime.combine(date(*last_date_parts), datetime.min.time())
   chart = leather.Chart('')

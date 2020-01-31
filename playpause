@@ -4,10 +4,11 @@ import os
 import util
 
 destination = ""
-if util.is_process_running("lollypop"):
-  destination = "org.gnome.Lollypop"
-elif util.is_process_running("vlc") or util.is_process_running("cvlc"):
+# Lollypop is often running and stopped. Let's try to target other players first.
+if util.is_process_running("vlc") or util.is_process_running("cvlc"):
   destination = "org.mpris.MediaPlayer2.vlc"
+elif util.is_process_running("lollypop"):
+  destination = "org.gnome.Lollypop"
 
 if destination:
   os.system("dbus-send --type=method_call --dest='" + destination + "' /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause")
