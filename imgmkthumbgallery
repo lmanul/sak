@@ -47,7 +47,7 @@ if not os.path.isdir(d):
   print("'" + d + "' is not a directory, aborting.")
   sys.exit(1)
 
-imgs = [os.path.join(d, f) for f in os.listdir(d)]
+imgs = [os.path.join(d, f) for f in os.listdir(d) if f.endswith(".jpg")]
 thumbs = []
 for i in imgs:
   if i.endswith(".jpg"):
