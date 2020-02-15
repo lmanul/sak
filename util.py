@@ -251,6 +251,13 @@ def is_online():
 def silent(command):
   os.system(command + " > /dev/null 2>&1")
 
+# Convert back and forth from date object to YYYY.MM.DD
+def string_to_date(date_string):
+  return date(*([int(c) for c in date_string.split(".")]))
+
+def date_to_string(d):
+  return ".".join([str(d.year), str(d.month).zfill(2), str(d.day).zfill(2)])
+
 # |values| is a list of series. A series is a list of points. A point is a 
 # [date, value] pair. A date is formatted as YYYY.MM.DD.
 def make_time_graph(values, out_file, names=[]):
