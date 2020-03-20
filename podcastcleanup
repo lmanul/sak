@@ -40,9 +40,13 @@ def get_date(e):
   return None
 
 def get_duration(e):
-  duration = subprocess.check_output(
-      ["mp3info", "-p", "'%m:%s\n'", e]).decode("utf-8")
-  duration = duration.replace("'", "").replace(":", "m").strip()
+  duration = 0
+  try:
+    duration = subprocess.check_output(
+        ["mp3info", "-p", "'%m:%s\n'", e]).decode("utf-8")
+    duration = duration.replace("'", "").replace(":", "m").strip()
+  except subprocess.CalledProcessError:
+    print("Couldn't get duration for " + e)
   return duration
 
 home = os.path.expanduser("~")

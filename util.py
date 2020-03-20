@@ -117,7 +117,7 @@ def sanitize_for_filename(input):
       break
   if output[-1:] in ["_", "."]:
     output = output[:-1]
-  if output[0] in ["_"]:
+  if len(output) > 0 and output[0] in ["_"]:
     output = output[1:]
   # Standard image extensions
   if output.endswith(".jpeg"):
