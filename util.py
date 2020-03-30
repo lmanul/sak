@@ -249,7 +249,7 @@ def is_online():
 
 # Runs the given command and silence stdout and stderr.
 def silent(command):
-  os.system(command + " > /dev/null 2>&1")
+  return os.system(command + " > /dev/null 2>&1")
 
 # Convert back and forth from date object to YYYY.MM.DD
 def string_to_date(date_string):
