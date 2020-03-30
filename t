@@ -4,6 +4,7 @@ import datetime
 import pytz
 
 TZ = [
+    ['US/Hawaii', 'Hawaii'],
     ['America/Los_Angeles', 'San Francisco'],
     ['America/New_York', 'New York'],
     ['Etc/UTC', 'UTC'],

@@ -12,7 +12,7 @@ for file in sys.argv[1:]:
   elif file.endswith(".pdf"):
     command = "convert -density 600 " + file + " " + png
   elif file.endswith(".svg"):
-    command = "convert -density 500 " + file + " " + png
+    command = "convert -background none -density 500 " + file + " " + png
   else:
     command = "convert " + file + " " + png
   #print command + "..."
