@@ -26,11 +26,12 @@ for root, dirs, files in os.walk("."):
     full_file = os.path.join(root, file)
     if file.endswith(".mp3"):
       all_mp3_files.append(full_file)
-      #print(full_file)
     elif file.endswith(".jpg"):
       all_jpg_files.append(full_file)
     elif file.endswith(".pdf"):
       all_pdf_files.append(full_file)
+    elif file.endswith(".txt"):
+      ignore_this_for_now = True
     else:
       if not full_file.endswith("todo.txt") and not full_file.endswith("README.txt"):
         unknown_files.append(full_file)
