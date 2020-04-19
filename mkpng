@@ -1,21 +1,27 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import sys
 
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-d", "--density", help="Force", dest="density", default=500)
+(options, args) = parser.parse_args()
+
 command = ""
-for file in sys.argv[1:]:
+for file in args:
   basename = os.path.splitext(file)[0]
   png = basename + ".png"
   if file.endswith("xcf"):
     command = "xcf2png " + file + " > " + png
   elif file.endswith(".pdf"):
-    command = "convert -density 600 " + file + " " + png
+    command = "convert -density " + str(options.density) + " " + file + " " + png
   elif file.endswith(".svg"):
-    command = "convert -background none -density 500 " + file + " " + png
+    command = "convert -background none -density " + str(options.density) + " " + file + " " + png
   else:
-    command = "convert " + file + " " + png
-  #print command + "..."
+    command = "convert -density " + str(options.density) + " " + file + " " + png
+  #print(command + "...")
   os.system(command)
   # Handle potential multiple pages.
   #command = "optipng " + basename + "*.png"
