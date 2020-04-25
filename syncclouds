@@ -4,7 +4,7 @@ import os
 
 dry_run = False
 # Careful! Don't set this to True because of chromium
-delete = False
+delete = True
 
 suzerain = os.path.join(os.path.expanduser("~"), "Dropbox")
 vassals = [

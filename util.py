@@ -304,11 +304,3 @@ def make_time_graph(values, out_file, names=[]):
   chart.to_svg('temp.svg')
   os.system("convert -density 500 temp.svg " + out_file)
   os.system("rm temp.svg")
-
-def get_cloud_path(path):
-  # Nevermind, switching back to Dropbox for now.
-  return os.path.join(os.path.expanduser("~"), "Dropbox", path)
-  #potentially_cached = os.path.join(os.path.expanduser("~"), path)
-  #if os.path.exists(potentially_cached):
-  #  return potentially_cached
-  #return os.path.join(os.path.expanduser("~"), "pCloudDrive", path)
