@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # coding=utf-8
 
 import os
@@ -7,7 +7,6 @@ import sys
 import util
 
 def rename_and_move(path):
-  path = path.decode("utf-8")
   newName = ""
   dontModify = ""
   lastSep = path.rfind(os.path.sep)
@@ -41,4 +40,3 @@ for file in filesToRename:
 
 for directory in dirsToRename:
   rename_and_move(directory)
-
