@@ -51,7 +51,7 @@ def get_genre(all_tags):
   return "Unknown"
 
 def file_has_cover_img(f):
-  all_tags = subprocess.check_output(["id3v2", "-l", f])
+  all_tags = subprocess.check_output(["id3v2", "-l", f]).decode()
   return ("APIC " in all_tags)
 
 def try_to_fill_cover_from_siblings(f):
@@ -87,12 +87,12 @@ def process_cover_image(directory):
     for m in mp3_siblings:
       if not file_has_cover_img(m):
         cmd = "eyeD3 --add-image '" + f + "':FRONT_COVER '" + m + "'"
-        os.system(cmd)  
+        os.system(cmd)
 
 def process_one_file(f):
   sys.stderr.write(".")
   sys.stderr.flush()
-  all_tags = subprocess.check_output(["id3v2", "-l", f])
+  all_tags = subprocess.check_output(["id3v2", "-l", f]).decode()
   remove_tag_if_present("COMM", all_tags, f) # Comment
   remove_tag_if_present("TPE2", all_tags, f) # Album artist
   remove_tag_if_present("TCOP", all_tags, f) # Copyright
