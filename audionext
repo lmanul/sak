@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+
+import audio
+
+audio.send_command_to_music_player("Next")
