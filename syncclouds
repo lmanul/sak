@@ -8,15 +8,15 @@ delete = True
 
 suzerain = os.path.join(os.path.expanduser("~"), "Dropbox")
 vassals = [
-  os.path.join(os.path.expanduser("~"), "pCloudDrive"),
+    os.path.join(os.path.expanduser("~"), "pCloudDrive"),
 ]
 
 for v in vassals:
-  cmd = ("rsync "
-         "-av " + ("-n " if dry_run else "") + ""
-         "" + suzerain + "/ "
-         "" + v + "/")
-  if delete:
-    cmd += " --delete"
-  print(cmd)
-  os.system(cmd)
+    cmd = ("rsync "
+           "-av " + ("-n " if dry_run else "") + ""
+           "" + suzerain + "/ "
+           "" + v + "/")
+    if delete:
+        cmd += " --delete"
+    print(cmd)
+    os.system(cmd)
