@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
 import os
+import shlex
+import subprocess
+import sys
 
 dry_run = False
-# Careful! Don't set this to True because of chromium
 delete = True
 
 suzerain = os.path.join(os.path.expanduser("~"), "Dropbox")
@@ -19,4 +21,12 @@ for v in vassals:
     if delete:
         cmd += " --delete"
     print(cmd)
-    os.system(cmd)
+    process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
+    # Only show files, not directories
+    for line in iter(process.stdout.readline, b''):
+        l = line.decode().strip()
+        if l.endswith("/"):
+            sys.stdout.write(".")
+            sys.stdout.flush()
+        else:
+            print(l)
