@@ -61,6 +61,7 @@ os.chdir(podcasts_dir)
 util.run_bin_cmd("sanitizefilenames", "*")
 os.system("find . -name '*conflicted*' -delete")
 os.system("rm -rf *Conflict*")
+os.system("rm -f .LOG/errors")
 
 folders = sorted(
     [d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")]
@@ -77,7 +78,7 @@ for f in folders:
     for e in episodes:
         date_prefix = util.get_date_prefix()
         # If the file already has a date prefix, preserve it
-        if re.match("^\d\d\d\d\.\d\d\.\d\d", e) is not None:
+        if re.match(r"^\d\d\d\d\.\d\d\.\d\d", e) is not None:
             date_prefix = e[:10]
         title = get_title(e)
         date = get_date(e)
@@ -110,7 +111,7 @@ for f in folders:
         os.system("rmdir '" + f + "'")
 
 os.chdir(".LOG")
-log_files = [f for f in os.listdir(".")]
+log_files = os.listdir(".")
 for l in log_files:
     if "conflict" in l:
         os.system('rm "' + l + '"')
