@@ -4,18 +4,18 @@ import os
 import sys
 
 if len(sys.argv) is 3:
-  percent = sys.argv[1]
-  file = sys.argv[2]
-  arg = '"' + percent + '%"'
+    percent = sys.argv[1]
+    file = sys.argv[2]
+    arg = '"' + percent + '%"'
 elif len(sys.argv) is 4:
-  percent_1 = sys.argv[1]
-  percent_2 = sys.argv[2]
-  file = sys.argv[3]
-  arg = '"' + percent_1 + '%,' + percent_2 + '%"'
+    percent_1 = sys.argv[1]
+    percent_2 = sys.argv[2]
+    file = sys.argv[3]
+    arg = '"' + percent_1 + "%," + percent_2 + '%"'
 
 bup = file + ".bup"
 
 os.system("cp " + file + " " + bup)
 command = "convert -level " + arg + " " + file + " " + file
-#print command
+# print command
 os.system(command)

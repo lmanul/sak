@@ -7,7 +7,7 @@ import time
 
 du = os.path.join(os.path.expanduser("~"), "repos", "sak", "du")
 
-while (True):
-  output = subprocess.check_output([du]).decode()
-  print("-------------------------------------\n\n" + output)
-  time.sleep(0.25)
+while True:
+    output = subprocess.check_output([du]).decode()
+    print("-------------------------------------\n\n" + output)
+    time.sleep(0.25)

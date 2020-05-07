@@ -6,96 +6,124 @@ import util
 
 from optparse import OptionParser
 
-#parser = OptionParser()
-#(options, args) = parser.parse_args()
+# parser = OptionParser()
+# (options, args) = parser.parse_args()
 
 PHOTOS_PER_ROW = 6
 THUMB_SIZE = 779
-IMAGE_SIZE = 4724 # 20 cm at 600 dpi
+IMAGE_SIZE = 4724  # 20 cm at 600 dpi
 MARGIN = (IMAGE_SIZE - (PHOTOS_PER_ROW * THUMB_SIZE)) / (PHOTOS_PER_ROW * 2)
 TEXT_IMG_HEIGHT = 150
 TEXT_MARGIN_BOTTOM = 50
 
+
 def generate_text_image(d, width, text_img_name):
-  text_img_width = width
-  textImageFontSize = 100
-  textImageFontFace = "Roboto-Thin"
-  textImageText = d
-  if "/" in textImageText:
-    textImageText = textImageText.split("/")[-1]
-  textImageText = textImageText.replace("_", " ")
-  textImageCreationCommand = "convert -size " + str(text_img_width) + "x" + \
-      str(TEXT_IMG_HEIGHT) + " xc:white -font " + textImageFontFace + \
-      " -pointsize " + str(textImageFontSize) + \
-      " -linewidth 1 -fill white" + \
-      " -stroke transparent -fill black -annotate +0+115 '" + textImageText + \
-      "' " + text_img_name
-  os.system(textImageCreationCommand)
-  util.run_bin_cmd("imgpadbottom", True,
-      str(TEXT_MARGIN_BOTTOM) + " " + text_img_name)
+    text_img_width = width
+    textImageFontSize = 100
+    textImageFontFace = "Roboto-Thin"
+    textImageText = d
+    if "/" in textImageText:
+        textImageText = textImageText.split("/")[-1]
+    textImageText = textImageText.replace("_", " ")
+    textImageCreationCommand = (
+        "convert -size "
+        + str(text_img_width)
+        + "x"
+        + str(TEXT_IMG_HEIGHT)
+        + " xc:white -font "
+        + textImageFontFace
+        + " -pointsize "
+        + str(textImageFontSize)
+        + " -linewidth 1 -fill white"
+        + " -stroke transparent -fill black -annotate +0+115 '"
+        + textImageText
+        + "' "
+        + text_img_name
+    )
+    os.system(textImageCreationCommand)
+    util.run_bin_cmd(
+        "imgpadbottom", True, str(TEXT_MARGIN_BOTTOM) + " " + text_img_name
+    )
+
 
 if len(sys.argv) < 2:
-  print("I need a folder as an argument.")
-  sys.exit(1)
+    print("I need a folder as an argument.")
+    sys.exit(1)
 
 d = sys.argv[1]
-#d = args[0]
+# d = args[0]
 if not os.path.exists(d):
-  print("'" + d + "' does not exist, aborting.")
-  sys.exit(1)
+    print("'" + d + "' does not exist, aborting.")
+    sys.exit(1)
 if not os.path.isdir(d):
-  print("'" + d + "' is not a directory, aborting.")
-  sys.exit(1)
+    print("'" + d + "' is not a directory, aborting.")
+    sys.exit(1)
 
 imgs = [os.path.join(d, f) for f in os.listdir(d) if f.endswith(".jpg")]
 thumbs = []
 for i in imgs:
-  if i.endswith(".jpg"):
-    thumbs.append(i.replace(".jpg", "_thumbnail.jpg"))
-  elif i.endswith(".png"):
-    thumbs.append(i.replace(".png", "_thumbnail.png"))
+    if i.endswith(".jpg"):
+        thumbs.append(i.replace(".jpg", "_thumbnail.jpg"))
+    elif i.endswith(".png"):
+        thumbs.append(i.replace(".png", "_thumbnail.png"))
 os.system("map 'mkthumb " + str(THUMB_SIZE) + "' " + " ".join(imgs))
 
 out = d + ".jpg"
-cmd = "montage " + \
-    "-tile " + str(PHOTOS_PER_ROW) + "x" + str(PHOTOS_PER_ROW) + " " + \
-    "-geometry " + str(THUMB_SIZE) + "x" + str(THUMB_SIZE) + \
-    "+" + str(MARGIN) + "+" + str(MARGIN) + " " + \
-    " ".join(thumbs) + " " + out
-#print(cmd)
+cmd = (
+    "montage "
+    + "-tile "
+    + str(PHOTOS_PER_ROW)
+    + "x"
+    + str(PHOTOS_PER_ROW)
+    + " "
+    + "-geometry "
+    + str(THUMB_SIZE)
+    + "x"
+    + str(THUMB_SIZE)
+    + "+"
+    + str(MARGIN)
+    + "+"
+    + str(MARGIN)
+    + " "
+    + " ".join(thumbs)
+    + " "
+    + out
+)
+# print(cmd)
 os.system(cmd)
 
 os.system("rm " + " ".join(thumbs))
 
 outs = []
 if os.path.exists(out):
-  outs = [out]
+    outs = [out]
 else:
-  for i in range(10):
-    candidate = util.add_suffix_before_extension(out, "-" + str(i))
-    if os.path.exists(candidate):
-      outs.append(candidate)
+    for i in range(10):
+        candidate = util.add_suffix_before_extension(out, "-" + str(i))
+        if os.path.exists(candidate):
+            outs.append(candidate)
 
 first_page = True
 for out in outs:
-  if first_page:
-    text_img_name = out + "text_image.png"
-    (width, height) = util.get_image_dimensions(out)
-    generate_text_image(d, width, text_img_name)
-    out_tmp = out + ".tmp"
-    os.system("mv " + " ".join([out, out_tmp]))
-    os.system("convert -append " + " ".join([text_img_name, out_tmp, out]))
-    os.system("rm " + out_tmp)
-  else:
-    util.run_bin_cmd("imgpadtop", True,
-        str(TEXT_IMG_HEIGHT + TEXT_MARGIN_BOTTOM) + " " + out)
+    if first_page:
+        text_img_name = out + "text_image.png"
+        (width, height) = util.get_image_dimensions(out)
+        generate_text_image(d, width, text_img_name)
+        out_tmp = out + ".tmp"
+        os.system("mv " + " ".join([out, out_tmp]))
+        os.system("convert -append " + " ".join([text_img_name, out_tmp, out]))
+        os.system("rm " + out_tmp)
+    else:
+        util.run_bin_cmd(
+            "imgpadtop", True, str(TEXT_IMG_HEIGHT + TEXT_MARGIN_BOTTOM) + " " + out
+        )
 
-  util.run_bin_cmd("imgpadleft", True, "120 " + out)
-  util.run_bin_cmd("imgpadright", True, "120 " + out)
-  util.run_bin_cmd("imgpadbottom", True, "40 " + out)
-  util.run_bin_cmd("imgjpg85quality", True, out)
+    util.run_bin_cmd("imgpadleft", True, "120 " + out)
+    util.run_bin_cmd("imgpadright", True, "120 " + out)
+    util.run_bin_cmd("imgpadbottom", True, "40 " + out)
+    util.run_bin_cmd("imgjpg85quality", True, out)
 
-  first_page = False
+    first_page = False
 
 os.system("rm " + text_img_name)
 os.system("rm *.bup")

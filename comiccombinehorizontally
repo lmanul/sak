@@ -6,17 +6,22 @@ import sys
 NUMBER_OF_PARTS = 2
 
 if len(sys.argv) > 1:
-  files = sys.argv[1:]
+    files = sys.argv[1:]
 else:
-  files = sorted([f for f in os.listdir(".") if f.endswith("jpg")])
+    files = sorted([f for f in os.listdir(".") if f.endswith("jpg")])
 
 out_count = 1
 for i in range(len(files)):
-  if i % NUMBER_OF_PARTS == 0:
-    # Change "+append" to "-append" for vertical stack
-    command = "convert " + " ".join(files[i:i + NUMBER_OF_PARTS]) + \
-      " +append " + str(out_count).zfill(5) + ".jpg"
-    os.system(command)
-    out_count = out_count + 1
-    sys.stdout.write(".")
-    sys.stdout.flush()
+    if i % NUMBER_OF_PARTS == 0:
+        # Change "+append" to "-append" for vertical stack
+        command = (
+            "convert "
+            + " ".join(files[i : i + NUMBER_OF_PARTS])
+            + " +append "
+            + str(out_count).zfill(5)
+            + ".jpg"
+        )
+        os.system(command)
+        out_count = out_count + 1
+        sys.stdout.write(".")
+        sys.stdout.flush()

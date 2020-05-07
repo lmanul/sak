@@ -7,69 +7,77 @@ import sys
 DEBUG = False
 EXTENSIONS = ["cc", "h", "cpp"]
 NS_START = re.compile("^\s*namespace\s*([a-z_]*)\s*{")
-#NS_START = re.compile(".*namespace(.*)")
+# NS_START = re.compile(".*namespace(.*)")
 COLS = 82
-PARENS = [
-  ["(", "{", "["],
-  [")", "}", "]"],
-]
+PARENS = [["(", "{", "["], [")", "}", "]"]]
+
 
 def process_one_file(path):
-  sys.stderr.write(path + "...\n")
-  handle = open(path)
-  stack = []
-  # Each element is [
-  #   namespace,
-  #   corresponding location in 'stack' of opening paren
-  # ]
-  ns_stack = []
-  out = []
-  namespace = ""
-  rewrite = False
-  for l in handle.readlines():
-    # Remove endline
-    l = l[:-1]
-    out.append(l)
-    # TODO: Support /* */ style comments. This is simplistic parsing.
-    if l.startswith("//") or " //" in l:
-      l = l[:l.find("//")]
-    matches = NS_START.match(l)
-    if matches:
-      ns_stack.append([matches.group(1), len(stack)])
-    current_ns = ns_stack[-1][0] if len(ns_stack) else ""
-    # "using" requires a qualified name.
-    if current_ns \
-        and current_ns + "::" in l \
-        and "::" + current_ns + "::" not in l \
-        and "using" not in l:
-      rewrite = True
-      out[-1] = out[-1].replace(current_ns + "::", "")
-    for c in l:
-      if c in PARENS[1]:
-        i = PARENS[1].index(c)
-        if stack[-1] == PARENS[0][i]:
-          stack.pop()
-          if len(ns_stack) and len(stack) == ns_stack[-1][1]:
-            ns_stack.pop()
-        else:
-          print("Invalid syntax: " + l)
-      elif c in PARENS[0]:
-        stack.append(c)
-    current_namespace = ns_stack[-1][0] if len(ns_stack) > 0 else ""
-    if DEBUG:
-      print(l + ("." * (COLS - len(l))) + "(" + current_namespace + ") " + str(stack))
-  handle.close()
-  if rewrite:
-    with open(path, "w") as f:
-      # Add a blank newline at the end of the file
-      out.append("")
-      f.write("\n".join(out))
-      f.close()
+    sys.stderr.write(path + "...\n")
+    handle = open(path)
+    stack = []
+    # Each element is [
+    #   namespace,
+    #   corresponding location in 'stack' of opening paren
+    # ]
+    ns_stack = []
+    out = []
+    namespace = ""
+    rewrite = False
+    for l in handle.readlines():
+        # Remove endline
+        l = l[:-1]
+        out.append(l)
+        # TODO: Support /* */ style comments. This is simplistic parsing.
+        if l.startswith("//") or " //" in l:
+            l = l[: l.find("//")]
+        matches = NS_START.match(l)
+        if matches:
+            ns_stack.append([matches.group(1), len(stack)])
+        current_ns = ns_stack[-1][0] if len(ns_stack) else ""
+        # "using" requires a qualified name.
+        if (
+            current_ns
+            and current_ns + "::" in l
+            and "::" + current_ns + "::" not in l
+            and "using" not in l
+        ):
+            rewrite = True
+            out[-1] = out[-1].replace(current_ns + "::", "")
+        for c in l:
+            if c in PARENS[1]:
+                i = PARENS[1].index(c)
+                if stack[-1] == PARENS[0][i]:
+                    stack.pop()
+                    if len(ns_stack) and len(stack) == ns_stack[-1][1]:
+                        ns_stack.pop()
+                else:
+                    print("Invalid syntax: " + l)
+            elif c in PARENS[0]:
+                stack.append(c)
+        current_namespace = ns_stack[-1][0] if len(ns_stack) > 0 else ""
+        if DEBUG:
+            print(
+                l
+                + ("." * (COLS - len(l)))
+                + "("
+                + current_namespace
+                + ") "
+                + str(stack)
+            )
+    handle.close()
+    if rewrite:
+        with open(path, "w") as f:
+            # Add a blank newline at the end of the file
+            out.append("")
+            f.write("\n".join(out))
+            f.close()
+
 
 for path, _, filenames in os.walk(os.getcwd()):
-  for f in filenames:
-    ext = f.split(".")[-1]
-    if ext not in EXTENSIONS:
-      continue
-    full = os.path.join(path, f)
-    process_one_file(full)
+    for f in filenames:
+        ext = f.split(".")[-1]
+        if ext not in EXTENSIONS:
+            continue
+        full = os.path.join(path, f)
+        process_one_file(full)

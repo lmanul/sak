@@ -11,19 +11,26 @@ parser.add_option("-d", "--density", help="Force", dest="density", default=500)
 
 command = ""
 for file in args:
-  basename = os.path.splitext(file)[0]
-  png = basename + ".png"
-  if file.endswith("xcf"):
-    command = "xcf2png " + file + " > " + png
-  elif file.endswith(".pdf"):
-    command = "convert -density " + str(options.density) + " " + file + " " + png
-  elif file.endswith(".svg"):
-    command = "convert -background none -density " + str(options.density) + " " + file + " " + png
-  else:
-    command = "convert -density " + str(options.density) + " " + file + " " + png
-  #print(command + "...")
-  os.system(command)
-  # Handle potential multiple pages.
-  #command = "optipng " + basename + "*.png"
-  #print command + "..."
-  #os.system(command)
+    basename = os.path.splitext(file)[0]
+    png = basename + ".png"
+    if file.endswith("xcf"):
+        command = "xcf2png " + file + " > " + png
+    elif file.endswith(".pdf"):
+        command = "convert -density " + str(options.density) + " " + file + " " + png
+    elif file.endswith(".svg"):
+        command = (
+            "convert -background none -density "
+            + str(options.density)
+            + " "
+            + file
+            + " "
+            + png
+        )
+    else:
+        command = "convert -density " + str(options.density) + " " + file + " " + png
+    # print(command + "...")
+    os.system(command)
+    # Handle potential multiple pages.
+    # command = "optipng " + basename + "*.png"
+    # print command + "..."
+    # os.system(command)

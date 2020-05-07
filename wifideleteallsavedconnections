@@ -14,19 +14,19 @@ lines = raw.split("\n")
 offset = lines[0].index("UUID")
 
 for l in lines[1:]:
-  i = offset
-  if len(l) > 1:
-    while l[i] != " ":
-      i += 1
-    uuid = l[offset:i]
-    delete = True
-    for e in exceptions_to_keep:
-      if l.startswith(e):
-        delete = False
-        break
-    if delete:
-      os.system("nmcli connection delete " + uuid)
-      deleted += 1
+    i = offset
+    if len(l) > 1:
+        while l[i] != " ":
+            i += 1
+        uuid = l[offset:i]
+        delete = True
+        for e in exceptions_to_keep:
+            if l.startswith(e):
+                delete = False
+                break
+        if delete:
+            os.system("nmcli connection delete " + uuid)
+            deleted += 1
 
 os.system("nmcli radio wifi on")
 

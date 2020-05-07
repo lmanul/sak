@@ -8,10 +8,9 @@ from os.path import isfile, join
 args = sys.argv[1:]
 
 for i in range(len(args)):
-  f = args[i]
-  extension = f[(f.rindex(".") + 1):]
-  number = str(i).zfill(5)
-  new_name = number + "." + extension
-  print(str(f) + " -> " + new_name + "." + extension)
-  os.system("mv " + f + " " + new_name)
-
+    f = args[i]
+    extension = f[(f.rindex(".") + 1) :]
+    number = str(i).zfill(5)
+    new_name = number + "." + extension
+    print(str(f) + " -> " + new_name + "." + extension)
+    os.system("mv " + f + " " + new_name)

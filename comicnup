@@ -17,37 +17,53 @@ left_to_right = False
 all = sorted([f for f in os.listdir(".") if not os.path.isdir(f)])
 
 if group_count == 2:
-# TMP: Signature-style
-  for i in range(0, len(all), 4):
-    if left_to_right:
-      pages = all[i * group_count:(i + 1) * group_count]
-    else:
-      t = "2x1"
-      g = "+10+0 "
-      pages = [
-        all[0 + i],
-        all[3 + i]
-      ]
-      os.system("montage -tile " + t + " -geometry " + g + " ".join(pages) + \
-        " " +  (str(i) + "-" + str(i + 1)).zfill(12) + ".jpg")
-      pages = [
-        all[2 + i],
-        all[1 + i]
-      ]
-      os.system("montage -tile " + t + " -geometry " + g + " ".join(pages) + \
-        " " + (str(i + 2) + "-" + str(i + 3)).zfill(12) + ".jpg")
-  sys.exit(0)
+    # TMP: Signature-style
+    for i in range(0, len(all), 4):
+        if left_to_right:
+            pages = all[i * group_count : (i + 1) * group_count]
+        else:
+            t = "2x1"
+            g = "+10+0 "
+            pages = [all[0 + i], all[3 + i]]
+            os.system(
+                "montage -tile "
+                + t
+                + " -geometry "
+                + g
+                + " ".join(pages)
+                + " "
+                + (str(i) + "-" + str(i + 1)).zfill(12)
+                + ".jpg"
+            )
+            pages = [all[2 + i], all[1 + i]]
+            os.system(
+                "montage -tile "
+                + t
+                + " -geometry "
+                + g
+                + " ".join(pages)
+                + " "
+                + (str(i + 2) + "-" + str(i + 3)).zfill(12)
+                + ".jpg"
+            )
+    sys.exit(0)
 
 for i in range(int(len(all) / group_count)):
-  # Need to tweak this if group_count is not 4
-  pages = [
-    all[1 + i * group_count],
-    all[0 + i * group_count],
-    all[3 + i * group_count],
-    all[2 + i * group_count],
-  ]
+    # Need to tweak this if group_count is not 4
+    pages = [
+        all[1 + i * group_count],
+        all[0 + i * group_count],
+        all[3 + i * group_count],
+        all[2 + i * group_count],
+    ]
 
-  t = "2x2" if group_count == 4 else "2x1"
-  os.system("montage -tile " + t + " -geometry +7+7 " + " ".join(pages) + \
-      " " + str(i).zfill(5) + ".jpg")
-
+    t = "2x2" if group_count == 4 else "2x1"
+    os.system(
+        "montage -tile "
+        + t
+        + " -geometry +7+7 "
+        + " ".join(pages)
+        + " "
+        + str(i).zfill(5)
+        + ".jpg"
+    )

@@ -4,9 +4,9 @@ import util
 import sys
 
 if len(sys.argv) > 1:
-  index = int(sys.argv[1])
+    index = int(sys.argv[1])
 else:
-  index = None
+    index = None
 
 dpis = util.get_screen_dpi(index=index)
 print(str(dpis))

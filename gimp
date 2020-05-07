@@ -6,17 +6,18 @@ import util
 
 arguments = []
 if len(sys.argv) > 1:
-  arguments = sys.argv[1:]
+    arguments = sys.argv[1:]
 
 orig_dir = os.getcwd()
 full_arguments = []
 for a in arguments:
-  full_arguments.append(os.path.join(orig_dir, a))
+    full_arguments.append(os.path.join(orig_dir, a))
 
 home = os.path.expanduser("~")
-gimp_config_dir = os.path.join(os.path.expanduser("~"), "bus", "config",
-    "config", "GIMP", "2.10")
-#gimp_config_dir = os.path.join(os.path.expanduser("~"), "bus", "config",
+gimp_config_dir = os.path.join(
+    os.path.expanduser("~"), "bus", "config", "config", "GIMP", "2.10"
+)
+# gimp_config_dir = os.path.join(os.path.expanduser("~"), "bus", "config",
 #    "gimp-2.8")
 os.chdir(gimp_config_dir)
 
@@ -25,18 +26,24 @@ ram_gb = util.get_ram_gb()
 tile_cache_size = int(0.7 * ram_gb)
 undo_size = int(0.2 * ram_gb)
 
-print("Adjusting for RAM = " + str(ram_gb) + " with cache size " + \
-    str(tile_cache_size) + " and undo size " + str(undo_size))
+print(
+    "Adjusting for RAM = "
+    + str(ram_gb)
+    + " with cache size "
+    + str(tile_cache_size)
+    + " and undo size "
+    + str(undo_size)
+)
 
 command = "sed -i 's/TILE_CACHE_SIZE/" + str(tile_cache_size) + "G/' gimprc"
 os.system(command)
-#print(command)
+# print(command)
 command = "sed -i 's/UNDO_SIZE/" + str(undo_size) + "G/' gimprc"
-#print(command)
+# print(command)
 os.system(command)
 
 os.chdir(home)
-#os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
+# os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
 os.system("/usr/bin/gimp-2.10 " + " ".join(full_arguments))
 os.chdir(gimp_config_dir)
 os.system("git checkout gimprc")

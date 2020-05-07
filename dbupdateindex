@@ -3,19 +3,23 @@
 import os
 import subprocess
 
+
 def update_one_dir(directory):
-  if directory != ".":
-    os.chdir(directory)
-  os.system("rm index.txt && find . | sort > index.txt")
-  if not os.path.exists("index.txt"):
-    print("No index.txt in " + os.getcwd())
-    return
-  if directory != ".":
-    os.chdir("..")
+    if directory != ".":
+        os.chdir(directory)
+    os.system("rm index.txt && find . | sort > index.txt")
+    if not os.path.exists("index.txt"):
+        print("No index.txt in " + os.getcwd())
+        return
+    if directory != ".":
+        os.chdir("..")
+
 
 if os.path.exists("index.txt"):
-  update_one_dir(".")
+    update_one_dir(".")
 else:
-  all_dirs = [d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")]
-  for d in all_dirs:
-    update_one_dir(d)
+    all_dirs = [
+        d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")
+    ]
+    for d in all_dirs:
+        update_one_dir(d)

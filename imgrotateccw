@@ -9,5 +9,5 @@ backup = pic + ".bup"
 command = "convert -rotate 270"
 
 os.system("cp " + pic + " " + backup)
-#print(command + " " + pic + " " + pic + "...")
+# print(command + " " + pic + " " + pic + "...")
 os.system(command + " " + pic + " " + pic)

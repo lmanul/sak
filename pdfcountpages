@@ -6,5 +6,5 @@ import util
 pdfs = sys.argv[1:]
 
 for pdf in pdfs:
-  n_pages = util.get_pdf_pages(pdf)
-  print(str(n_pages) + " pages for " + pdf)
+    n_pages = util.get_pdf_pages(pdf)
+    print(str(n_pages) + " pages for " + pdf)

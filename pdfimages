@@ -7,5 +7,5 @@ pdf = sys.argv[1]
 prefix = pdf.replace(".pdf", "")
 
 if not os.path.exists("extracted"):
-  os.mkdir("extracted")
+    os.mkdir("extracted")
 os.system("/usr/bin/pdfimages -j " + pdf + " extracted/" + prefix)

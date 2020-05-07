@@ -10,31 +10,41 @@ packet_size = int(sys.argv[2])
 n_pages = util.get_pdf_pages(src)
 
 if packet_size % 2 != 0:
-  print("The packet size should be even")
-  sys.exit(1)
+    print("The packet size should be even")
+    sys.exit(1)
 
 cmds = []
 
 start = 1
 end = min(packet_size, n_pages)
 i = 1
-cmds.append("pdfjoin --quiet --rotateoversize false " + src + " " + \
-    ",".join([str(p) for p in range(start, end + 1)]) + " --outfile " +
-    src.replace(".pdf", "_" + str(i).zfill(3) + ".pdf"))
+cmds.append(
+    "pdfjoin --quiet --rotateoversize false "
+    + src
+    + " "
+    + ",".join([str(p) for p in range(start, end + 1)])
+    + " --outfile "
+    + src.replace(".pdf", "_" + str(i).zfill(3) + ".pdf")
+)
 i += 1
 start = end + 1
 end = min(start + packet_size - 1, n_pages)
 
 while end <= n_pages:
-  cmds.append("pdfjoin --quiet --rotateoversize false " + src + " " + \
-      ",".join([str(p) for p in range(start, end + 1)]) + " --outfile " +
-      src.replace(".pdf", "_" + str(i).zfill(3) + ".pdf"))
-  if end == n_pages:
-    break
-  i += 1
-  start = end + 1
-  end = min(start + packet_size - 1, n_pages)
+    cmds.append(
+        "pdfjoin --quiet --rotateoversize false "
+        + src
+        + " "
+        + ",".join([str(p) for p in range(start, end + 1)])
+        + " --outfile "
+        + src.replace(".pdf", "_" + str(i).zfill(3) + ".pdf")
+    )
+    if end == n_pages:
+        break
+    i += 1
+    start = end + 1
+    end = min(start + packet_size - 1, n_pages)
 
 for c in cmds:
-  print(c)
-  os.system(c)
+    print(c)
+    os.system(c)

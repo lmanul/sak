@@ -8,13 +8,13 @@ pic = sys.argv[1]
 self_path = os.path.dirname(os.path.realpath(__file__))
 
 if pic.endswith("png"):
-  print("The PNG format doesn't support CMYK")
-  sys.exit(1)
+    print("The PNG format doesn't support CMYK")
+    sys.exit(1)
 
 backup = pic + ".bup"
 
 command = "convert -colorspace CMYK -profile " + self_path + "/USWebCoatedSWOP.icc"
 
 os.system("cp " + pic + " " + backup)
-#print command + " " + pic + " " + pic + "..."
+# print command + " " + pic + " " + pic + "..."
 os.system(command + " " + pic + " " + pic)

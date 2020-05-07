@@ -6,10 +6,12 @@ from threading import Timer
 
 INTERVAL_S = 1
 
+
 def take_screenshot():
-  os.system("scrot -u")
-  t = Timer(INTERVAL_S, take_screenshot)
-  t.start()
+    os.system("scrot -u")
+    t = Timer(INTERVAL_S, take_screenshot)
+    t.start()
+
 
 s = Timer(INTERVAL_S, take_screenshot)
 s.start()

@@ -7,17 +7,17 @@ import util
 # Add some flexibility in arguments order
 
 if ".pdf" in sys.argv[1]:
-  pdf = sys.argv[1]
-  pages = sys.argv[2]
+    pdf = sys.argv[1]
+    pages = sys.argv[2]
 elif ".pdf" in sys.argv[2]:
-  pdf = sys.argv[2]
-  pages = sys.argv[1]
+    pdf = sys.argv[2]
+    pages = sys.argv[1]
 elif "," in sys.argv[1]:
-  pdf = sys.argv[2]
-  pages = sys.argv[1]
+    pdf = sys.argv[2]
+    pages = sys.argv[1]
 elif "," in sys.argv[2]:
-  pdf = sys.argv[1]
-  pages = sys.argv[2]
+    pdf = sys.argv[1]
+    pages = sys.argv[2]
 
 tempo = pdf.replace(".pdf", ".pdf.tempo")
 
@@ -27,13 +27,18 @@ n_pages = util.get_pdf_pages(pdf)
 pages_to_keep = [i for i in range(1, n_pages + 1)]
 
 for p in pages:
-  pages_to_keep.remove(p)
+    pages_to_keep.remove(p)
 
 os.system("cp " + pdf + " " + pdf + ".bup")
 
-command = "pdfjoin --rotateoversize false " + pdf + " " + \
-  ",".join([str(p) for p in pages_to_keep]) + " --outfile " + tempo
+command = (
+    "pdfjoin --rotateoversize false "
+    + pdf
+    + " "
+    + ",".join([str(p) for p in pages_to_keep])
+    + " --outfile "
+    + tempo
+)
 os.system(command)
 
 os.system("mv " + tempo + " " + pdf)
-

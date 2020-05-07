@@ -16,13 +16,13 @@ os.system("convert xc:none -page " + str(width) + "x" + str(height) + " blank.pd
 os.system("mv " + src + " " + bup)
 
 if page == 0:
-  cat_argument = "cat B A"
+    cat_argument = "cat B A"
 elif page == 1:
-  cat_argument = "cat A1 B A2-end"
+    cat_argument = "cat A1 B A2-end"
 elif page == n_pages:
-  cat_argument = "cat A B"
+    cat_argument = "cat A B"
 else:
-  cat_argument = "cat A1-" + str(page) + " B A" + str(page + 1) + "-end"
+    cat_argument = "cat A1-" + str(page) + " B A" + str(page + 1) + "-end"
 
 os.system("pdftk A=" + bup + " B=blank.pdf " + cat_argument + " output " + src)
 

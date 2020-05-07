@@ -4,24 +4,36 @@ import os
 import sys
 
 if len(sys.argv) < 3:
-  print("Usage: " + sys.argv[0] + " size image.ext")
-  sys.exit(1)
+    print("Usage: " + sys.argv[0] + " size image.ext")
+    sys.exit(1)
 
 s = sys.argv[1]
 i = sys.argv[2]
 
 if "_thumbnail" in i:
-  "" + i + " is already a thumbnail, skipping"
+    "" + i + " is already a thumbnail, skipping"
 
-extensionPos = i.rfind('.')
+extensionPos = i.rfind(".")
 out = i[:extensionPos] + "_thumbnail" + i[extensionPos:]
 
 if os.path.exists("thumbs"):
-  out = "thumbs/" + out
+    out = "thumbs/" + out
 
 if os.path.exists(out) and os.path.getmtime(out) > os.path.getmtime(i):
-  sys.exit(0)
+    sys.exit(0)
 
-command = "convert -size " + s + "x" + s + " " + i + \
-    " -resize " + s + "x" + s + " +profile \"*\" " + out
+command = (
+    "convert -size "
+    + s
+    + "x"
+    + s
+    + " "
+    + i
+    + " -resize "
+    + s
+    + "x"
+    + s
+    + ' +profile "*" '
+    + out
+)
 os.system(command)

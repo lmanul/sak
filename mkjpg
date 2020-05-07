@@ -8,12 +8,12 @@ i = sys.argv[1]
 args = "-background white -flatten -quality 100"
 
 if i.endswith(".pdf"):
-  args += " -density 600"
+    args += " -density 600"
 
 last_dot = i.rfind(".")
 jpg = i[:last_dot] + ".jpg"
 
 if i.endswith(".webp"):
-  os.system("dwebp " + i + " -o " + jpg)
+    os.system("dwebp " + i + " -o " + jpg)
 else:
-  os.system("convert " + args + " " + i + " " + jpg)
+    os.system("convert " + args + " " + i + " " + jpg)

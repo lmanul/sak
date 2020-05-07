@@ -7,8 +7,8 @@ import util
 png = sys.argv[1]
 
 if not png.endswith(".png"):
-  print("The given file is not PNG format")
-  sys.exit(1)
+    print("The given file is not PNG format")
+    sys.exit(1)
 
 bup = png + ".bup"
 

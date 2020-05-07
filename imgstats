@@ -6,10 +6,9 @@ import util
 import sys
 
 if len(sys.argv) > 1:
-  imgs = sys.argv[1:]
+    imgs = sys.argv[1:]
 else:
-  imgs = [i for i in os.listdir(".") if i.endswith(".jpg") or 
-i.endswith(".png")]
+    imgs = [i for i in os.listdir(".") if i.endswith(".jpg") or i.endswith(".png")]
 
 print("" + str(len(imgs)) + " images")
 
@@ -26,50 +25,59 @@ max_h_img = ""
 
 # TODO: multithread
 for i in imgs:
-  (w, h) = util.get_image_dimensions(i)
-  res = util.get_image_resolution(i)
-  if w < min_w:
-    min_w = w
-    min_w_img = i
-  if h < min_h:
-    min_h = h
-    min_h_img = i
-  if w > max_w:
-    max_w = w
-    max_w_img = i
-  if h > max_h:
-    max_h = h
-    max_h_img = i
-  key = str(w) + "x" + str(h)
-  if key in size_recap:
-    size_recap[key] += 1
-  else:
-    size_recap[key] = 1
-  if res in resolution_recap:
-    resolution_recap[res] += 1
-  else:
-    resolution_recap[res] = 1
+    (w, h) = util.get_image_dimensions(i)
+    res = util.get_image_resolution(i)
+    if w < min_w:
+        min_w = w
+        min_w_img = i
+    if h < min_h:
+        min_h = h
+        min_h_img = i
+    if w > max_w:
+        max_w = w
+        max_w_img = i
+    if h > max_h:
+        max_h = h
+        max_h_img = i
+    key = str(w) + "x" + str(h)
+    if key in size_recap:
+        size_recap[key] += 1
+    else:
+        size_recap[key] = 1
+    if res in resolution_recap:
+        resolution_recap[res] += 1
+    else:
+        resolution_recap[res] = 1
 
 print("\nSize\n----")
-ordered_size_recap = sorted(size_recap.items(), key=operator.itemgetter(1), reverse=True)
+ordered_size_recap = sorted(
+    size_recap.items(), key=operator.itemgetter(1), reverse=True
+)
 for item in ordered_size_recap:
-  print(item[0] + ": " + str(item[1]))
+    print(item[0] + ": " + str(item[1]))
 
 print("\nResolution\n----------")
-ordered_resolution_recap = sorted(resolution_recap.items(), key=operator.itemgetter(1), reverse=True)
+ordered_resolution_recap = sorted(
+    resolution_recap.items(), key=operator.itemgetter(1), reverse=True
+)
 for item in ordered_resolution_recap:
-  print(item[0] + ": " + str(item[1]))
+    print(item[0] + ": " + str(item[1]))
 
 print("")
 percent_diff_w = round(float(max_w - min_w) / float(max_w) * 100, 1)
 percent_diff_h = round(float(max_h - min_h) / float(max_h) * 100, 1)
 
 if percent_diff_w > 0 or percent_diff_h > 0:
-  print("Max difference: " + str(percent_diff_w) + "% in width, " + \
-      str(percent_diff_h) + "% in height")
-  print("Max width  seen in: " + max_w_img + " (" + str(max_w) + ")")
-  print("    height        : " + max_h_img + " (" + str(max_h) + ")")
-  print("Min width  seen in: " + min_w_img + " (" + str(min_w) + ")")
-  print("    height        : " + min_h_img + " (" + str(min_h) + ")")
+    print(
+        "Max difference: "
+        + str(percent_diff_w)
+        + "% in width, "
+        + str(percent_diff_h)
+        + "% in height"
+    )
+    print("Max width  seen in: " + max_w_img + " (" + str(max_w) + ")")
+    print("    height        : " + max_h_img + " (" + str(max_h) + ")")
+    print("Min width  seen in: " + min_w_img + " (" + str(min_w) + ")")
+    print("    height        : " + min_h_img + " (" + str(min_h) + ")")
 else:
-  print("All images have the same size.")
+    print("All images have the same size.")

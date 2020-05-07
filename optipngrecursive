@@ -4,8 +4,15 @@ import os
 
 # optipng
 for root, dirs, files in os.walk("."):
-  for oneFile in files:
-    if oneFile.endswith(".png"):
-      os.system("optipng " + root + "/" + oneFile + " && chmod a+r " + root + "/" + oneFile)
-
-
+    for oneFile in files:
+        if oneFile.endswith(".png"):
+            os.system(
+                "optipng "
+                + root
+                + "/"
+                + oneFile
+                + " && chmod a+r "
+                + root
+                + "/"
+                + oneFile
+            )

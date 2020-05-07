@@ -6,37 +6,39 @@ import subprocess
 import sys
 import util
 
+
 def rename_and_move(path):
-  newName = ""
-  dontModify = ""
-  lastSep = path.rfind(os.path.sep)
-  if lastSep != -1:
-    # Copy over the dir name, unchanged
-    dontModify = path[:lastSep + 1]
-  lastPart = path[lastSep + 1:]
-  newName = util.sanitize_for_filename(lastPart)
-  newPath = dontModify + newName
-  if newPath != path:
-    subprocess.call(["mv", path, newPath])
+    newName = ""
+    dontModify = ""
+    lastSep = path.rfind(os.path.sep)
+    if lastSep != -1:
+        # Copy over the dir name, unchanged
+        dontModify = path[: lastSep + 1]
+    lastPart = path[lastSep + 1 :]
+    newName = util.sanitize_for_filename(lastPart)
+    newPath = dontModify + newName
+    if newPath != path:
+        subprocess.call(["mv", path, newPath])
+
 
 filesToRename = []
 dirsToRename = []
 
 for argument in sys.argv[1:]:
-  if os.path.isfile(argument):
-    filesToRename.append(argument)
-  elif os.path.isdir(argument):
-    dirname = argument
-    if dirname.endswith(os.path.sep):
-      dirname = dirname[:-1]
-    dirsToRename.append(dirname)
-    # Don't do recursive for now.
-    #for file in os.listdir(argument):
-    #  if os.path.isfile(os.path.join(argument, file)):
-    #    filesToRename.append(os.path.join(argument, file))
+    if os.path.isfile(argument):
+        filesToRename.append(argument)
+    elif os.path.isdir(argument):
+        dirname = argument
+        if dirname.endswith(os.path.sep):
+            dirname = dirname[:-1]
+        dirsToRename.append(dirname)
+        # Don't do recursive for now.
+        # for file in os.listdir(argument):
+        #  if os.path.isfile(os.path.join(argument, file)):
+        #    filesToRename.append(os.path.join(argument, file))
 
 for file in filesToRename:
-  rename_and_move(file)
+    rename_and_move(file)
 
 for directory in dirsToRename:
-  rename_and_move(directory)
+    rename_and_move(directory)

@@ -8,11 +8,11 @@ import sys
 l = []
 
 for root, dirs, files in os.walk("."):
-  for file in sorted(files):
-    if file.endswith(".jpg"):
-      l.append(os.path.join(root, file))
+    for file in sorted(files):
+        if file.endswith(".jpg"):
+            l.append(os.path.join(root, file))
 
 chunk_size = 100
 
-for chunk in [l[i:i + chunk_size] for i in range(0, len(l), chunk_size)]:
-  os.system("map imgjpg85quality " + " ".join(["'" + f + "'" for f in chunk]))
+for chunk in [l[i : i + chunk_size] for i in range(0, len(l), chunk_size)]:
+    os.system("map imgjpg85quality " + " ".join(["'" + f + "'" for f in chunk]))

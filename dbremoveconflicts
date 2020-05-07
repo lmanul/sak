@@ -5,9 +5,9 @@ import os
 PATTERNS = ["case conflict", "conflicted copy"]
 
 for path, _, filenames in os.walk(os.getcwd()):
-  for f in filenames:
-    file_full = os.path.join(path, f)
-    for p in PATTERNS:
-      if p in file_full.lower():
-        print("Deleting " + file_full)
-        os.system("rm -rf \"" + file_full + "\"")
+    for f in filenames:
+        file_full = os.path.join(path, f)
+        for p in PATTERNS:
+            if p in file_full.lower():
+                print("Deleting " + file_full)
+                os.system('rm -rf "' + file_full + '"')

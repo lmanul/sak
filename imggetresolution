@@ -10,6 +10,6 @@ import util
 imgs = sys.argv[1:]
 
 for img in imgs:
-  resolution = util.get_image_resolution(img)
-  spaces = " " * (20 - len(resolution))
-  print(resolution + spaces + img)
+    resolution = util.get_image_resolution(img)
+    spaces = " " * (20 - len(resolution))
+    print(resolution + spaces + img)

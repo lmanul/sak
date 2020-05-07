@@ -8,18 +8,18 @@ import time
 
 first_time = True
 while True:
-  # Keep updating this, terminal may be resized.
-  cols = shutil.get_terminal_size().columns
+    # Keep updating this, terminal may be resized.
+    cols = shutil.get_terminal_size().columns
 
-  msg = subprocess.check_output(["dropbox", "status"]).decode("utf-8")
-  lines = msg.split("\n")
+    msg = subprocess.check_output(["dropbox", "status"]).decode("utf-8")
+    lines = msg.split("\n")
 
-  lines = [l for l in lines if l.strip() != ""]
+    lines = [l for l in lines if l.strip() != ""]
 
-  sys.stdout.write('\r')
-  to_write = " - ".join(lines)
-  if len(to_write) > cols:
-    to_write = to_write[:cols - 3] + "..."
-  sys.stdout.write(to_write)
-  sys.stdout.write(" " * (cols - len(to_write)))
-  time.sleep(0.3)
+    sys.stdout.write("\r")
+    to_write = " - ".join(lines)
+    if len(to_write) > cols:
+        to_write = to_write[: cols - 3] + "..."
+    sys.stdout.write(to_write)
+    sys.stdout.write(" " * (cols - len(to_write)))
+    time.sleep(0.3)

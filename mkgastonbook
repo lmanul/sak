@@ -6,65 +6,78 @@ import util
 home = os.path.expanduser("~")
 newdir = os.path.join(home, "gaston_tmp")
 if not os.path.exists(newdir):
-  os.mkdir(newdir)
+    os.mkdir(newdir)
 orig_files = sorted([f for f in os.listdir(".") if f.endswith(".jpg")])
 
 all_files = sorted([f for f in os.listdir(newdir) if f.endswith(".jpg")])
 
 if len(orig_files) != len(all_files):
-  print("Copying all files...")
-  os.system("cp *.jpg " + newdir + "/")
-  all_files = sorted([f for f in os.listdir(newdir) if f.endswith(".jpg")])
+    print("Copying all files...")
+    os.system("cp *.jpg " + newdir + "/")
+    all_files = sorted([f for f in os.listdir(newdir) if f.endswith(".jpg")])
 else:
-  print("All files seem to already be there")
+    print("All files seem to already be there")
 
 os.chdir(newdir)
 
-#print(all_files)
+# print(all_files)
 if not os.path.exists("book"):
-  os.mkdir("book")
+    os.mkdir("book")
 
-#print("Trimming white...")
-#os.system("map imgtrimwhite *.jpg")
+# print("Trimming white...")
+# os.system("map imgtrimwhite *.jpg")
 
 current_page = 1
-while(len(all_files) > 0):
-  current_page_str = str(current_page).zfill(4) + ".jpg"
-  head = all_files[0]
-  (w, h) = util.get_image_dimensions(head)
-  if (h >= w):
-    # Assume full page
-    head = all_files.pop(0)
-    os.system("cp " + head + " book/" + current_page_str)
-  else:
-    next = all_files[1]
-    (w_next, h_next) = util.get_image_dimensions(next)
-    target_w = w
-    if (h_next < w_next):
-      head = all_files.pop(0)
-      next = all_files.pop(0)
-      ratio = float(w) / float(w_next)
-      if ratio < 0.95 or ratio > 1.05:
-        larger  = head if w > w_next else next
-        smaller = head if w < w_next else next
-        target_w = max(w, w_next)
-        os.system("mv " + smaller + " " + smaller + ".bup")
-        os.system("convert -size " + str(target_w) + "x " + smaller + \
-            ".bup -resize " + str(target_w) + "x +profile \"*\" " + smaller)
-      gap_command = ("convert -size " + str(target_w) + \
-                    "x" + str(int(float(h)/10.0)) + " xc:white gap.jpg")
-      os.system(gap_command)
-      os.system("convert " + head + " gap.jpg " + next + " -append combined.jpg")
-      os.system("mv combined.jpg book/" + current_page_str)
-      os.system("rm gap.jpg")
-      os.system("sub '.bup'")
+while len(all_files) > 0:
+    current_page_str = str(current_page).zfill(4) + ".jpg"
+    head = all_files[0]
+    (w, h) = util.get_image_dimensions(head)
+    if h >= w:
+        # Assume full page
+        head = all_files.pop(0)
+        os.system("cp " + head + " book/" + current_page_str)
     else:
-      # Lonely strip.
-      # TODO: center on page.
-      head = all_files.pop(0)
-      print("Single page " + head)
-      os.system("cp " + head + " book/" + current_page_str)
-  current_page += 1
+        next = all_files[1]
+        (w_next, h_next) = util.get_image_dimensions(next)
+        target_w = w
+        if h_next < w_next:
+            head = all_files.pop(0)
+            next = all_files.pop(0)
+            ratio = float(w) / float(w_next)
+            if ratio < 0.95 or ratio > 1.05:
+                larger = head if w > w_next else next
+                smaller = head if w < w_next else next
+                target_w = max(w, w_next)
+                os.system("mv " + smaller + " " + smaller + ".bup")
+                os.system(
+                    "convert -size "
+                    + str(target_w)
+                    + "x "
+                    + smaller
+                    + ".bup -resize "
+                    + str(target_w)
+                    + 'x +profile "*" '
+                    + smaller
+                )
+            gap_command = (
+                "convert -size "
+                + str(target_w)
+                + "x"
+                + str(int(float(h) / 10.0))
+                + " xc:white gap.jpg"
+            )
+            os.system(gap_command)
+            os.system("convert " + head + " gap.jpg " + next + " -append combined.jpg")
+            os.system("mv combined.jpg book/" + current_page_str)
+            os.system("rm gap.jpg")
+            os.system("sub '.bup'")
+        else:
+            # Lonely strip.
+            # TODO: center on page.
+            head = all_files.pop(0)
+            print("Single page " + head)
+            os.system("cp " + head + " book/" + current_page_str)
+    current_page += 1
 
 os.chdir("book")
 os.system("mkpdffromimgs *.jpg && mv output.pdf ../Gaston_integrale.pdf")

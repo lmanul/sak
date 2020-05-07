@@ -4,8 +4,8 @@ import os
 import sys
 
 if len(sys.argv) < 2:
-  print("Please give me a branch name to check out as an argument.")
-  sys.exit(1)
+    print("Please give me a branch name to check out as an argument.")
+    sys.exit(1)
 
 b = sys.argv[1]
 

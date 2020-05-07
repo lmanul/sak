@@ -9,4 +9,4 @@ command = sys.argv[2]
 print("Running '" + command + "' " + str(number) + " times...")
 
 for i in range(number):
-  os.system(command)
+    os.system(command)

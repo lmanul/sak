@@ -7,47 +7,52 @@ import shlex
 import subprocess
 import util
 
+
 def get_title(file):
-  try:
-    ids = subprocess.check_output(["id3v2", "-l", e]).decode()
-    if "no id3 tags" not in ids.lower() and ids != "":
-      for l in ids.split("\n"):
-        if l.startswith("TIT") or l.startswith("TT2") or l.startswith("TIT2"):
-          return l.split(":", 1)[1].strip()
-  except UnicodeDecodeError:
-    ids = ""
-  ids = subprocess.check_output(shlex.split("eyeD3 " + e)).decode()
-  if ids:
-    for l in ids.split("\n"):
-      if "title" in l:
-        return l.split(":", 1)[1].strip()
-  return None
+    try:
+        ids = subprocess.check_output(["id3v2", "-l", e]).decode()
+        if "no id3 tags" not in ids.lower() and ids != "":
+            for l in ids.split("\n"):
+                if l.startswith("TIT") or l.startswith("TT2") or l.startswith("TIT2"):
+                    return l.split(":", 1)[1].strip()
+    except UnicodeDecodeError:
+        ids = ""
+    ids = subprocess.check_output(shlex.split("eyeD3 " + e)).decode()
+    if ids:
+        for l in ids.split("\n"):
+            if "title" in l:
+                return l.split(":", 1)[1].strip()
+    return None
+
 
 def get_date(e):
-  try:
-    ids = subprocess.check_output(["id3v2", "-l", e]).decode()
-    if "no id3 tags" not in ids.lower() and ids != "":
-      for line in ids.split("\n"):
-        if line.startswith("TDAT"):
-          thedate = line.split(":", 1)[1].strip()
-          dateparts = thedate.split(".")
-          if len(dateparts) != 3:
-            return None
-          # Reverse the date format.
-          return ".".join([dateparts[2], dateparts[1], dateparts[0]])
-  except UnicodeDecodeError:
-    noop = "hop"
-  return None
+    try:
+        ids = subprocess.check_output(["id3v2", "-l", e]).decode()
+        if "no id3 tags" not in ids.lower() and ids != "":
+            for line in ids.split("\n"):
+                if line.startswith("TDAT"):
+                    thedate = line.split(":", 1)[1].strip()
+                    dateparts = thedate.split(".")
+                    if len(dateparts) != 3:
+                        return None
+                    # Reverse the date format.
+                    return ".".join([dateparts[2], dateparts[1], dateparts[0]])
+    except UnicodeDecodeError:
+        noop = "hop"
+    return None
+
 
 def get_duration(e):
-  duration = 0
-  try:
-    duration = subprocess.check_output(
-        ["mp3info", "-p", "'%m:%s\n'", e]).decode("utf-8")
-    duration = duration.replace("'", "").replace(":", "m").strip()
-  except subprocess.CalledProcessError:
-    print("Couldn't get duration for " + e)
-  return duration
+    duration = 0
+    try:
+        duration = subprocess.check_output(["mp3info", "-p", "'%m:%s\n'", e]).decode(
+            "utf-8"
+        )
+        duration = duration.replace("'", "").replace(":", "m").strip()
+    except subprocess.CalledProcessError:
+        print("Couldn't get duration for " + e)
+    return duration
+
 
 home = os.path.expanduser("~")
 podcasts_dir = os.path.join(home, "Dropbox", "mini", "podcasts")
@@ -57,54 +62,56 @@ util.run_bin_cmd("sanitizefilenames", "*")
 os.system("find . -name '*conflicted*' -delete")
 os.system("rm -rf *Conflict*")
 
-folders = sorted([d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")])
+folders = sorted(
+    [d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")]
+)
 
 for f in folders:
-  if not os.path.exists(f):
-    continue
-  os.chdir(f)
-  seen_durations = []
-  seen_md5 = []
-  episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
+    if not os.path.exists(f):
+        continue
+    os.chdir(f)
+    seen_durations = []
+    seen_md5 = []
+    episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
 
-  for e in episodes:
-    date_prefix = util.get_date_prefix()
-    # If the file already has a date prefix, preserve it
-    if re.match("^\d\d\d\d\.\d\d\.\d\d", e) is not None:
-      date_prefix = e[:10]
-    title = get_title(e)
-    date = get_date(e)
-    duration = get_duration(e)
-    if not duration:
-      duration = "unkwn"
-    if not title:
-      title = "unkwn"
-    if date:
-      date_prefix = date
-    title = util.sanitize_for_filename(title)
-    md5 = subprocess.check_output(["md5sum", e]).decode("utf-8").split(" ")[0]
-    if duration not in seen_durations:
-      seen_durations.append(duration)
-    if md5 in seen_md5:
-      os.system("rm " + e)
-    else:
-      seen_md5.append(md5)
-    final_name = "_".join([date_prefix, title, duration]) + ".mp3"
-    if e != final_name:
-      command = "mv '" + e + "' '" + final_name + "'"
-      os.system(command)
-  if "matins" in f.lower():
-    if len(episodes) > 1:
-      cmd = "rm " + " ".join(["'" + e + "'" for e in episodes[:-1]])
-      os.system(cmd)
+    for e in episodes:
+        date_prefix = util.get_date_prefix()
+        # If the file already has a date prefix, preserve it
+        if re.match("^\d\d\d\d\.\d\d\.\d\d", e) is not None:
+            date_prefix = e[:10]
+        title = get_title(e)
+        date = get_date(e)
+        duration = get_duration(e)
+        if not duration:
+            duration = "unkwn"
+        if not title:
+            title = "unkwn"
+        if date:
+            date_prefix = date
+        title = util.sanitize_for_filename(title)
+        md5 = subprocess.check_output(["md5sum", e]).decode("utf-8").split(" ")[0]
+        if duration not in seen_durations:
+            seen_durations.append(duration)
+        if md5 in seen_md5:
+            os.system("rm " + e)
+        else:
+            seen_md5.append(md5)
+        final_name = "_".join([date_prefix, title, duration]) + ".mp3"
+        if e != final_name:
+            command = "mv '" + e + "' '" + final_name + "'"
+            os.system(command)
+    if "matins" in f.lower():
+        if len(episodes) > 1:
+            cmd = "rm " + " ".join(["'" + e + "'" for e in episodes[:-1]])
+            os.system(cmd)
 
-  os.chdir("..")
-  if len(episodes) == 0:
-    os.system("rmdir '" + f + "'")
+    os.chdir("..")
+    if len(episodes) == 0:
+        os.system("rmdir '" + f + "'")
 
 os.chdir(".LOG")
 log_files = [f for f in os.listdir(".")]
 for l in log_files:
-  if "conflict" in l:
-    os.system('rm "' + l + '"')
+    if "conflict" in l:
+        os.system('rm "' + l + '"')
 os.chdir("..")

@@ -7,7 +7,7 @@ file = sys.argv[2]
 geom = sys.argv[1]
 
 if not "+" in geom:
-  geom = geom + "+0+0"
+    geom = geom + "+0+0"
 
 bup = file + ".bup"
 

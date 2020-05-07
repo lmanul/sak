@@ -11,5 +11,5 @@ os.system("cp " + file + " " + bup)
 # Unchanged H, increased S, unchanged L
 arg = "100,120,100"
 command = "convert -modulate " + arg + " " + file + " " + file
-#print command
+# print command
 os.system(command)

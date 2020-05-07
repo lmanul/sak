@@ -10,8 +10,9 @@ from multiprocessing.dummy import Pool as ThreadPool
 from optparse import OptionParser
 
 parser = OptionParser()
-parser.add_option("-s", "--single_thread", help="Only use one thread",
-    dest="single_thread")
+parser.add_option(
+    "-s", "--single_thread", help="Only use one thread", dest="single_thread"
+)
 (options, args) = parser.parse_args()
 
 cols = shutil.get_terminal_size().columns
@@ -22,24 +23,34 @@ n_cpus = multiprocessing.cpu_count()
 n_threads = 1 if options.single_thread else n_cpus - 1
 
 if n_args < 1:
-  print("I need at least one argument in addition to the command")
-  sys.exit(0)
+    print("I need at least one argument in addition to the command")
+    sys.exit(0)
 
-print("Running command " + command + " on " + str(n_args) + " arguments with " + str(n_threads) + " threads")
+print(
+    "Running command "
+    + command
+    + " on "
+    + str(n_args)
+    + " arguments with "
+    + str(n_threads)
+    + " threads"
+)
 
 n_complete = 0
 n_printed_progress_chars = 0
 pool = ThreadPool(n_threads)
 
+
 def process(the_file):
-  global n_complete
-  global n_args
-  global n_printed_progress_chars
-  os.system(command + " " + the_file)
-  n_complete += 1
-  n_progress_chars = int(float(n_complete) / float(n_args) * cols)
-  sys.stdout.write("#" * (n_progress_chars - n_printed_progress_chars))
-  sys.stdout.flush()
-  n_printed_progress_chars = n_progress_chars
+    global n_complete
+    global n_args
+    global n_printed_progress_chars
+    os.system(command + " " + the_file)
+    n_complete += 1
+    n_progress_chars = int(float(n_complete) / float(n_args) * cols)
+    sys.stdout.write("#" * (n_progress_chars - n_printed_progress_chars))
+    sys.stdout.flush()
+    n_printed_progress_chars = n_progress_chars
+
 
 results = pool.map(process, sorted(args[1:]))

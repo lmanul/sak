@@ -14,7 +14,18 @@ os.system("cp " + f + " " + bup)
 (w, h) = util.get_image_dimensions(f)
 new_h = h + pixels
 
-command = "convert " + f + " -background white -gravity South -splice " + \
-    "0x" + str(pixels) + " -extent " + str(w) + "x" + str(new_h) + " " + f
-#print(command)
+command = (
+    "convert "
+    + f
+    + " -background white -gravity South -splice "
+    + "0x"
+    + str(pixels)
+    + " -extent "
+    + str(w)
+    + "x"
+    + str(new_h)
+    + " "
+    + f
+)
+# print(command)
 os.system(command)

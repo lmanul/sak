@@ -7,8 +7,8 @@ import sys
 from multiprocessing.dummy import Pool as ThreadPool
 
 if len(sys.argv) < 2:
-  print("Please give me the replacement pattern as an argument")
-  sys.exit(1)
+    print("Please give me the replacement pattern as an argument")
+    sys.exit(1)
 
 patt = sys.argv[1]
 extensions = sys.argv[2:] if len(sys.argv) > 2 else None
@@ -18,32 +18,34 @@ n_cpus = multiprocessing.cpu_count()
 n_threads = n_cpus - 1
 pool = ThreadPool(n_threads)
 
+
 def process(one_file):
-  # TODO: Give an idea of progress on the whole file set.
-  sys.stderr.write(".")
-  sys.stderr.flush()
-  cmd = "sed -i \"" + patt + "\" " + one_file
-  #print(cmd)
-  os.system(cmd)
+    # TODO: Give an idea of progress on the whole file set.
+    sys.stderr.write(".")
+    sys.stderr.flush()
+    cmd = 'sed -i "' + patt + '" ' + one_file
+    # print(cmd)
+    os.system(cmd)
+
 
 files_to_process = []
 for path, _, filenames in os.walk(os.getcwd()):
-  if path.startswith("."):
-    continue
-  for f in filenames:
-    should_proceed = False
-    if not extensions:
-      should_proceed = True
-    else:
-      for e in extensions:
-        if f.endswith(e):
-          should_proceed = True
-          break
-    if should_proceed:
-      f_full = os.path.join(path, f)
-      if not os.path.exists(f_full):
-        print(f_full + " doesn't seem to exist, skipping")
+    if path.startswith("."):
         continue
-      files_to_process.append(f_full)
+    for f in filenames:
+        should_proceed = False
+        if not extensions:
+            should_proceed = True
+        else:
+            for e in extensions:
+                if f.endswith(e):
+                    should_proceed = True
+                    break
+        if should_proceed:
+            f_full = os.path.join(path, f)
+            if not os.path.exists(f_full):
+                print(f_full + " doesn't seem to exist, skipping")
+                continue
+            files_to_process.append(f_full)
 
 results = pool.map(process, files_to_process)

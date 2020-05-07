@@ -14,6 +14,14 @@ os.system("cp " + f + " " + bup)
 (w, h) = util.get_image_dimensions(f)
 new_h = h - pixels
 
-command = "convert -crop " \
-    + str(w) + "x" + str(new_h)  + "+0+0 +repage -gravity South " + f + " " + f
+command = (
+    "convert -crop "
+    + str(w)
+    + "x"
+    + str(new_h)
+    + "+0+0 +repage -gravity South "
+    + f
+    + " "
+    + f
+)
 os.system(command)

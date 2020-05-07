@@ -9,21 +9,21 @@ dry_run = False
 delete = True
 
 suzerain = os.path.join(os.path.expanduser("~"), "Dropbox")
-vassals = [
-    os.path.join(os.path.expanduser("~"), "pCloudDrive"),
-]
+vassals = [os.path.join(os.path.expanduser("~"), "pCloudDrive")]
 
 for v in vassals:
-    cmd = ("rsync "
-           "-av " + ("-n " if dry_run else "") + ""
-           "" + suzerain + "/ "
-           "" + v + "/")
+    cmd = (
+        "rsync "
+        "-av " + ("-n " if dry_run else "") + ""
+        "" + suzerain + "/ "
+        "" + v + "/"
+    )
     if delete:
         cmd += " --delete"
     print(cmd)
     process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE)
     # Only show files, not directories
-    for line in iter(process.stdout.readline, b''):
+    for line in iter(process.stdout.readline, b""):
         l = line.decode().strip()
         if l.endswith("/"):
             sys.stdout.write(".")

@@ -9,5 +9,5 @@ bup = src + ".bup"
 os.system("mv " + src + " " + bup)
 
 cmd = "ffmpeg -i " + bup + " -filter:a 'atempo=" + speed + "' -vn -y " + src
-#print(cmd)
+# print(cmd)
 os.system(cmd)

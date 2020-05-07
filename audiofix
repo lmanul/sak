@@ -9,8 +9,8 @@ os.chdir(os.path.expanduser("~"))
 os.system("rm -rf .pulse")
 
 os.system("killall pulseaudio")
-#util.run_bin_cmd("setup")
-#util.run_bin_cmd("hi")
+# util.run_bin_cmd("setup")
+# util.run_bin_cmd("hi")
 util.run_bin_cmd("audiounmute")
 
 os.chdir(os.path.expanduser("~"))

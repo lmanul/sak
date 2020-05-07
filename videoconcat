@@ -8,8 +8,8 @@ videos = sys.argv[1:]
 ext = util.get_extension(videos[0])
 
 with open("list.txt", "w") as f:
-  f.write("\n".join(["file '" + v + "'" for v in videos]))
-  f.close()
+    f.write("\n".join(["file '" + v + "'" for v in videos]))
+    f.close()
 
 cmd = "ffmpeg -f concat -safe 0 -i list.txt -c copy output." + ext
 print(cmd)

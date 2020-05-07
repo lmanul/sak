@@ -3,6 +3,7 @@ import util
 
 PREFIX = "/org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player."
 
+
 def send_command_to_music_player(cmd):
 
     destination = ""
@@ -13,4 +14,6 @@ def send_command_to_music_player(cmd):
         destination = "org.gnome.Lollypop"
 
     if destination:
-        os.system("dbus-send --type=method_call --dest='" + destination + "' " + PREFIX + cmd)
+        os.system(
+            "dbus-send --type=method_call --dest='" + destination + "' " + PREFIX + cmd
+        )

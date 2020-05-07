@@ -14,7 +14,7 @@ os.system("convert xc:none -page " + str(width) + "x" + str(height) + " blank.pd
 n_pages = util.get_pdf_pages(src)
 n_pages_padded = n_pages
 while n_pages_padded % 4 != 0:
-  n_pages_padded += 1
+    n_pages_padded += 1
 
 n_blank_pages_to_add = n_pages_padded - n_pages
 n_pages = n_pages_padded
@@ -22,29 +22,34 @@ n_sheets = int(n_pages / 4)
 print("Sheets: " + str(n_sheets))
 
 padded_file = src.replace(".pdf", "-padded.pdf")
-pad_command = "pdfjoin " + src + " " + \
-    " ".join(["blank.pdf"] * n_blank_pages_to_add) + \
-    " --outfile " + padded_file
+pad_command = (
+    "pdfjoin "
+    + src
+    + " "
+    + " ".join(["blank.pdf"] * n_blank_pages_to_add)
+    + " --outfile "
+    + padded_file
+)
 os.system(pad_command)
 
 pages = ""
 for i in range(1, n_sheets + 1):
-  one =   2 * i - 1 + int(n_pages / 2)
-  two =   2 * i - 1
-  three = 2 * i
-  four =  2 * i + int(n_pages / 2)
-  pages += " ".join([str(p) for p in [one, two, three, four]]) + " "
+    one = 2 * i - 1 + int(n_pages / 2)
+    two = 2 * i - 1
+    three = 2 * i
+    four = 2 * i + int(n_pages / 2)
+    pages += " ".join([str(p) for p in [one, two, three, four]]) + " "
 # Remove the last space
 if pages[-1] == " ":
-  pages = pages[:-1]
+    pages = pages[:-1]
 print(pages)
 if len(pages.split(" ")) != n_pages:
-  print("Houston, we have a problem, bad page count... Fix me!")
-  parsed_pages = [int(p) for p in pages.split(" ")]
-  for i in range(1, n_pages + 1):
-    if i not in parsed_pages:
-      print("Missing: " + str(i))
-  sys.exit(1)
+    print("Houston, we have a problem, bad page count... Fix me!")
+    parsed_pages = [int(p) for p in pages.split(" ")]
+    for i in range(1, n_pages + 1):
+        if i not in parsed_pages:
+            print("Missing: " + str(i))
+    sys.exit(1)
 
 final_file = src.replace(".pdf", "-booktoslice.pdf")
 command = "pdftk " + padded_file + " cat " + pages + " output " + final_file

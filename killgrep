@@ -9,17 +9,24 @@ import sys
 from optparse import OptionParser
 
 parser = OptionParser()
-parser.add_option("-e", "--except_pid", help="Don't kill the process with this ID",
-    dest="except_pid")
-parser.add_option("-d", "--dryrun", action="store_true",
-    help="Don't actually do anything", default=False)
-parser.add_option("-n", "--nine", action="store_true",
-    help="Send a kill -9 signal", default=False)
+parser.add_option(
+    "-e", "--except_pid", help="Don't kill the process with this ID", dest="except_pid"
+)
+parser.add_option(
+    "-d",
+    "--dryrun",
+    action="store_true",
+    help="Don't actually do anything",
+    default=False,
+)
+parser.add_option(
+    "-n", "--nine", action="store_true", help="Send a kill -9 signal", default=False
+)
 (options, args) = parser.parse_args()
 
 if len(args) < 1:
-  print("I need an argument, but I got: " + str(sys.argv))
-  sys.exit(1)
+    print("I need an argument, but I got: " + str(sys.argv))
+    sys.exit(1)
 pattern = args[0]
 
 running = subprocess.check_output(shlex.split("ps aux")).decode()
@@ -27,23 +34,22 @@ running = subprocess.check_output(shlex.split("ps aux")).decode()
 proc_to_kill = []
 proc_cant_kill = []
 for l in running.split("\n"):
-  if pattern in l:
-    if l.startswith("manu"):
-      # Don't kill ourselves
-      if sys.argv[0] not in l:
-        proc_to_kill.append(l)
-    else:
-      proc_cant_kill.append(l)
+    if pattern in l:
+        if l.startswith("manu"):
+            # Don't kill ourselves
+            if sys.argv[0] not in l:
+                proc_to_kill.append(l)
+        else:
+            proc_cant_kill.append(l)
 
 for l in proc_to_kill:
-  parsed = re.match(r"[a-z+]+\s+(\d+)\s+", l)
-  proc_number = int(parsed.group(1))
-  if options.except_pid and int(options.except_pid) == proc_number:
-    continue
-  print("Killing " + str(proc_number) + "...")
-  if not options.dryrun:
-    os.system("kill " + ("-9 " if options.nine else "") + str(proc_number))
+    parsed = re.match(r"[a-z+]+\s+(\d+)\s+", l)
+    proc_number = int(parsed.group(1))
+    if options.except_pid and int(options.except_pid) == proc_number:
+        continue
+    print("Killing " + str(proc_number) + "...")
+    if not options.dryrun:
+        os.system("kill " + ("-9 " if options.nine else "") + str(proc_number))
 
 if len(proc_cant_kill) > 0:
-  print("Some processes matched but aren't owned by me: " + \
-      "\n".join(proc_cant_kill))
+    print("Some processes matched but aren't owned by me: " + "\n".join(proc_cant_kill))

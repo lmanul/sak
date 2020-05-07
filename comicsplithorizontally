@@ -6,28 +6,49 @@ import util
 from optparse import OptionParser
 
 parser = OptionParser()
-parser.add_option("-d", "--dry-run", dest="dryrun",
-                  action="store_true",
-                  help="Dry run, do not actually resize images")
+parser.add_option(
+    "-d",
+    "--dry-run",
+    dest="dryrun",
+    action="store_true",
+    help="Dry run, do not actually resize images",
+)
 
 (options, args) = parser.parse_args()
 
 if options.dryrun:
-  print("Dry run, printing detected portrait pages")
+    print("Dry run, printing detected portrait pages")
 
 all_images = sorted([f for f in os.listdir(".") if not os.path.isdir(f)])
 for i in all_images:
-  (width, height) = util.get_image_dimensions(i)
-  #print(i + " has dims " + str(width) + ", " + str(height))
-  if width < height:
-    print(i)
-    if options.dryrun:
-      continue
-    first_half = i[:-4] + "_first_half" + i[-4:]
-    second_half = i[:-4] + "_second_half" + i[-4:]
-    os.system("convert " + i + " -crop " + \
-        str(width) + "x" + str(height / 2) + "+0+0 +repage " + first_half)
-    os.system("convert " + i + " -crop " + \
-        str(width) + "x" + str(height / 2) + \
-        "+0+" + str(height / 2) + " +repage " + second_half)
-    os.system("mv " + i + " " + i + ".bup")
+    (width, height) = util.get_image_dimensions(i)
+    # print(i + " has dims " + str(width) + ", " + str(height))
+    if width < height:
+        print(i)
+        if options.dryrun:
+            continue
+        first_half = i[:-4] + "_first_half" + i[-4:]
+        second_half = i[:-4] + "_second_half" + i[-4:]
+        os.system(
+            "convert "
+            + i
+            + " -crop "
+            + str(width)
+            + "x"
+            + str(height / 2)
+            + "+0+0 +repage "
+            + first_half
+        )
+        os.system(
+            "convert "
+            + i
+            + " -crop "
+            + str(width)
+            + "x"
+            + str(height / 2)
+            + "+0+"
+            + str(height / 2)
+            + " +repage "
+            + second_half
+        )
+        os.system("mv " + i + " " + i + ".bup")

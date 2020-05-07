@@ -5,32 +5,32 @@ import random
 import sys
 
 streams = [
-  ["bfmbusiness", "https://chai5she.cdn.dvmr.fr/bfmbusiness"],
-  ["europe1", "http://ais-live.cloud-services.paris:8000/europe1.mp3"],
-  ["fip", "http://direct.fipradio.fr/live/fip-midfi.mp3"],
-  ["franceculture", "http://direct.franceculture.fr/live/franceculture-midfi.mp3"],
-  ["franceinfo", "http://direct.franceinfo.fr/live/franceinfo-midfi.mp3"],
-  ["franceinter", "http://direct.franceinter.fr/live/franceinter-midfi.mp3"],
-  ["francemusique", "http://icecast.radiofrance.fr/francemusique-hifi.aac"],
-  ["kcsm", "http://ice5.securenetsystems.net/KCSM"],
-  ["npr", "https://fm939.wnyc.org/wnycfm-web"],
-  ["rireetchansons", "http://cdn.nrjaudio.fm/audio1/fr/30401/mp3_128.mp3"],
-  ["tsfjazz", "http://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3"],
-  ["wbgo", "https://wbgo.streamguys1.com/wbgo128"],
+    ["bfmbusiness", "https://chai5she.cdn.dvmr.fr/bfmbusiness"],
+    ["europe1", "http://ais-live.cloud-services.paris:8000/europe1.mp3"],
+    ["fip", "http://direct.fipradio.fr/live/fip-midfi.mp3"],
+    ["franceculture", "http://direct.franceculture.fr/live/franceculture-midfi.mp3"],
+    ["franceinfo", "http://direct.franceinfo.fr/live/franceinfo-midfi.mp3"],
+    ["franceinter", "http://direct.franceinter.fr/live/franceinter-midfi.mp3"],
+    ["francemusique", "http://icecast.radiofrance.fr/francemusique-hifi.aac"],
+    ["kcsm", "http://ice5.securenetsystems.net/KCSM"],
+    ["npr", "https://fm939.wnyc.org/wnycfm-web"],
+    ["rireetchansons", "http://cdn.nrjaudio.fm/audio1/fr/30401/mp3_128.mp3"],
+    ["tsfjazz", "http://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3"],
+    ["wbgo", "https://wbgo.streamguys1.com/wbgo128"],
 ]
 
 stream = streams[int(random.random() * len(streams))][1]
 if len(sys.argv) > 1:
-  if sys.argv[1] == "list":
-    print("\t" + "\n\t".join([s[0] for s in streams]))
-    sys.exit(0)
-  for el in streams:
-    if sys.argv[1].lower() in el[0]:
-      print("Playing '" + el[0] + "'...")
-      stream = el[1]
-      break
+    if sys.argv[1] == "list":
+        print("\t" + "\n\t".join([s[0] for s in streams]))
+        sys.exit(0)
+    for el in streams:
+        if sys.argv[1].lower() in el[0]:
+            print("Playing '" + el[0] + "'...")
+            stream = el[1]
+            break
 else:
-  print("I need an argument!")
-  sys.exit(1)
+    print("I need an argument!")
+    sys.exit(1)
 
 os.system("cvlc " + stream)

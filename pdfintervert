@@ -12,6 +12,17 @@ page_2 = int(sys.argv[3])
 bup = pdf + ".bup"
 os.system("mv " + pdf + " " + bup)
 
-os.system("pdftk " + bup + " cat 1-" + str(page_1 - 1) + " " + \
-    str(page_2) + " " + str(page_1) + \
-    " " + str(page_2 + 1) + "-end output " + pdf)
+os.system(
+    "pdftk "
+    + bup
+    + " cat 1-"
+    + str(page_1 - 1)
+    + " "
+    + str(page_2)
+    + " "
+    + str(page_1)
+    + " "
+    + str(page_2 + 1)
+    + "-end output "
+    + pdf
+)
