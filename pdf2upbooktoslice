@@ -23,7 +23,7 @@ print("Sheets: " + str(n_sheets))
 
 padded_file = src.replace(".pdf", "-padded.pdf")
 pad_command = (
-    "pdfjoin "
+    "pdfjam "
     + src
     + " "
     + " ".join(["blank.pdf"] * n_blank_pages_to_add)
@@ -55,7 +55,7 @@ final_file = src.replace(".pdf", "-booktoslice.pdf")
 command = "pdftk " + padded_file + " cat " + pages + " output " + final_file
 os.system(command)
 
-os.system("pdfnup --nup 2x1 " + final_file)
+os.system("pdfjam --nup 2x1 --landscape --suffix nup " + final_file)
 os.system("rm " + padded_file)
 os.system("rm blank.pdf")
 os.system("mv " + final_file.replace(".pdf", "-nup.pdf") + " " + final_file)
