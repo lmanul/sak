@@ -10,11 +10,14 @@ if len(sys.argv) < 3:
 s = sys.argv[1]
 i = sys.argv[2]
 
-if "_thumbnail" in i:
-    "" + i + " is already a thumbnail, skipping"
+# if "_thumbnail" in i:
+    # "" + i + " is already a thumbnail, skipping"
 
-extensionPos = i.rfind(".")
-out = i[:extensionPos] + "_thumbnail" + i[extensionPos:]
+if len(sys.argv) == 4:
+    out = sys.argv[3]
+else:
+    extensionPos = i.rfind(".")
+    out = i[:extensionPos] + "_thumbnail" + i[extensionPos:]
 
 if os.path.exists("thumbs"):
     out = "thumbs/" + out
