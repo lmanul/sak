@@ -32,7 +32,7 @@ for p in pages:
 os.system("cp " + pdf + " " + pdf + ".bup")
 
 command = (
-    "pdfjoin --rotateoversize false "
+    "pdfjam --rotateoversize false "
     + pdf
     + " "
     + ",".join([str(p) for p in pages_to_keep])
