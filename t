@@ -42,8 +42,8 @@ for i in range(len(TZ)):
         + time, end=""
     )
     if should_show_date:
-      print(
-          "   "
-          + Style.DIM + day + Style.NORMAL, end=""
-      )
+        print(
+            "   "
+            + Style.DIM + day + Style.NORMAL, end=""
+        )
     print(Style.RESET_ALL)
