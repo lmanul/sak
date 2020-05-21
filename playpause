@@ -1,5 +1,17 @@
 #!/usr/bin/python3
 
+import os
+import sys
+
 import audio
 
-audio.send_command_to_music_player("PlayPause")
+sys.path.insert(0, os.path.join(os.path.expanduser("~"), "repos", "sak"))
+import util
+
+# Also use this as a shortcut to stop ffmpeg stuff.
+if util.is_process_running("ffmpeg"):
+    os.system("killall ffmpeg")
+elif util.is_process_running("ffplay"):
+    os.system("killall ffplay")
+else:
+    audio.send_command_to_music_player("PlayPause")
