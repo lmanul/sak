@@ -4,14 +4,30 @@ import os
 import sys
 import util
 
+USE_CONCAT_DEMUXER = False
+
 videos = sys.argv[1:]
 ext = util.get_extension(videos[0])
 
-with open("list.txt", "w") as f:
-    f.write("\n".join(["file '" + v + "'" for v in videos]))
-    f.close()
+if USE_CONCAT_DEMUXER:
+    with open("list.txt", "w") as f:
+        f.write("\n".join(["file '" + v + "'" for v in videos]))
+        f.close()
 
-cmd = "ffmpeg -f concat -safe 0 -i list.txt -c copy output." + ext
-print(cmd)
-os.system(cmd)
-os.system("rm list.txt")
+    cmd = "ffmpeg -f concat -safe 0 -i list.txt -c copy output." + ext
+    print(cmd)
+    os.system(cmd)
+    os.system("rm list.txt")
+
+else:
+    cmd = "ffmpeg "
+    n = len(videos)
+    for v in videos:
+        cmd += "-i " + v + " "
+    cmd += '-filter_complex "'
+    for i in range(n):
+        cmd += "[" + str(i) + ":v] [" + str(i) + ":a] "
+    cmd += ' concat=n=' + str(n) + ':v=1:a=1 [v] [a]" '
+    cmd += '-map "[v]" -map "[a]" output.mkv'
+    print(cmd)
+    os.system(cmd)
