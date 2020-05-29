@@ -123,6 +123,7 @@ def sanitize_for_filename(input):
         next = ""
         if c in [
             " ",
+            "~",
             "(",
             ")",
             ",",
