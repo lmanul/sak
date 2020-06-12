@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+TRACK_ID_REGEXP = r"Track\s+ID\s+(.+)\:\s+.*"
+
+input = sys.argv[1]
+bup = input + ".bup"
+os.system("mv " + input + " " +  bup)
+input = util.change_extension(input, "mkv")
+
+cmd = "ffmpeg -i " + bup + " -c:v libx264 -c:a aac -filter:a loudnorm " + input
+os.system(cmd)
