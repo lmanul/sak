@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+
+import os
+import re
+import shlex
+import subprocess
+import sys
+
+input = sys.argv[1]
+bup = input + ".bup"
+os.system("mv " + input + " " + bup)
+
+cmd = "ffmpeg -i " + bup + " -c:v copy -filter:a loudnorm " + input
+#print(cmd)
+os.system(cmd)
