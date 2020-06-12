@@ -7,7 +7,7 @@ res = sys.argv[1]
 img = sys.argv[2]
 
 command = (
-    "exiftool "
+    "exiftool -q "
     + "-Xresolution="
     + str(res)
     + " "
