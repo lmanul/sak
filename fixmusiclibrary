@@ -104,7 +104,12 @@ def process_cover_image(directory):
 def process_one_file(f):
     sys.stderr.write(".")
     sys.stderr.flush()
-    all_tags = subprocess.check_output(["id3v2", "-l", f]).decode()
+    all_tags_raw = subprocess.check_output(["id3v2", "-l", f])
+    try:
+        all_tags = all_tags_raw.decode()
+    except UnicodeDecodeError:
+        print("Could not decode tags for this file: " + str(f))
+        return
     remove_tag_if_present("COMM", all_tags, f)  # Comment
     remove_tag_if_present("TPE2", all_tags, f)  # Album artist
     remove_tag_if_present("TCOP", all_tags, f)  # Copyright
