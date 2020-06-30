@@ -11,6 +11,7 @@ PODCASTS_DIR = os.path.join(HOME, "Dropbox", "mini", "podcasts")
 FOLDERS = sorted(
     [d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")]
 )
+DATE_PATTERN = r"^\d\d\d\d\-\d\d\-\d\d"
 
 TAGS_DB = {}
 SEEN_DURATIONS = []
@@ -57,7 +58,7 @@ def get_title(e):
         candidate = get_tag(e, t)
         if candidate:
             return candidate
-    print(TAGS_DB[hash(e)])
+    # print(TAGS_DB[hash(e)])
     return "unknown"
 
 def get_date(e):
@@ -68,7 +69,9 @@ def get_date(e):
             if len(dateparts) != 3:
                 return None
             # Reverse the date format.
-            return "-".join([dateparts[2], dateparts[1], dateparts[0]])
+            date = "-".join([dateparts[2], dateparts[1], dateparts[0]])
+            if re.match(DATE_PATTERN, date) is not None:
+                return date
     # except UnicodeDecodeError:
         # noop = "hop"
     return None
@@ -86,7 +89,7 @@ def get_duration(e):
 def process_one_episode(e):
     date_prefix = util.get_date_prefix()
     # If the file already has a date prefix, preserve it
-    if re.match(r"^\d\d\d\d\-\d\d\-\d\d", e) is not None:
+    if re.match(DATE_PATTERN, e) is not None:
         date_prefix = e[:10]
     title = get_title(e)
     date = get_date(e)
@@ -138,6 +141,7 @@ for f in FOLDERS:
     os.chdir("..")
 
 keep_only_latest_episode_in_folder_matching_name("matins_de_france_culture")
+keep_only_latest_episode_in_folder_matching_name("journal_de_7h30")
 
 for f in FOLDERS:
     if not os.path.exists(f):
@@ -156,8 +160,8 @@ for l in log_files:
         os.system('rm "' + l + '"')
 os.chdir("..")
 
-print("Down-sampling...")
-os.system("downsampleallmp3srecursively 64")
 print("Removing backups...")
 os.system("find -name '*.bup' -delete")
+print("Down-sampling...")
+os.system("downsampleallmp3srecursively 64")
 print("All done. Why do I never terminate? Please kill me.")
