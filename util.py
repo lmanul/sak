@@ -122,7 +122,7 @@ def sanitize_for_filename_one_pass(input):
     for c in input:
         next = ""
         if c in [
-                " ", "~", "(", ")", ",", ";", ":", "?", "!", "-", "'", '"',
+                " ", "~", "(", ")", ",", ";", ":", "?", "!", "'", '"',
                 "/", "|", "[", "]", "{", "}", "&", "#", "@", "$",
         ]:
             if output[-1:] != "_":
@@ -151,6 +151,7 @@ def sanitize_for_filename_one_pass(input):
     output = output.replace("_.", ".")
     output = output.replace("__", "_")
     output = output.replace("..", ".")
+    output = output.replace("--", "-")
     return output
 
 
