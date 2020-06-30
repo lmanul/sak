@@ -117,32 +117,13 @@ def get_ram_gb():
             return int(parsed.group(1))
 
 
-def sanitize_for_filename(input):
+def sanitize_for_filename_one_pass(input):
     output = ""
     for c in input:
         next = ""
         if c in [
-            " ",
-            "~",
-            "(",
-            ")",
-            ",",
-            ";",
-            ":",
-            "?",
-            "!",
-            "-",
-            "'",
-            '"',
-            "/",
-            "|",
-            "[",
-            "]",
-            "{",
-            "}",
-            "&",
-            "#",
-            "@",
+                " ", "~", "(", ")", ",", ";", ":", "?", "!", "-", "'", '"',
+                "/", "|", "[", "]", "{", "}", "&", "#", "@", "$",
         ]:
             if output[-1:] != "_":
                 next = "_"
@@ -169,12 +150,21 @@ def sanitize_for_filename(input):
     output = output.replace("._", "_")
     output = output.replace("_.", ".")
     output = output.replace("__", "_")
+    output = output.replace("..", ".")
     return output
 
 
+def sanitize_for_filename(in_filename):
+    current = in_filename
+    while True:
+        new = sanitize_for_filename_one_pass(current)
+        if new == current:
+            return new
+        current = new
+
 def get_date_prefix():
     now = datetime.now()
-    return str(now.year) + "." + str(now.month).zfill(2) + "." + str(now.day).zfill(2)
+    return str(now.year) + "-" + str(now.month).zfill(2) + "-" + str(now.day).zfill(2)
 
 
 def remove_extension(f):

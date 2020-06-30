@@ -1,114 +1,155 @@
 #!/usr/bin/python3
 
-import chardet
+import multiprocessing
 import os
 import re
-import shlex
 import subprocess
 import util
 
+HOME = os.path.expanduser("~")
+PODCASTS_DIR = os.path.join(HOME, "Dropbox", "mini", "podcasts")
+FOLDERS = sorted(
+    [d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")]
+)
 
-def get_title(file):
-    try:
-        ids = subprocess.check_output(["id3v2", "-l", e]).decode()
-        if "no id3 tags" not in ids.lower() and ids != "":
-            for l in ids.split("\n"):
-                if l.startswith("TIT") or l.startswith("TT2") or l.startswith("TIT2"):
-                    return l.split(":", 1)[1].strip()
-    except UnicodeDecodeError:
-        ids = ""
-    ids = subprocess.check_output(shlex.split("eyeD3 " + e)).decode()
-    if ids:
-        for l in ids.split("\n"):
-            if "title" in l:
-                return l.split(":", 1)[1].strip()
+TAGS_DB = {}
+SEEN_DURATIONS = []
+SEEN_FP = []
+
+
+def hash(the_file):
+    return subprocess.check_output(["md5sum", the_file]).decode().split(" ")[0]
+
+def process_id3v2_tags(fp, data):
+    tags = {}
+    for l in data.split("\n"):
+        if ":" not in l:
+            continue
+        (tag, value) = l.split(":", 1)
+        tag = tag[:4]
+        tags[tag] = value
+    TAGS_DB[fp] = tags
+
+def get_tag_from_cache(fp, tag):
+    if fp in TAGS_DB:
+        if tag in TAGS_DB[fp]:
+            return TAGS_DB[fp][tag]
     return None
 
+def get_tag(e, tag):
+    fp = hash(e)
+    cached = get_tag_from_cache(fp, tag)
+    if cached:
+        return cached
+    data = subprocess.check_output(["id3v2", "-l", e]).decode().strip()
+    if "no id3v2 tags" not in data.lower() and data != "":
+        process_id3v2_tags(fp, data)
+    return get_tag_from_cache(fp, tag)
+    #except UnicodeDecodeError:
+    # ids = subprocess.check_output(shlex.split("eyeD3 " + e)).decode()
+    # if ids:
+        # for l in ids.split("\n"):
+            # if "title" in l:
+                # return l.split(":", 1)[1].strip()
+
+def get_title(e):
+    for t in ["TIT2"]:
+        candidate = get_tag(e, t)
+        if candidate:
+            return candidate
+    print(TAGS_DB[hash(e)])
+    return "unknown"
 
 def get_date(e):
-    try:
-        ids = subprocess.check_output(["id3v2", "-l", e]).decode()
-        if "no id3 tags" not in ids.lower() and ids != "":
-            for line in ids.split("\n"):
-                if line.startswith("TDAT"):
-                    thedate = line.split(":", 1)[1].strip()
-                    dateparts = thedate.split(".")
-                    if len(dateparts) != 3:
-                        return None
-                    # Reverse the date format.
-                    return ".".join([dateparts[2], dateparts[1], dateparts[0]])
-    except UnicodeDecodeError:
-        noop = "hop"
+    for t in ["TDAT"]:
+        candidate = get_tag(e, t)
+        if candidate:
+            dateparts = candidate.split("-")
+            if len(dateparts) != 3:
+                return None
+            # Reverse the date format.
+            return "-".join([dateparts[2], dateparts[1], dateparts[0]])
+    # except UnicodeDecodeError:
+        # noop = "hop"
     return None
 
-
 def get_duration(e):
-    duration = 0
+    duration = "unknown"
     try:
         duration = subprocess.check_output(["mp3info", "-p", "'%m:%s\n'", e]).decode(
             "utf-8"
         )
         duration = duration.replace("'", "").replace(":", "m").strip()
+        duration = [d.zfill(2) for d in duration.split("m")]
     except subprocess.CalledProcessError:
         print("Couldn't get duration for " + e)
-    return duration
+    return "m".join(duration)
 
+def process_one_episode(e):
+    date_prefix = util.get_date_prefix()
+    # If the file already has a date prefix, preserve it
+    if re.match(r"^\d\d\d\d\-\d\d\-\d\d", e) is not None:
+        date_prefix = e[:10]
+    title = get_title(e)
+    date = get_date(e)
+    duration = get_duration(e)
+    if date:
+        date_prefix = date
+    title = util.sanitize_for_filename(title)
+    fp = hash(e)
+    if duration not in SEEN_DURATIONS:
+        SEEN_DURATIONS.append(duration)
+    if fp in SEEN_FP:
+        cmd = "rm " + e
+        #print(cmd)
+        #os.system(cmd)
+    else:
+        SEEN_FP.append(fp)
+    final_name = "_".join([date_prefix, title, duration]) + ".mp3"
+    if e != final_name:
+        cmd = "mv '" + e + "' '" + final_name + "'"
+        print(cmd)
+        os.system(cmd)
+    return "unused_result"
 
-home = os.path.expanduser("~")
-podcasts_dir = os.path.join(home, "Dropbox", "mini", "podcasts")
+def keep_only_latest_episode_in_folder_matching_name(name):
+    for f in FOLDERS:
+        if name in f.lower():
+            os.chdir(f)
+            episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
+            if len(episodes) > 1:
+                cmd = "rm " + " ".join(["'" + e + "'" for e in episodes[:-1]])
+                print(cmd)
+                os.system(cmd)
+            os.chdir("..")
 
-os.chdir(podcasts_dir)
-util.run_bin_cmd("sanitizefilenames", "*")
+os.chdir(PODCASTS_DIR)
+util.run_bin_cmd("sanitizefilenamesrecursively")
 os.system("find . -name '*conflicted*' -delete")
 os.system("rm -rf *Conflict*")
 os.system("rm -f .LOG/errors")
 
-folders = sorted(
-    [d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")]
-)
-
-for f in folders:
+for f in FOLDERS:
     if not os.path.exists(f):
         continue
     os.chdir(f)
-    seen_durations = []
-    seen_md5 = []
     episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
+    n_threads = multiprocessing.cpu_count() - 1
+    pool = multiprocessing.Pool(n_threads)
+    results = pool.map(process_one_episode, episodes)
+    os.chdir("..")
 
-    for e in episodes:
-        date_prefix = util.get_date_prefix()
-        # If the file already has a date prefix, preserve it
-        if re.match(r"^\d\d\d\d\.\d\d\.\d\d", e) is not None:
-            date_prefix = e[:10]
-        title = get_title(e)
-        date = get_date(e)
-        duration = get_duration(e)
-        if not duration:
-            duration = "unkwn"
-        if not title:
-            title = "unkwn"
-        if date:
-            date_prefix = date
-        title = util.sanitize_for_filename(title)
-        md5 = subprocess.check_output(["md5sum", e]).decode("utf-8").split(" ")[0]
-        if duration not in seen_durations:
-            seen_durations.append(duration)
-        if md5 in seen_md5:
-            os.system("rm " + e)
-        else:
-            seen_md5.append(md5)
-        final_name = "_".join([date_prefix, title, duration]) + ".mp3"
-        if e != final_name:
-            command = "mv '" + e + "' '" + final_name + "'"
-            os.system(command)
-    if "matins" in f.lower():
-        if len(episodes) > 1:
-            cmd = "rm " + " ".join(["'" + e + "'" for e in episodes[:-1]])
-            os.system(cmd)
+keep_only_latest_episode_in_folder_matching_name("matins_de_france_culture")
 
+for f in FOLDERS:
+    if not os.path.exists(f):
+        continue
+    os.chdir(f)
+    episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
     os.chdir("..")
     if len(episodes) == 0:
         os.system("rmdir '" + f + "'")
+
 
 os.chdir(".LOG")
 log_files = os.listdir(".")
@@ -116,3 +157,9 @@ for l in log_files:
     if "conflict" in l:
         os.system('rm "' + l + '"')
 os.chdir("..")
+
+print("Down-sampling...")
+os.system("downsampleallmp3srecursively 64")
+print("Removing backups...")
+os.system("find -name '*.bup' -delete")
+print("All done")
