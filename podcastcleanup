@@ -53,6 +53,13 @@ def get_tag(e, tag):
             # if "title" in l:
                 # return l.split(":", 1)[1].strip()
 
+def get_episode_number(e):
+    for t in ["TRCK"]:
+        candidate = get_tag(e, t)
+        if candidate and int(candidate) > 1:
+            return str(int(candidate)).zfill(4)
+    return None
+
 def get_title(e):
     for t in ["TIT2"]:
         candidate = get_tag(e, t)
@@ -94,9 +101,12 @@ def process_one_episode(e):
     title = get_title(e)
     date = get_date(e)
     duration = get_duration(e)
+    episode_number = get_episode_number(e)
     if date:
         date_prefix = date
     title = util.sanitize_for_filename(title)
+    if title.startswith("."):
+        title = title[1:]
     fp = hash(e)
     if duration not in SEEN_DURATIONS:
         SEEN_DURATIONS.append(duration)
@@ -106,7 +116,12 @@ def process_one_episode(e):
         #os.system(cmd)
     else:
         SEEN_FP.append(fp)
-    final_name = "_".join([date_prefix, title, duration]) + ".mp3"
+    parts = [date_prefix]
+    if episode_number:
+        parts.append(episode_number)
+    parts.append(title)
+    parts.append(duration)
+    final_name = "_".join(parts) + ".mp3"
     if e != final_name:
         cmd = "mv '" + e + "' '" + final_name + "'"
         print(cmd)
@@ -138,6 +153,8 @@ for f in FOLDERS:
     n_threads = multiprocessing.cpu_count() - 1
     pool = multiprocessing.Pool(n_threads)
     results = pool.map(process_one_episode, episodes)
+    pool.close()
+    pool.join()
     os.chdir("..")
 
 keep_only_latest_episode_in_folder_matching_name("matins_de_france_culture")
@@ -164,4 +181,6 @@ print("Removing backups...")
 os.system("find -name '*.bup' -delete")
 print("Down-sampling...")
 os.system("downsampleallmp3srecursively 64")
-print("All done. Why do I never terminate? Please kill me.")
+print("Removing backups again...")
+os.system("find -name '*.bup' -delete")
+print("All done.")

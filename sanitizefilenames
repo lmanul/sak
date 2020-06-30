@@ -18,6 +18,7 @@ def rename_and_move(path):
     newName = util.sanitize_for_filename(lastPart)
     newPath = dontModify + newName
     if newPath != path:
+        print(path + " -> " + newPath)
         subprocess.call(["mv", path, newPath])
 
 
@@ -32,10 +33,6 @@ for argument in sys.argv[1:]:
         if dirname.endswith(os.path.sep):
             dirname = dirname[:-1]
         dirsToRename.append(dirname)
-        # Don't do recursive for now.
-        # for file in os.listdir(argument):
-        #  if os.path.isfile(os.path.join(argument, file)):
-        #    filesToRename.append(os.path.join(argument, file))
 
 for file in filesToRename:
     rename_and_move(file)
