@@ -1,30 +1,6 @@
 #!/usr/bin/python3
 
-import os
-import shlex
-import subprocess
+import wifi
 
-
-def collapse_spaces(s):
-    parts = s.split(" ")
-    final_parts = []
-    for p in parts:
-        if p != "":
-            final_parts.append(p)
-    return " ".join(final_parts)
-
-
-os.system("nmcli device wifi rescan")
-available_ssids_raw = subprocess.check_output(
-    shlex.split("nmcli --terse device wifi list")
-).decode()
-available_ssids = set()
-for l in available_ssids_raw.split("\n"):
-    candidate = collapse_spaces(l).split(":")
-    if len(candidate) > 1:
-        candidate = candidate[1]
-        if candidate != "" and candidate != "--":
-            available_ssids.add(candidate)
-available_ssids_sorted = ["'" + s + "'" for s in available_ssids]
-available_ssids_sorted.sort()
-print("Available: \n\n" + "\n".join(available_ssids_sorted))
+available_ssids = wifi.get_available_ssids()
+print("Available: \n\n" + "\n".join(available_ssids))
