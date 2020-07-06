@@ -8,6 +8,7 @@ import sys
 from pytz import timezone
 
 TIMEZONES = {
+    "CET": "Europe/Paris",
     "EST": "US/Eastern",
     "PST": "US/Pacific",
     "UTC": "UTC",
