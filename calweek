@@ -8,11 +8,14 @@ import sys
 from pytz import timezone
 
 TIMEZONES = {
+    "EST": "US/Eastern",
+    "PST": "US/Pacific",
     "UTC": "UTC",
 }
 
 def display_time_from_unix(unix, tz):
-    d = datetime.datetime.fromtimestamp(unix).astimezone(timezone(tz))
+    d = datetime.datetime.fromtimestamp(unix).astimezone(
+        timezone(TIMEZONES[tz]))
     display_date = d.strftime("%Y-%m-%d")
     display_time = d.strftime("%H:%M")
     return (display_date, display_time)
