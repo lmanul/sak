@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+
+import datetime
+import shlex
+import subprocess
+import sys
+
+def display_time_from_unix(unix):
+    d = datetime.datetime.fromtimestamp(unix)
+    return str(d)
+
+if len(sys.argv) >=2:
+    tz = sys.argv[1]
+else:
+    tz = "UTC"
+
+week = subprocess.check_output(shlex.split(
+    "calcurse "
+    "-r7 "
+    "--format-apt='%s|%e|%m\n' "
+)).decode()
+
+for l in week.split("\n"):
+    l = l.strip()
+    if l == "":
+        continue
+    if l.count("/") == 2:
+        if l.endswith(":"):
+            l = l[:-1]
+        # Date. we'll show that in each event
+        continue
+        # (m, d, y) = l.split("/")
+        # print("-".join(['20' + y, m.zfill(2), d.zfill(2)]))
+    (start, end, title) = l.split("|", 2)
+    print("" + display_time_from_unix(int(start)) + ""
+          " -> "
+          "" + display_time_from_unix(int(end)) + " "
+          "" + title)
