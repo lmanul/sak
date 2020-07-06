@@ -5,8 +5,14 @@ import shlex
 import subprocess
 import sys
 
-def display_time_from_unix(unix):
-    d = datetime.datetime.fromtimestamp(unix)
+from pytz import timezone
+
+TIMEZONES = {
+    "UTC": "UTC",
+}
+
+def display_time_from_unix(unix, tz):
+    d = datetime.datetime.fromtimestamp(unix).astimezone(timezone(tz))
     display_date = d.strftime("%Y-%m-%d")
     display_time = d.strftime("%H:%M")
     return (display_date, display_time)
@@ -35,10 +41,10 @@ for l in week.split("\n"):
         # (m, d, y) = l.split("/")
         # print("-".join(['20' + y, m.zfill(2), d.zfill(2)]))
     (start, end, title) = l.split("|", 2)
-    (s_d, s_t) = display_time_from_unix(int(start))
+    (s_d, s_t) = display_time_from_unix(int(start), tz)
     if s_d == current_date:
         s_d = " " * len("YYYY-MM-DD")
-    (_, e_t) = display_time_from_unix(int(end))
+    (_, e_t) = display_time_from_unix(int(end), tz)
     print(""
           "" + s_d + " " + s_t + ""
           " -> "
