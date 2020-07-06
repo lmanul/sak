@@ -7,7 +7,9 @@ import sys
 
 def display_time_from_unix(unix):
     d = datetime.datetime.fromtimestamp(unix)
-    return str(d)
+    display_date = d.strftime("%Y-%m-%d")
+    display_time = d.strftime("%H:%M")
+    return (display_date, display_time)
 
 if len(sys.argv) >=2:
     tz = sys.argv[1]
@@ -20,6 +22,7 @@ week = subprocess.check_output(shlex.split(
     "--format-apt='%s|%e|%m\n' "
 )).decode()
 
+current_date = ""
 for l in week.split("\n"):
     l = l.strip()
     if l == "":
@@ -32,7 +35,13 @@ for l in week.split("\n"):
         # (m, d, y) = l.split("/")
         # print("-".join(['20' + y, m.zfill(2), d.zfill(2)]))
     (start, end, title) = l.split("|", 2)
-    print("" + display_time_from_unix(int(start)) + ""
+    (s_d, s_t) = display_time_from_unix(int(start))
+    if s_d == current_date:
+        s_d = " " * len("YYYY-MM-DD")
+    (_, e_t) = display_time_from_unix(int(end))
+    print(""
+          "" + s_d + " " + s_t + ""
           " -> "
-          "" + display_time_from_unix(int(end)) + " "
+          "" + e_t + " "
           "" + title)
+    current_date = s_d
