@@ -7,10 +7,10 @@ import subprocess
 import util
 
 HOME = os.path.expanduser("~")
-PODCASTS_DIR = os.path.join(HOME, "Dropbox", "mini", "podcasts")
-FOLDERS = sorted(
-    [d for d in os.listdir(".") if os.path.isdir(d) and not d.startswith(".")]
-)
+os.chdir(HOME)
+
+PODCASTS_DIR = os.path.join("Dropbox", "mini", "podcasts")
+FOLDERS = sorted(os.listdir(PODCASTS_DIR))
 DATE_PATTERN = r"^\d\d\d\d\-\d\d\-\d\d"
 
 TAGS_DB = {}
@@ -98,6 +98,7 @@ def process_one_episode(e):
     # If the file already has a date prefix, preserve it
     if re.match(DATE_PATTERN, e) is not None:
         date_prefix = e[:10]
+    print("Getting metadata for '" + e + "'...")
     title = get_title(e)
     date = get_date(e)
     duration = get_duration(e)
@@ -129,8 +130,9 @@ def process_one_episode(e):
     return "unused_result"
 
 def keep_only_latest_episode_in_folder_matching_name(name):
+    print("Keeping only one in '" + name + "'")
     for f in FOLDERS:
-        if name in f.lower():
+        if name.lower() in f.lower():
             os.chdir(f)
             episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
             if len(episodes) > 1:
