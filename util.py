@@ -3,7 +3,6 @@
 import os
 import re
 import shlex
-import socket
 
 # import ssh_agent_setup
 import subprocess
