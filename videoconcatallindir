@@ -14,5 +14,5 @@ ext = util.get_extension(videos[0])
 
 videos = [v for v in videos if v.endswith(ext)]
 
-util.run_bin_cmd("videoconcat", want_output=True, args=" ".join(videos))
+util.run_bin_cmd("videoconcat", args=" ".join(videos))
 os.system("mv output." + ext + " ../" + directory + "." + ext)

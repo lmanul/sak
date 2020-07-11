@@ -65,7 +65,7 @@ def scale(i):
     bup = i + ".bup"
     thumb = i + "_thumbnail.bup"
     os.system("mv " + i + " " + bup)
-    util.run_bin_cmd("mkthumb", want_output=True, args=str(max(max_width, max_height)) + " " + bup)
+    util.run_bin_cmd("mkthumb", args=str(max(max_width, max_height)) + " " + bup)
     os.system("mv " + thumb + " " + i)
 
 
