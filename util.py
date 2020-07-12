@@ -1,10 +1,10 @@
 # coding=utf-8
+"Various 'Swiss-army knife' utilities"
 
 import os
 import re
 import shlex
 
-# import ssh_agent_setup
 import subprocess
 import sys
 
@@ -49,6 +49,8 @@ def is_process_running(process, apart_from=None):
                 return True
     return False
 
+def spawn(cmd):
+    subprocess.Popen(shlex.split(cmd), stdin=None, stdout=None, stderr=None)
 
 def get_image_dimensions(img):
     if img.endswith(".xcf"):
@@ -71,6 +73,7 @@ def get_image_dimensions(img):
 
 
 def get_image_resolution(img):
+    "Returns the resolution of the given image."
     if img.endswith(".png"):
         return "0x0"
     x_res = "unknown"
@@ -86,34 +89,37 @@ def get_image_resolution(img):
     return str(x_res) + "x" + y_res
 
 
-# Returns the number of pages in the given PDF file
 def get_pdf_pages(pdf_path):
+    "Returns the number of pages in the given PDF file"
     output = subprocess.check_output(["pdfinfo", pdf_path]).decode()
     lines = output.split("\n")
     for l in lines:
         if "Pages:" in l:
             value = l.replace("Pages:", "").strip()
             return int(value)
+    return None
 
 
-# Returns the dimensions of the given PDF file
 def get_pdf_dimension(pdf_path):
+    "Returns the dimensions of the given PDF file"
     output = subprocess.check_output(["pdfinfo", pdf_path]).decode()
     lines = output.split("\n")
     for l in lines:
         if "Page size:" in l:
             parsed = re.match(r".*:\s+([\d\.]+)\s+x\s+([\d\.]+)\s+.*", l)
             return (float(parsed.group(1)), float(parsed.group(2)))
+    return None
 
 
-# Returns the amount of RAM in gigabytes
 def get_ram_gb():
+    "Returns the amount of RAM in gigabytes"
     output = subprocess.check_output(shlex.split("free -g")).decode()
     lines = output.split("\n")
     for l in lines:
         if l.startswith("Mem:"):
             parsed = re.match(r"Mem:\s+([\d]+)\s+.*", l)
             return int(parsed.group(1))
+    return None
 
 
 def sanitize_for_filename_one_pass(input):
@@ -162,6 +168,7 @@ def sanitize_for_filename(in_filename):
         if new == current:
             return new
         current = new
+    return current
 
 def get_date_prefix():
     now = datetime.now()
@@ -188,7 +195,7 @@ def change_extension(f, new_ext):
     return f[:last_dot] + "." + new_ext
 
 
-def run_bin_cmd(cmd, args=None):
+def run_bin_cmd(cmd, args=None, detach=False):
     p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
     sak_p = os.path.join(os.path.expanduser("~"), "repos", "sak", cmd)
     usr_bin_p = os.path.join("/usr", "bin", "", cmd)
@@ -204,6 +211,9 @@ def run_bin_cmd(cmd, args=None):
         cmd = good_path + " " + args
     else:
         cmd = good_path
+    if detach:
+        spawn(cmd)
+        return None
     # print(cmd)
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     output = ""
@@ -212,17 +222,14 @@ def run_bin_cmd(cmd, args=None):
         sys.stdout.write(l)
         output += l
     return output
-    # TODO -- can run this if we don't need to wait for the command
-    #subprocess.Popen(shlex.split(cmd), stdin=None, stdout=None, stderr=None)
 
-
-def run_bin_cmd_if_not_running(cmd, args=None):
+def run_bin_cmd_if_not_running(cmd, args=None, detach=False):
     bin_name = cmd
     if " " in cmd:
         bin_name = cmd.split(" ")[1]
     if is_process_running(cmd):
         return
-    run_bin_cmd(cmd, args=args)
+    run_bin_cmd(cmd, args=args, detach=detach)
 
 
 def run_bin_cmd_kill_existing(cmd, args=None):
