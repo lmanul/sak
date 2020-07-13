@@ -1,10 +1,30 @@
 #!/usr/bin/python3
 
 import os
+import shlex
 import shutil
 import subprocess
 import sys
 import time
+
+IGNORED_STATUSES = ["up to date", "unwatched"]
+
+def get_list_of_syncing_files():
+    os.chdir(os.path.join(os.path.expanduser("~"), "Dropbox"))
+    output = []
+    lines = subprocess.check_output(
+        shlex.split("dropbox filestatus")).decode().split("\n")
+    for l in lines:
+        l = l.strip()
+        if l == "":
+            continue
+        should_add = True
+        for i in IGNORED_STATUSES:
+            if l.endswith(i):
+                should_add = False
+        if should_add:
+            output.append(l)
+    return output
 
 first_time = True
 while True:
@@ -22,4 +42,7 @@ while True:
         to_write = to_write[: cols - 3] + "..."
     sys.stdout.write(to_write)
     sys.stdout.write(" " * (cols - len(to_write)))
+    files = get_list_of_syncing_files()
+    if len(files) > 0:
+        print(files)
     time.sleep(0.3)
