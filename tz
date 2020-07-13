@@ -10,7 +10,9 @@ import timezones
 TZ_TO_INCLUDE = ["PST", "EST", "UTC", "CET"]
 
 def convert(d, tz_from, tz_to):
-    return d
+    to_tz = timezone(timezones.TIMEZONES[tz_to])
+    ts = d.timestamp()
+    return datetime.datetime.fromtimestamp(ts).astimezone(to_tz)
 
 def format_time(d):
     return d.strftime("%H:%M")
@@ -25,13 +27,16 @@ if __name__ == "__main__":
         m = 0
 
     d = datetime.datetime.now()
-    d = d.replace(hour=h, minute=m)
+    d = d.replace(hour=h, minute=m, second=0)
+    d = timezone(timezones.TIMEZONES[z]).localize(d)
 
     if len(z) == 1:
         z = timezones.SHORTS[z]
 
     print(format_time(d) + " " + z + "\n"
-          " | \n"
-          " v ")
+          " \n"
+          "    | \n"
+          "    v "
+          " \n")
     for tz in TZ_TO_INCLUDE:
         print(format_time(convert(d, z, tz)) + " " + tz)
