@@ -1,0 +1,37 @@
+#!/usr/bin/python3
+
+import datetime
+import sys
+
+from pytz import timezone
+
+import timezones
+
+TZ_TO_INCLUDE = ["PST", "EST", "UTC", "CET"]
+
+def convert(d, tz_from, tz_to):
+    return d
+
+def format_time(d):
+    return d.strftime("%H:%M")
+
+if __name__ == "__main__":
+    t = sys.argv[1]
+    z = sys.argv[2]
+    if ":" in t:
+        (h, m) = [int(e) for e in t.split(":")]
+    else:
+        h = int(t)
+        m = 0
+
+    d = datetime.datetime.now()
+    d = d.replace(hour=h, minute=m)
+
+    if len(z) == 1:
+        z = timezones.SHORTS[z]
+
+    print(format_time(d) + " " + z + "\n"
+          " | \n"
+          " v ")
+    for tz in TZ_TO_INCLUDE:
+        print(format_time(convert(d, z, tz)) + " " + tz)
