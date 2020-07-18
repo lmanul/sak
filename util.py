@@ -158,6 +158,8 @@ def sanitize_for_filename_one_pass(input):
     output = output.replace("__", "_")
     output = output.replace("..", ".")
     output = output.replace("--", "-")
+    if output.startswith("-"):
+        output = output[1:]
     return output
 
 

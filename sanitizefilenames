@@ -19,7 +19,7 @@ def rename_and_move(path):
     newPath = dontModify + newName
     if newPath != path:
         print(path + " -> " + newPath)
-        subprocess.call(["mv", path, newPath])
+        subprocess.call(["mv", "'" + path + "'", newPath])
 
 
 filesToRename = []

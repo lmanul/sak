@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Stolen and adapted from
 # https://codereview.stackexchange.com/questions/8958/n-largest-files-in-a-directory

@@ -2,14 +2,23 @@
 
 import os
 import subprocess
-import sys
 
 NUMBER_OF_ENTRIES_TO_SHOW = 20
 
+PATTERNS_TO_IGNORE = [
+  "/.git/"
+]
 
 def size_key(item):
     return item["size"]
 
+def which_to_delete(a, b):
+    # if len(second) > len(first):
+        # return second
+    # return first
+    if second > first:
+        return second
+    return first
 
 print("Checking...")
 output = subprocess.check_output(["fdupes", "-rS", "."]).decode()
@@ -35,12 +44,17 @@ entries.sort(key=size_key, reverse=True)
 for e in entries:
     first = e["files"][0]
     second = e["files"][1]
-    deletion_candidate = first
-    if len(second) > len(first):
-        deletion_candidate = second
+    skip = False
+    for i in PATTERNS_TO_IGNORE:
+        if i in first and i in second:
+            skip = True
+            continue
+    if skip:
+        continue
+    deletion_candidate = which_to_delete(first, second)
     print("\nSame files:")
-    print("\t" + first + (" X" if first == deletion_candidate else ""))
-    print("\t" + second + (" X" if second == deletion_candidate else ""))
+    print("\t" + ("X" if first == deletion_candidate else " ") + " " + first)
+    print("\t" + ("X" if second == deletion_candidate else " ") + " " + second)
     answer = input("--> Delete? [Enter] for Yes, n for No: ")
     if answer.strip() == "":
         print("Deleting")
