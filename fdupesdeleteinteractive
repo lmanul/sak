@@ -14,11 +14,11 @@ def size_key(item):
 
 def which_to_delete(a, b):
     # if len(second) > len(first):
-        # return second
-    # return first
+        # return (second, first)
+    # return (first, second)
     if second > first:
-        return second
-    return first
+        return (second, first)
+    return (first, second)
 
 print("Checking...")
 output = subprocess.check_output(["fdupes", "-rS", "."]).decode()
@@ -51,15 +51,19 @@ for e in entries:
             continue
     if skip:
         continue
-    deletion_candidate = which_to_delete(first, second)
-    print("\nSame files:")
+    (deletion_candidate, other) = which_to_delete(first, second)
+    size_str = str(int(e["size"] / 1024 / 1024)) + "M"
+    print("\nSame files, size " + size_str + ":")
     print("\t" + ("X" if first == deletion_candidate else " ") + " " + first)
     print("\t" + ("X" if second == deletion_candidate else " ") + " " + second)
-    answer = input("--> Delete? [Enter] for Yes, n for No: ")
+    answer = input("--> Delete? [Enter] for Yes, n for No, o for Delete Other: ")
     if answer.strip() == "":
         print("Deleting")
         os.system("rm '" + deletion_candidate + "'")
     elif answer.strip() == "n":
         print("Skipping")
+    elif answer.strip() == "o":
+        print("Deleting the other file")
+        os.system("rm '" + other + "'")
     else:
         print("Not sure what that means. Skipping.")

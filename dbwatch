@@ -10,39 +10,67 @@ import time
 IGNORED_STATUSES = ["up to date", "unwatched"]
 
 def get_list_of_syncing_files():
-    os.chdir(os.path.join(os.path.expanduser("~"), "Dropbox"))
-    output = []
-    lines = subprocess.check_output(
-        shlex.split("dropbox filestatus")).decode().split("\n")
+    base_dir = os.path.join(os.path.expanduser("~"), "Dropbox")
+    os.chdir(base_dir)
+    (_, final_out) = get_list_of_syncing_files_internal(["."], [])
+    return final_out
+
+def get_list_of_syncing_files_internal(queue, output):
+    if len(queue) == 0:
+        return (queue, output)
+    cur = queue.pop()
+    contents = os.listdir(cur)
+    # If there are no contents, just add this director to our output
+    if len(contents) == 0:
+        output.append(cur)
+        return get_list_of_syncing_files_internal(queue, output)
+    cmd = "dropbox filestatus " + " ".join(["'" + cur + "/" + c + "'" for c in contents])
+    lines = subprocess.check_output(shlex.split(cmd)).decode().split("\n")
+    added_further_el = False
     for l in lines:
         l = l.strip()
         if l == "":
             continue
-        should_add = True
+        relevant = True
         for i in IGNORED_STATUSES:
             if l.endswith(i):
-                should_add = False
-        if should_add:
-            output.append(l)
-    return output
+                relevant = False
+        if relevant:
+            what = l.split(":")[0]
+            if os.path.exists(what) and os.path.isdir(what):
+                queue.append(what)
+            else:
+                output.append(what)
+            added_further_el = True
+    if not added_further_el:
+        # We don't know any further about this folder. Just show it as syncing.
+        output.append(cur)
+    return get_list_of_syncing_files_internal(queue, output)
 
 first_time = True
 while True:
-    # Keep updating this, terminal may be resized.
-    cols = shutil.get_terminal_size().columns
+    try:
+        # Keep updating this, terminal may be resized.
+        cols = shutil.get_terminal_size().columns
 
-    msg = subprocess.check_output(["dropbox", "status"]).decode("utf-8")
-    lines = msg.split("\n")
+        msg = subprocess.check_output(["dropbox", "status"]).decode("utf-8")
+        lines = msg.split("\n")
 
-    lines = [l for l in lines if l.strip() != ""]
+        lines = [l for l in lines if l.strip() != ""]
 
-    sys.stdout.write("\r")
-    to_write = " - ".join(lines)
-    if len(to_write) > cols:
-        to_write = to_write[: cols - 3] + "..."
-    sys.stdout.write(to_write)
-    sys.stdout.write(" " * (cols - len(to_write)))
-    files = get_list_of_syncing_files()
-    if len(files) > 0:
-        print(files)
-    time.sleep(0.3)
+        sys.stdout.write("\r")
+        to_write = " - ".join(lines)
+        if len(to_write) > cols:
+            to_write = to_write[: cols - 3] + "..."
+        sys.stdout.write(to_write)
+        sys.stdout.write(" " * (cols - len(to_write)))
+        files = get_list_of_syncing_files()
+        files_to_show = []
+        for f in files:
+            # Each file will start with "./"
+            files_to_show.append(f[2:])
+        if len(files_to_show) > 0:
+            print(files_to_show)
+        time.sleep(0.3)
+    except KeyboardInterrupt:
+        sys.exit(0)
