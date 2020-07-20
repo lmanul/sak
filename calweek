@@ -9,6 +9,8 @@ from pytz import timezone
 
 import timezones
 
+days_to_display = 14
+
 def display_time_from_unix(unix, tz):
     d = datetime.datetime.fromtimestamp(unix).astimezone(
         timezone(timezones.TIMEZONES[tz]))
@@ -23,30 +25,48 @@ else:
 
 week = subprocess.check_output(shlex.split(
     "calcurse "
-    "-r7 "
+    "-r" + str(days_to_display) + " "
     "--format-apt='%s|%e|%m\n' "
+    "--format-event=' * %S|%E|%m\n'"
 )).decode()
 
 current_date = ""
+first_item = True
 for l in week.split("\n"):
+    separator = " -> "
     l = l.strip()
     if l == "":
         continue
     if l.count("/") == 2:
         if l.endswith(":"):
             l = l[:-1]
+        #parts = l.split("/")
+        #current_date = "20" + parts[2] + "-" + parts[0] + "-" + parts[1]
         # Date. we'll show that in each event
         continue
         # (m, d, y) = l.split("/")
         # print("-".join(['20' + y, m.zfill(2), d.zfill(2)]))
-    (start, end, title) = l.split("|", 2)
-    (s_d, s_t) = display_time_from_unix(int(start), tz)
-    if s_d == current_date:
-        s_d = " " * len("YYYY-MM-DD")
-    (_, e_t) = display_time_from_unix(int(end), tz)
+    if l.startswith("*"):
+        # All day event
+        title = l[2:]
+        s_d = current_date
+        s_t = " " * len("HH:MM")
+        e_t = " " * len("HH:MM")
+        separator = "    "
+        # Ignore all-day events for now. TODO.
+        continue
+    else:
+        (start, end, title) = l.split("|", 2)
+        (s_d, s_t) = display_time_from_unix(int(start), tz)
+        if s_d == current_date and not first_item:
+            s_d = " " * len("YYYY-MM-DD")
+        else:
+            print("-" * 80)
+        (_, e_t) = display_time_from_unix(int(end), tz)
     print(""
-          "" + s_d + " " + s_t + ""
-          " -> "
+          "" + s_d + "  " + s_t + ""
+          "" + separator + ""
           "" + e_t + " "
-          "" + title)
+          "  " + title)
     current_date = s_d
+    first_item = False
