@@ -6,7 +6,7 @@ import subprocess
 NUMBER_OF_ENTRIES_TO_SHOW = 20
 
 PATTERNS_TO_IGNORE = [
-  "/.git/"
+  "/.git"
 ]
 
 def size_key(item):
