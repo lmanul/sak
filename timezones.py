@@ -9,6 +9,10 @@ TIMEZONES = {
     "UTC": "UTC",
 }
 
+TIMEZONES_REVERSE = {}
+for t in TIMEZONES:
+    TIMEZONES_REVERSE[TIMEZONES[t]] = t
+
 SHORTS = {
     "C": "CET",
     "E": "EST",
