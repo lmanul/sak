@@ -23,40 +23,40 @@ if len(sys.argv) >=2:
 else:
     tz = "UTC"
 
-week = subprocess.check_output(shlex.split(
-    "calcurse "
-    "-r" + str(days_to_display) + " "
-    "--format-apt='%s|%e|%m\n' "
-    "--format-event=' * %S|%E|%m\n'"
-)).decode()
+FORMAT = "%s|%e|%m\\n"
+cmd = ("calcurse "
+       "-r" + str(days_to_display) + " "
+       "--format-apt='" + FORMAT + "' "
+       "--format-event='" + FORMAT + "' "
+       "--format-recur-apt='" + FORMAT + "' "
+       "--format-recur-event='" + FORMAT + "'")
+week = subprocess.check_output(shlex.split(cmd)).decode()
 
 current_date = ""
 first_item = True
+current_date_from_output = None
 for l in week.split("\n"):
     separator = " -> "
     l = l.strip()
     if l == "":
         continue
     if l.count("/") == 2:
+        # Date
         if l.endswith(":"):
             l = l[:-1]
-        #parts = l.split("/")
-        #current_date = "20" + parts[2] + "-" + parts[0] + "-" + parts[1]
-        # Date. we'll show that in each event
+        p = l.split("/")
+        current_date_from_output = datetime.datetime(
+            2000 + int(p[2]), int(p[0]), int(p[1]))
         continue
-        # (m, d, y) = l.split("/")
-        # print("-".join(['20' + y, m.zfill(2), d.zfill(2)]))
-    if l.startswith("*"):
-        # All day event
-        title = l[2:]
-        s_d = current_date
-        s_t = " " * len("HH:MM")
-        e_t = " " * len("HH:MM")
-        separator = "    "
-        # Ignore all-day events for now. TODO.
-        continue
+
     else:
         (start, end, title) = l.split("|", 2)
+        if start == "?":
+            day_start = current_date_from_output.replace(hour=0, minute=0)
+            start = day_start.timestamp()
+        if end == "?":
+            day_end = current_date_from_output.replace(hour=23, minute=59)
+            end = day_end.timestamp()
         (s_d, s_t) = display_time_from_unix(int(start), tz)
         if s_d == current_date and not first_item:
             s_d = " " * len("YYYY-MM-DD")
