@@ -1,12 +1,11 @@
 #!/usr/bin/python3
 
 import datetime
-import shlex
-import subprocess
 import sys
 
 from pytz import timezone
 
+import cal
 import timezones
 
 days_to_display = 14
@@ -23,49 +22,22 @@ if len(sys.argv) >=2:
 else:
     tz = "UTC"
 
-FORMAT = "%s|%e|%m\\n"
-cmd = ("calcurse "
-       "-r" + str(days_to_display) + " "
-       "--format-apt='" + FORMAT + "' "
-       "--format-event='" + FORMAT + "' "
-       "--format-recur-apt='" + FORMAT + "' "
-       "--format-recur-event='" + FORMAT + "'")
-week = subprocess.check_output(shlex.split(cmd)).decode()
-
 current_date = ""
-first_item = True
 current_date_from_output = None
-for l in week.split("\n"):
+events = cal.get_events_for_next_n_days(days_to_display)
+for e in events:
+    (start, end, title) = e
     separator = " -> "
-    l = l.strip()
-    if l == "":
-        continue
-    if l.count("/") == 2:
-        # Date
-        if l.endswith(":"):
-            l = l[:-1]
-        p = l.split("/")
-        current_date_from_output = datetime.datetime(
-            2000 + int(p[2]), int(p[0]), int(p[1]))
-        continue
-
-    (start, end, title) = l.split("|", 2)
-    if start == "?":
-        day_start = current_date_from_output.replace(hour=0, minute=0)
-        start = day_start.timestamp()
-    if end == "?":
-        day_end = current_date_from_output.replace(hour=23, minute=59)
-        end = day_end.timestamp()
     (s_d, s_t) = display_time_from_unix(int(start), tz)
-    if s_d == current_date and not first_item:
-        s_d = " " * len("YYYY-MM-DD")
+    display_date = s_d
+    if s_d == current_date:
+        display_date = " " * len("YYYY-MM-DD")
     else:
         print("-" * 80)
     (_, e_t) = display_time_from_unix(int(end), tz)
     print(""
-          "" + s_d + "  " + s_t + ""
+          "" + display_date + "  " + s_t + ""
           "" + separator + ""
           "" + e_t + " "
           "  " + title)
     current_date = s_d
-    first_item = False
