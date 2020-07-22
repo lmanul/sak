@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import argparse
 import datetime
 import sys
 
@@ -8,12 +9,18 @@ from pytz import timezone
 import cal
 import timezones
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", dest="full", action="store_true",
+                    help="Show full descriptions")
+args = parser.parse_args()
+
 days_to_display = 14
+max_title_length = 80 - len("Mon YYYY-MM-DD  HH:MM -> HH:MM  ")
 
 def display_time_from_unix(unix, tz):
     d = datetime.datetime.fromtimestamp(unix).astimezone(
         timezone(timezones.TIMEZONES[tz]))
-    display_date = d.strftime("%Y-%m-%d")
+    display_date = d.strftime("%a %Y-%m-%d")
     display_time = d.strftime("%H:%M")
     return (display_date, display_time)
 
@@ -27,17 +34,19 @@ current_date_from_output = None
 events = cal.get_events_for_next_n_days(days_to_display)
 for e in events:
     (start, end, title) = e
+    if len(title) > max_title_length and not args.full:
+        title = title[:max_title_length - 3] + "..."
     separator = " -> "
     (s_d, s_t) = display_time_from_unix(int(start), tz)
     display_date = s_d
     if s_d == current_date:
-        display_date = " " * len("YYYY-MM-DD")
+        display_date = " " * len("Mon YYYY-MM-DD")
     else:
         print("-" * 80)
     (_, e_t) = display_time_from_unix(int(end), tz)
     print(""
           "" + display_date + "  " + s_t + ""
           "" + separator + ""
-          "" + e_t + " "
+          "" + e_t + ""
           "  " + title)
     current_date = s_d
