@@ -9,6 +9,12 @@ from pytz import timezone
 import cal
 import timezones
 
+if len(sys.argv) >=2:
+    tz = sys.argv[1]
+    del sys.argv[1]
+else:
+    tz = "UTC"
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", dest="full", action="store_true",
                     help="Show full descriptions")
@@ -23,11 +29,6 @@ def display_time_from_unix(unix, tz):
     display_date = d.strftime("%a %Y-%m-%d")
     display_time = d.strftime("%H:%M")
     return (display_date, display_time)
-
-if len(sys.argv) >=2:
-    tz = sys.argv[1]
-else:
-    tz = "UTC"
 
 current_date = ""
 current_date_from_output = None
