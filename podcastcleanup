@@ -161,6 +161,7 @@ for f in FOLDERS:
 
 keep_only_latest_episode_in_folder_matching_name("matins_de_france_culture")
 keep_only_latest_episode_in_folder_matching_name("journal_de_7h30")
+keep_only_latest_episode_in_folder_matching_name("NYT_Daily")
 
 for f in FOLDERS:
     if not os.path.exists(f):

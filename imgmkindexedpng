@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+pic = sys.argv[1]
+backup = pic + ".bup"
+
+os.system("cp " + pic + " " + backup)
+os.system("convert -quantize gray +antialias +dither " + backup + " " + pic)
