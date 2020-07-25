@@ -9,7 +9,12 @@ TRACK_ID_REGEXP = r"Track\s+ID\s+(.+)\:\s+.*"
 input = sys.argv[1]
 bup = input + ".bup"
 os.system("mv " + input + " " +  bup)
-input = util.change_extension(input, "mkv")
+input = util.change_extension(input, "mp4")
 
-cmd = "ffmpeg -i " + bup + " -c:v libx264 -c:a aac -filter:a loudnorm " + input
+subtitles_option = "-vf subtitles=" + input + " " if input.endswith(".mkv") else ""
+cmd = ("ffmpeg -i " + bup + " "
+       "" + subtitles_option + ""
+       "-c:v libx264 "
+       "-c:a aac "
+       "-filter:a loudnorm " + input)
 os.system(cmd)
