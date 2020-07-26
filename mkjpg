@@ -2,6 +2,7 @@
 
 import os
 import sys
+import util
 
 i = sys.argv[1]
 
@@ -15,5 +16,12 @@ jpg = i[:last_dot] + ".jpg"
 
 if i.endswith(".webp"):
     os.system("dwebp " + i + " -o " + jpg)
+elif i.lower().endswith(".nef"):
+    ppm = util.change_extension(i, "ppm")
+    jpg = util.change_extension(i, "jpg")
+    os.system("dcraw " + i)
+    os.system("mkjpg " + ppm)
+    os.system("imgjpg85quality " + jpg)
+    os.system("rm " + ppm)
 else:
     os.system("convert " + args + " " + i + " " + jpg)
