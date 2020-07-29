@@ -1,19 +1,17 @@
 import os
-import util
+
+import dbus
 
 PREFIX = "/org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player."
-
 
 def send_command_to_music_player(cmd):
 
     destination = ""
-    # Lollypop is often running and stopped. Let's try to target other players first.
-    if util.is_process_running("vlc") or util.is_process_running("cvlc"):
-        destination = "org.mpris.MediaPlayer2.vlc"
-    elif util.is_process_running("lollypop"):
-        destination = "org.gnome.Lollypop"
+    for service in dbus.SessionBus().list_names():
+        if "vlc" in service or "lollypop" in service:
+            destination = service
+            # Target the first service we find
+            break
 
     if destination:
-        os.system(
-            "dbus-send --type=method_call --dest='" + destination + "' " + PREFIX + cmd
-        )
+        os.system("dbus-send --type=method_call --dest='" + destination + "' " + PREFIX + cmd)
