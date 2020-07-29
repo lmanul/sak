@@ -1,14 +1,11 @@
 import datetime
+import os
 import shlex
 import subprocess
 
-debug = False
+DEBUG = False
 
-EVENT_TITLES_TO_IGNORE = [
-    "If you schedule here, I will likely miss it",
-    "No meeting Thursday",
-    "No-meeting Thursdays",
-]
+HOME = os.path.expanduser("~")
 
 # Assumes the two arguments are sorted (first element of e is lower than
 # first element of f). This also assumes the second element of each even is
@@ -50,7 +47,7 @@ def get_events_for_next_n_days(days):
            "--format-event='" + event_format + "' "
            "--format-recur-apt='" + event_format + "' "
            "--format-recur-event='" + event_format + "'")
-    if debug:
+    if DEBUG:
         print(cmd)
     current_date_from_output = None
     for l in subprocess.check_output(shlex.split(cmd)).decode().split("\n"):
@@ -68,13 +65,6 @@ def get_events_for_next_n_days(days):
             continue
 
         (start, end, title) = l.split("|", 2)
-        should_add = True
-        for e in EVENT_TITLES_TO_IGNORE:
-            if e in title:
-                should_add = False
-                break
-        if not should_add:
-            continue
         if start == "?":
             day_start = current_date_from_output.replace(hour=0, minute=0)
             start = day_start.timestamp()
@@ -90,3 +80,38 @@ def get_events_for_next_n_days(days):
         out.append([start, end, title])
         added_events_for_today.add(event_fp)
     return out
+
+def sort_by_date(line):
+    date_chunk = line.split(" ")[0]
+    if date_chunk.count("/") != 2:
+        raise ValueError("Invalid date: " + date_chunk)
+    (m, d, y) = date_chunk.split("/")
+    return "-".join([y, m, d])
+
+def sort_calcurse_apts_by_date():
+    os.chdir(HOME)
+    os.chdir("bus/config/calcurse")
+    lines = []
+    i = 0
+    with open("apts") as f:
+        try:
+            for l in f:
+                lines.append(l)
+                i += 1
+        except UnicodeDecodeError as error:
+            print("One line I can't decode. Last line number was " + str(i))
+            print(str(error))
+
+        f.close()
+    cleaned_up_lines = []
+    for l in lines:
+        l = l.strip()
+        if l == "":
+            continue
+        cleaned_up_lines.append(l)
+    sorted_lines = sorted(cleaned_up_lines, key=sort_by_date, reverse=True)
+    output = "\n".join(sorted_lines)
+    with open("apts_sorted_by_date", "w") as f:
+        f.write(output)
+        f.close()
+    os.system("mv apts_sorted_by_date apts")
