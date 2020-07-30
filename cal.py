@@ -115,3 +115,10 @@ def sort_calcurse_apts_by_date():
         f.write(output)
         f.close()
     os.system("mv apts_sorted_by_date apts")
+
+def remove_duplicates():
+    os.chdir(HOME)
+    os.chdir("bus/config/calcurse")
+    os.system("sort -u apts > new")
+    os.system("mv new apts")
+    os.chdir(HOME)
