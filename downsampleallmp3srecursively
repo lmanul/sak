@@ -23,7 +23,7 @@ target = int(sys.argv[1])
 def reencode(mp3):
     print("Reencoding " + mp3 + "...")
     bup = mp3.replace(".mp3", ".mp3.bup")
-    os.system("mv " + mp3 + " " + bup)
+    os.system("mv '" + mp3 + "' '" + bup + "'")
     os.system("lame --mp3input --quiet -b " + str(target) + " " + bup + " " + mp3)
     # os.system("rm " + bup)
 
