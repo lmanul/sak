@@ -1,0 +1,38 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+import util
+
+music = sys.argv[1]
+tracklist = sys.argv[2]
+
+with open(tracklist) as f:
+    lines = f.readlines()
+    f.close()
+
+print(lines)
+for i in range(len(lines)):
+    l = lines[i].strip()
+    if l == "":
+        continue
+    (timestamp, title) = l.split(" ", 1)
+    filename = str(i + 1).zfill(2) + "_" + util.sanitize_for_filename(title) + ".mp3"
+    print(filename)
+    to_option = ""
+    if i < len(lines) - 1:
+        (next_ts, _) = lines[i + 1].split(" ", 1)
+        to_option = "-to " + next_ts
+    cmd = ("ffmpeg "
+           "-ss " + timestamp + " "
+           "" + to_option + " "
+           "-i " + music + " "
+           "-acodec copy "
+           "" + filename)
+    print(cmd)
+    os.system(cmd)
+
+    cmd = "id3v2 -t '" + title + "' -T " + str(i + 1) + " " + filename
+    print(cmd)
+    os.system(cmd)
