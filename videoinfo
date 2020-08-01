@@ -2,9 +2,10 @@
 
 import os
 import sys
-import util
 
 video = sys.argv[1]
 
 if video.endswith(".mkv"):
     os.system("mkvmerge -i " + video)
+else:
+    os.system("ffmpeg -i " + video)
