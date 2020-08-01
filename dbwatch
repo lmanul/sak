@@ -81,7 +81,7 @@ while True:
             if trimmed != "":
                 files_to_show.append(trimmed)
         if len(files_to_show) > 0:
-            print_file_list(files_to_show)
+            print_file_list(sorted(files_to_show))
             print("")
         time.sleep(0.3)
     except KeyboardInterrupt:
