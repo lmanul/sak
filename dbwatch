@@ -52,6 +52,10 @@ def get_list_of_syncing_files_internal(queue, output):
         #print(cur, end="", flush=True)
     return get_list_of_syncing_files_internal(queue, output)
 
+def print_file_list(li):
+    for l in li:
+        print("\t" + l)
+
 first_time = True
 while True:
     try:
@@ -77,7 +81,8 @@ while True:
             if trimmed != "":
                 files_to_show.append(trimmed)
         if len(files_to_show) > 0:
-            print(files_to_show)
+            print_file_list(files_to_show)
+            print("")
         time.sleep(0.3)
     except KeyboardInterrupt:
         sys.exit(0)
