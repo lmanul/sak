@@ -39,14 +39,14 @@ def reduce_availability(events):
 # Returns a list where each element is itself a list of three elements:
 # start time, end time (both in seconds since the epoch) and title.
 def get_events_for_next_n_days(days):
-    event_format = "%s|%e|%m\\n"
+    event_format = "%s|%e|%m"
     out = []
     cmd = ("calcurse "
            "-r" + str(days) + " "
-           "--format-apt='" + event_format + "' "
-           "--format-event='" + event_format + "' "
-           "--format-recur-apt='" + event_format + "' "
-           "--format-recur-event='" + event_format + "'")
+           "--format-apt='" + event_format + "\\n' "
+           "--format-event='" + event_format + "\\n' "
+           "--format-recur-apt='" + event_format + " (recur)\\n' "
+           "--format-recur-event='" + event_format + " (recur)\\n'")
     if DEBUG:
         print(cmd)
     current_date_from_output = None
@@ -64,7 +64,11 @@ def get_events_for_next_n_days(days):
             added_events_for_today = set()
             continue
 
-        (start, end, title) = l.split("|", 2)
+        try:
+            (start, end, title) = l.split("|", 2)
+        except ValueError:
+            print("Oops, couldn't parse '" + l + "'")
+            continue
         if start == "?":
             day_start = current_date_from_output.replace(hour=0, minute=0)
             start = day_start.timestamp()
