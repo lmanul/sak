@@ -22,12 +22,27 @@ def hash(the_file):
     return subprocess.check_output(["md5sum", the_file]).decode().split(" ")[0]
 
 def process_id3v2_tags(fp, data):
-    tags = {}
+    if fp in TAGS_DB:
+        tags = TAGS_DB[fp]
+    else:
+        tags = {}
     for l in data.split("\n"):
         if ":" not in l:
             continue
         (tag, value) = l.split(":", 1)
         tag = tag[:4]
+        tags[tag] = value
+    TAGS_DB[fp] = tags
+
+def process_eyed3_tags(fp, data):
+    if fp in TAGS_DB:
+        tags = TAGS_DB[fp]
+    else:
+        tags = {}
+    for l in data.split("\n"):
+        if ":" not in l:
+            continue
+        (tag, value) = l.split(":", 1)
         tags[tag] = value
     TAGS_DB[fp] = tags
 
@@ -45,6 +60,8 @@ def get_tag(e, tag):
     data = subprocess.check_output(["id3v2", "-l", e]).decode().strip()
     if "no id3v2 tags" not in data.lower() and data != "":
         process_id3v2_tags(fp, data)
+    data = subprocess.check_output(["eyeD3", e]).decode().strip()
+    process_eyed3_tags(fp, data)
     return get_tag_from_cache(fp, tag)
     #except UnicodeDecodeError:
     # ids = subprocess.check_output(shlex.split("eyeD3 " + e)).decode()
@@ -61,7 +78,7 @@ def get_episode_number(e):
     return None
 
 def get_title(e):
-    for t in ["TIT2"]:
+    for t in ["TIT2", "title"]:
         candidate = get_tag(e, t)
         if candidate:
             return candidate
