@@ -121,6 +121,29 @@ def sort_calcurse_apts_by_date():
         f.close()
     os.system("mv apts_sorted_by_date apts")
 
+def parse_non_repeated_timing(timing):
+    """
+    Takes an input of the form:
+
+        10/28/2020 @ 16:30 -> 10/28/2020 @ 17:30
+
+    and returns (start_date, end_date) where each date is of time
+    datetime.datetime.
+    """
+
+    if "->" not in timing:
+        # Not parsing this type of event yet
+        return (None, None)
+    (start, end) = timing.split("->", 1)
+    if "@" not in start:
+        # Not parsing full-day events yet
+        return (None, None)
+    start_date = datetime.datetime.strptime(
+        start.strip(), CALCURSE_DATETIME_FORMAT)
+    end_date = datetime.datetime.strptime(
+        end.strip(), CALCURSE_DATETIME_FORMAT)
+    return (start_date, end_date)
+
 def remove_duplicated_with_repeated():
     """
     Parses repeated events and removes one-time events that represent the same
@@ -143,26 +166,29 @@ def remove_duplicated_with_repeated():
         if "|" not in l:
             # Ignoring full-day events for now
             continue
-        if "->" not in l:
-            print("Warning, line without '->': '" + l + "'")
-            continue
+
         (timing, title) = l.split("|", 1)
         if "{" in timing and "}" in timing:
             # Repeated event
-            continue
-        # Nonrepeated event
-        (start, end) = timing.split("->", 1)
-        if "@" not in start:
-            print("Warning, ignoring line with '@': '" + start + "'")
-            continue
-        start_date = datetime.datetime.strptime(
-            start.strip(), CALCURSE_DATETIME_FORMAT)
-        end_date = datetime.datetime.strptime(
-            end.strip(), CALCURSE_DATETIME_FORMAT)
-        if start_date not in non_repeated:
-            non_repeated[start_date] = []
-        non_repeated[start_date].append([end_date, title])
+            repeat_str_start = timing.index("{")
+            repeat_str_end = timing.index("}")
+            repeat_str = timing[repeat_str_start + 1:repeat_str_end]
+            remainder = timing[:repeat_str_start] + timing[repeat_str_end + 1:]
+            remainder = remainder.strip()
+            (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
+            if base_event_start not in repeated:
+                repeated[base_event_start] = []
+            repeated[base_event_start].append([base_event_end, title])
+        else:
+            # Nonrepeated event
+            (start, end) = parse_non_repeated_timing(timing)
+            if not start or not end:
+                continue
+            if start not in non_repeated:
+                non_repeated[start] = []
+            non_repeated[start].append([end, title])
     print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
+    print("Parsed " + str(len(repeated)) + " repeated events")
 
 def remove_duplicates():
     os.chdir(HOME)
