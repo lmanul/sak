@@ -9,15 +9,10 @@ from pytz import timezone
 import cal
 import timezones
 
-if len(sys.argv) >=2:
-    tz = sys.argv[1]
-    del sys.argv[1]
-else:
-    tz = "UTC"
-
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", dest="full", action="store_true",
                     help="Show full descriptions")
+parser.add_argument("timezone", nargs="?", default="UTC")
 args = parser.parse_args()
 
 days_to_display = 14
@@ -38,13 +33,13 @@ for e in events:
     if len(title) > max_title_length and not args.full:
         title = title[:max_title_length - 3] + "..."
     separator = " -> "
-    (s_d, s_t) = display_time_from_unix(int(start), tz)
+    (s_d, s_t) = display_time_from_unix(int(start), args.timezone)
     display_date = s_d
     if s_d == current_date:
         display_date = " " * len("Mon YYYY-MM-DD")
     else:
         print("-" * 80)
-    (_, e_t) = display_time_from_unix(int(end), tz)
+    (_, e_t) = display_time_from_unix(int(end), args.timezone)
     print(""
           "" + display_date + "  " + s_t + ""
           "" + separator + ""
