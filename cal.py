@@ -144,6 +144,27 @@ def parse_non_repeated_timing(timing):
         end.strip(), CALCURSE_DATETIME_FORMAT)
     return (start_date, end_date)
 
+def parse_nonrepeated_event(timing, title, non_repeated):
+    # Nonrepeated event
+    (start, end) = parse_non_repeated_timing(timing)
+    if not start or not end:
+        return
+    if start not in non_repeated:
+        non_repeated[start] = []
+    non_repeated[start].append([end, title])
+
+def parse_repeated_event(timing, title, repeated):
+    # Repeated event
+    repeat_str_start = timing.index("{")
+    repeat_str_end = timing.index("}")
+    repeat_str = timing[repeat_str_start + 1:repeat_str_end]
+    remainder = timing[:repeat_str_start] + timing[repeat_str_end + 1:]
+    remainder = remainder.strip()
+    (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
+    if base_event_start not in repeated:
+        repeated[base_event_start] = []
+    repeated[base_event_start].append([base_event_end, title])
+
 def remove_duplicated_with_repeated():
     """
     Parses repeated events and removes one-time events that represent the same
@@ -169,24 +190,9 @@ def remove_duplicated_with_repeated():
 
         (timing, title) = l.split("|", 1)
         if "{" in timing and "}" in timing:
-            # Repeated event
-            repeat_str_start = timing.index("{")
-            repeat_str_end = timing.index("}")
-            repeat_str = timing[repeat_str_start + 1:repeat_str_end]
-            remainder = timing[:repeat_str_start] + timing[repeat_str_end + 1:]
-            remainder = remainder.strip()
-            (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
-            if base_event_start not in repeated:
-                repeated[base_event_start] = []
-            repeated[base_event_start].append([base_event_end, title])
+            parse_repeated_event(timing, title, repeated)
         else:
-            # Nonrepeated event
-            (start, end) = parse_non_repeated_timing(timing)
-            if not start or not end:
-                continue
-            if start not in non_repeated:
-                non_repeated[start] = []
-            non_repeated[start].append([end, title])
+            parse_nonrepeated_event(timing, title, non_repeated)
     print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
     print("Parsed " + str(len(repeated)) + " repeated events")
 
