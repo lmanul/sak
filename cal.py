@@ -6,6 +6,7 @@ import subprocess
 DEBUG = False
 
 HOME = os.path.expanduser("~")
+CALCURSE_DATETIME_FORMAT = "%m/%d/%Y @ %H:%M"
 
 # Assumes the two arguments are sorted (first element of e is lower than
 # first element of f). This also assumes the second element of each even is
@@ -119,6 +120,49 @@ def sort_calcurse_apts_by_date():
         f.write(output)
         f.close()
     os.system("mv apts_sorted_by_date apts")
+
+def remove_duplicated_with_repeated():
+    """
+    Parses repeated events and removes one-time events that represent the same
+    as one instance.
+    """
+    os.chdir(HOME)
+    os.chdir("bus/config/calcurse")
+    with open("apts") as f:
+        lines = f.readlines()
+
+    # Dictionary whose keys are the start date, and the values are
+    # a list of [end date, title].
+    non_repeated = {}
+    repeated = {}
+
+    for l in lines:
+        l = l.strip()
+        if l == "":
+            continue
+        if "|" not in l:
+            # Ignoring full-day events for now
+            continue
+        if "->" not in l:
+            print("Warning, line without '->': '" + l + "'")
+            continue
+        (timing, title) = l.split("|", 1)
+        if "{" in timing and "}" in timing:
+            # Repeated event
+            continue
+        # Nonrepeated event
+        (start, end) = timing.split("->", 1)
+        if "@" not in start:
+            print("Warning, ignoring line with '@': '" + start + "'")
+            continue
+        start_date = datetime.datetime.strptime(
+            start.strip(), CALCURSE_DATETIME_FORMAT)
+        end_date = datetime.datetime.strptime(
+            end.strip(), CALCURSE_DATETIME_FORMAT)
+        if start_date not in non_repeated:
+            non_repeated[start_date] = []
+        non_repeated[start_date].append([end_date, title])
+    print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
 
 def remove_duplicates():
     os.chdir(HOME)
