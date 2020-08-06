@@ -144,16 +144,16 @@ def parse_non_repeated_timing(timing):
         end.strip(), CALCURSE_DATETIME_FORMAT)
     return (start_date, end_date)
 
-def parse_nonrepeated_event(timing, title, non_repeated):
+def parse_nonrepeated_event(timing, title, orig_line, non_repeated):
     # Nonrepeated event
     (start, end) = parse_non_repeated_timing(timing)
     if not start or not end:
         return
     if start not in non_repeated:
         non_repeated[start] = []
-    non_repeated[start].append([end, title])
+    non_repeated[start].append([end, title, orig_line])
 
-def parse_repeated_event(timing, title, repeated):
+def parse_repeated_event(timing, title, orig_line, repeated):
     # Repeated event
     repeat_str_start = timing.index("{")
     repeat_str_end = timing.index("}")
@@ -163,7 +163,23 @@ def parse_repeated_event(timing, title, repeated):
     (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
     if base_event_start not in repeated:
         repeated[base_event_start] = []
-    repeated[base_event_start].append([base_event_end, title])
+    repeated[base_event_start].append([base_event_end, orig_line, title, repeat_str])
+
+def reduce_from_single_repeated_event(repeated_event, repeat_str, non_repeated):
+    """
+    The repeated_event argument is a single repeated event in this form:
+        [start, end, title].
+    """
+    for start in non_repeated.keys():
+        if start != repeated_event[0]:
+            continue
+        #print("Match at " + str(start))
+
+def reduce_non_repeated_from_repeated(repeated, non_repeated):
+    for start in repeated.keys():
+        for repeated_event in repeated[start]:
+            (end, orig_line, title, repeat_str) =  repeated_event
+            reduce_from_single_repeated_event([start, end, title], repeat_str, non_repeated)
 
 def remove_duplicated_with_repeated():
     """
@@ -174,9 +190,10 @@ def remove_duplicated_with_repeated():
     os.chdir("bus/config/calcurse")
     with open("apts") as f:
         lines = f.readlines()
+        f.close()
 
     # Dictionary whose keys are the start date, and the values are
-    # a list of [end date, title].
+    # a list of [end date, title, original_line].
     non_repeated = {}
     repeated = {}
 
@@ -190,11 +207,12 @@ def remove_duplicated_with_repeated():
 
         (timing, title) = l.split("|", 1)
         if "{" in timing and "}" in timing:
-            parse_repeated_event(timing, title, repeated)
+            parse_repeated_event(timing, title, l, repeated)
         else:
-            parse_nonrepeated_event(timing, title, non_repeated)
+            parse_nonrepeated_event(timing, title, l, non_repeated)
     print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
     print("Parsed " + str(len(repeated)) + " repeated events")
+    reduce_non_repeated_from_repeated(repeated, non_repeated)
 
 def remove_duplicates():
     os.chdir(HOME)
