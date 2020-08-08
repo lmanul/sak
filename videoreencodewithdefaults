@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+in_video = sys.argv[1]
+bup = input + ".bup"
+
+os.system("mv " + in_video + " " + bup)
+cmd = "ffmpeg -i " + bup + " " + in_video
+os.system(cmd)
