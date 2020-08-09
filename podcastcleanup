@@ -48,11 +48,13 @@ def process_eyed3_tags(fp, data):
     else:
         tags = {}
     for l in data.split("\n"):
-        print(l)
         if ":" not in l:
             continue
         if l.startswith("ID3"):
             continue
+        # Workaround for when 'track' and 'genre' are on the same line
+        if "track" in l and "genre" in l:
+            l = l[:l.index("genre")]
         (tag, value) = l.split(":", 1)
         tags[tag] = value.strip()
     TAGS_DB[fp] = tags
@@ -65,9 +67,9 @@ def get_tag_from_cache(fp, tag):
 
 def get_tag(e, tag):
     fp = podcast_hash(e)
-    cached = get_tag_from_cache(fp, tag)
-    if cached:
-        return cached
+    # Assume we've retrieved all the tags at once
+    if fp in TAGS_DB:
+        return get_tag_from_cache(fp, tag)
     data = subprocess.check_output(["id3v2", "-l", e]).decode().strip()
     if "no id3v2 tags" not in data.lower() and data != "":
         process_id3v2_tags(fp, data)
@@ -75,8 +77,6 @@ def get_tag(e, tag):
         ["eyeD3", "--log-level=critical", e],
         stderr=FNULL).decode().strip()
     process_eyed3_tags(fp, data)
-    print(e)
-    print(TAGS_DB[fp])
     return get_tag_from_cache(fp, tag)
     #except UnicodeDecodeError:
     # ids = subprocess.check_output(shlex.split("eyeD3 " + e)).decode()
@@ -97,7 +97,6 @@ def get_title(e):
         candidate = get_tag(e, t)
         if candidate:
             return candidate
-    # print(TAGS_DB[podcast_hash(e)])
     return "unknown"
 
 def get_date(e):
@@ -106,7 +105,6 @@ def get_date(e):
     if y and d and len(y) == 4 and len(d) == 4:
         m = d[2:]
         d = d[:2]
-        print("Returning dd " + "-".join([y, m, d]))
         return "-".join([y, m, d])
     for t in ["recording date", "release date", "TDAT"]:
         candidate = get_tag(e, t)
@@ -114,7 +112,6 @@ def get_date(e):
             candidate = candidate.strip()
             if len(candidate) == 4:
                 # We just have a year
-                print("Returning " + candidate + "-01-01")
                 return candidate + "-01-01"
             dateparts = candidate.split("-")
             if len(dateparts) != 3:
@@ -122,7 +119,6 @@ def get_date(e):
             # Reverse the date format.
             date = "-".join([dateparts[2], dateparts[1], dateparts[0]])
             if re.match(DATE_PATTERN, date) is not None:
-                print("Returning " + date)
                 return date
     # except UnicodeDecodeError:
         # noop = "hop"
@@ -197,7 +193,7 @@ if CURRENT in FOLDERS:
     SINGLE_FOLDER = True
     print("Single folder mode...")
 else:
-    os.chdir(PODCASTS_DIR)
+    os.chdir(os.path.join(HOME, PODCASTS_DIR))
     util.run_bin_cmd("sanitizefilenamesrecursively")
     os.system("find . -name '*conflicted*' -delete")
     os.system("rm -rf *Conflict*")
