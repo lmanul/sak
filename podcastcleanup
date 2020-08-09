@@ -199,8 +199,9 @@ os.chdir("..")
 
 print("Removing backups...")
 os.system("find -name '*.bup' -delete")
-print("Down-sampling...")
-os.system("downsampleallmp3srecursively 64")
-print("Removing backups again...")
-os.system("find -name '*.bup' -delete")
+# Remove down-sampling for now, creating more issues than it's worth
+#print("Down-sampling...")
+#os.system("downsampleallmp3srecursively 64")
+#print("Removing backups again...")
+#os.system("find -name '*.bup' -delete")
 print("All done.")
