@@ -11,6 +11,7 @@ TZ = [
     ["America/New_York", "New York"],
     ["Etc/UTC", "UTC"],
     ["Europe/Paris", "Paris"],
+    ["Europe/Tallinn", "Tallinn"],
     ["Asia/Bangkok", "Bangkok"],
     ["Asia/Shanghai", "Shanghai"],
     ["Asia/Tokyo", "Tokyo"],
