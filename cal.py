@@ -95,7 +95,7 @@ class Event:
             return False
         if not self.repeated and not other.repeated:
             return True
-        if self.repeated != other.repeated or self.repeat_str != other.repeat_str:
+        if self.repeat_str != other.repeat_str:
             return False
         return True
 
