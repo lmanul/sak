@@ -51,13 +51,14 @@ class Event:
         (timing, title) = l.split("|", 1)
         repeated = "{" in timing and "}" in timing
         self.title = title.strip()
+        # "Hands off" when there are things I can't parse, don't modify
+        self.handsoff = False
         # Only start times
         self.futures = []
         if repeated:
             (start, end, repeat_str) = parse_repeated_timing(timing)
             self.repeat_str = repeat_str
-            if start.year == 2020 and start.month > 7:
-                self.futures = self.populate_futures(start, self.repeat_str)
+            self.futures = self.populate_futures(start, self.repeat_str)
         else:
             (start, end) = parse_non_repeated_timing(timing)
             self.repeat_str = ""
@@ -76,11 +77,27 @@ class Event:
     def includes(self, other):
         if not self.repeated():
             return False
+        if self.title.lower() != other.title.lower():
+            return False
+        if self.orig_line == other.orig_line:
+            # Same event
+            return False
         if other.start < self.start:
             return False
         if self.start.hour != other.start.hour or \
            self.start.minute != other.start.minute:
             return False
+
+        # If the other event is also repeated, it can still be included in this
+        # one, if this one's 'futures' include all others'.
+        if other.repeated():
+            if len(other.futures) >= len(self.futures):
+                return False
+            for f in other.futures:
+                if f not in self.futures:
+                    return False
+            return True
+
         for f in self.futures:
             if datetime_to_date_tuple(other.start) == f:
                 return True
@@ -104,6 +121,7 @@ class Event:
         elif freq_str == "M":
             print("Warning: I don't support month repeats yet "
                   "('" + self.title + "')")
+            self.handsoff = True
             return []
             # freq = timedelta(months=int(parts[cur][:-1]))
         elif freq_str == "D":
@@ -150,7 +168,7 @@ class Event:
     def __eq__(self, other):
         if self.start != other.start or self.end != other.end:
             return False
-        if self.title != other.title:
+        if self.title.lower() != other.title.lower():
             return False
         if not self.repeated and not other.repeated:
             return True
@@ -165,7 +183,7 @@ class Event:
         self_key = self.sort_key()
         other_key = other.sort_key()
         if self_key == other_key:
-            if self.title == other.title:
+            if self.title.lower() == other.title.lower():
                 return self.repeat_str < other.repeat_str
             return self.title < other.title
         return self.sort_key() < other.sort_key()
@@ -174,7 +192,7 @@ class Event:
         if not self.valid:
             return hash("<invalid>")
         return int(self.start.timestamp()) + int(self.end.timestamp()) + \
-            hash(self.title) + hash(self.repeat_str)
+            hash(self.title.lower()) + hash(self.repeat_str)
 
 # Assumes the two arguments are sorted (first element of e is lower than
 # first element of f). This also assumes the second element of each even is
@@ -261,7 +279,7 @@ def remove_duplicated_with_repeated(events):
     """
     repeated = []
     nonrepeated = []
-    pruned_nonrepeated = []
+    pruned = []
     for e in events:
         if e.repeated():
             repeated.append(e)
@@ -271,16 +289,17 @@ def remove_duplicated_with_repeated(events):
           "" + str(len(nonrepeated)) + " non-repeated ones")
 
     # TODO: not optimal
-    for n in nonrepeated:
+    for e in events:
         should_add = True
-        for r in repeated:
-            if r.includes(n):
-                should_add = False
-                break
+        if not e.handsoff:
+            for r in repeated:
+                if r.includes(e):
+                    should_add = False
+                    break
         if should_add:
-            pruned_nonrepeated.append(n)
+            pruned.append(e)
 
-    return repeated + pruned_nonrepeated
+    return pruned
 
 def parse_calcurse_file():
     all_events = set()
