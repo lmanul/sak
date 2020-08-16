@@ -45,9 +45,6 @@ def parse_repeated_timing(timing):
     remainder = remainder.strip()
     (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
     return (base_event_start, base_event_end, repeat_str)
-    # if base_event_start not in repeated:
-        # repeated[base_event_start] = []
-    # repeated[base_event_start].append([base_event_end, orig_line, title, repeat_str])
 
 class Event:
     def __init__(self, l):
@@ -257,37 +254,6 @@ def get_events_for_next_n_days(days):
         added_events_for_today.add(event_fp)
     return out
 
-# def sort_by_date(line):
-    # date_chunk = line.split(" ")[0]
-    # if date_chunk.count("/") != 2:
-        # raise ValueError("Invalid date: " + date_chunk)
-    # (m, d, y) = date_chunk.split("/")
-    # return "-".join([y, m, d])
-
-# def sort_apts_by_date(apts):
-    # all_events = sorted(parse_calcurse_file(), reverse=True)
-    # output = "\n".join([e.orig_line for e in all_events])
-    # with open("apts_sorted_by_date", "w") as f:
-        # f.write(output)
-        # f.close()
-    # os.system("mv apts_sorted_by_date apts")
-
-def reduce_from_single_repeated_event(repeated_event, repeat_str, non_repeated):
-    """
-    The repeated_event argument is a single repeated event in this form:
-        [start, end, title].
-    """
-    for start in non_repeated.keys():
-        if start != repeated_event[0]:
-            continue
-        #print("Match at " + str(start))
-
-# def reduce_non_repeated_from_repeated(repeated, non_repeated):
-    # for start in repeated.keys():
-        # for repeated_event in repeated[start]:
-            # (end, orig_line, title, repeat_str) =  repeated_event
-            # reduce_from_single_repeated_event([start, end, title], repeat_str, non_repeated)
-
 def remove_duplicated_with_repeated(events):
     """
     Parses repeated events and removes one-time events that represent the same
@@ -314,14 +280,6 @@ def remove_duplicated_with_repeated(events):
         if should_add:
             pruned_nonrepeated.append(n)
 
-    # # Dictionary whose keys are the start date, and the values are
-    # # a list of [end date, title, original_line].
-    # non_repeated = {}
-    # repeated = {}
-
-    # print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
-    # print("Parsed " + str(len(repeated)) + " repeated events")
-    # reduce_non_repeated_from_repeated(repeated, non_repeated)
     return repeated + pruned_nonrepeated
 
 def parse_calcurse_file():
