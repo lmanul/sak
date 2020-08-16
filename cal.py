@@ -8,6 +8,94 @@ DEBUG = False
 HOME = os.path.expanduser("~")
 CALCURSE_DATETIME_FORMAT = "%m/%d/%Y @ %H:%M"
 
+def parse_non_repeated_timing(timing):
+    """
+    Takes an input of the form:
+
+        10/28/2020 @ 16:30 -> 10/28/2020 @ 17:30
+
+    and returns (start_date, end_date) where each date is of time
+    datetime.datetime.
+    """
+
+    if "->" not in timing:
+        # Not parsing this type of event yet
+        return (None, None)
+    (start, end) = timing.split("->", 1)
+    if "@" not in start:
+        # Not parsing full-day events yet
+        return (None, None)
+    start_date = datetime.datetime.strptime(
+        start.strip(), CALCURSE_DATETIME_FORMAT)
+    end_date = datetime.datetime.strptime(
+        end.strip(), CALCURSE_DATETIME_FORMAT)
+    return (start_date, end_date)
+
+def parse_nonrepeated_event(timing, title, orig_line, non_repeated):
+    # Nonrepeated event
+    (start, end) = parse_non_repeated_timing(timing)
+    if not start or not end:
+        return
+    if start not in non_repeated:
+        non_repeated[start] = []
+    # non_repeated[start].append([end, title, orig_line])
+
+def parse_repeated_timing(timing):
+    repeat_str_start = timing.index("{")
+    repeat_str_end = timing.index("}")
+    repeat_str = timing[repeat_str_start + 1:repeat_str_end]
+    remainder = timing[:repeat_str_start] + timing[repeat_str_end + 1:]
+    remainder = remainder.strip()
+    (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
+    return (base_event_start, base_event_end, repeat_str)
+    # if base_event_start not in repeated:
+        # repeated[base_event_start] = []
+    # repeated[base_event_start].append([base_event_end, orig_line, title, repeat_str])
+
+class Event:
+    def __init__(self, l):
+        (timing, title) = l.split("|", 1)
+        repeated = "{" in timing and "}" in timing
+        self.title = title.strip()
+        if repeated:
+            (start, end, repeat_str) = parse_repeated_timing(timing)
+            self.repeat_str = repeat_str
+        else:
+            (start, end) = parse_non_repeated_timing(timing)
+            self.repeat_str = ""
+        if start and end:
+            self.valid = True
+        else:
+            self.valid = False
+            return
+        self.start = start
+        self.end = end
+
+    def repeated(self):
+        return self.repeat_str != ""
+
+    def __str__(self):
+        if not self.valid:
+            return "<invalid event>"
+        return "<" + self.title + ">"
+
+    def __eq__(self, other):
+        if self.start != other.start or self.end != other.end:
+            return False
+        if self.title != other.title:
+            return False
+        if not self.repeated and not other.repeated:
+            return True
+        if self.repeated != other.repeated or self.repeat_str != other.repeat_str:
+            return False
+        return True
+
+    def __hash__(self):
+        if not self.valid:
+            return hash("<invalid>")
+        return int(self.start.timestamp()) + int(self.end.timestamp()) + \
+            hash(self.title) + hash(self.repeat_str)
+
 # Assumes the two arguments are sorted (first element of e is lower than
 # first element of f). This also assumes the second element of each even is
 # greater than the second.
@@ -121,50 +209,6 @@ def sort_calcurse_apts_by_date():
         f.close()
     os.system("mv apts_sorted_by_date apts")
 
-def parse_non_repeated_timing(timing):
-    """
-    Takes an input of the form:
-
-        10/28/2020 @ 16:30 -> 10/28/2020 @ 17:30
-
-    and returns (start_date, end_date) where each date is of time
-    datetime.datetime.
-    """
-
-    if "->" not in timing:
-        # Not parsing this type of event yet
-        return (None, None)
-    (start, end) = timing.split("->", 1)
-    if "@" not in start:
-        # Not parsing full-day events yet
-        return (None, None)
-    start_date = datetime.datetime.strptime(
-        start.strip(), CALCURSE_DATETIME_FORMAT)
-    end_date = datetime.datetime.strptime(
-        end.strip(), CALCURSE_DATETIME_FORMAT)
-    return (start_date, end_date)
-
-def parse_nonrepeated_event(timing, title, orig_line, non_repeated):
-    # Nonrepeated event
-    (start, end) = parse_non_repeated_timing(timing)
-    if not start or not end:
-        return
-    if start not in non_repeated:
-        non_repeated[start] = []
-    non_repeated[start].append([end, title, orig_line])
-
-def parse_repeated_event(timing, title, orig_line, repeated):
-    # Repeated event
-    repeat_str_start = timing.index("{")
-    repeat_str_end = timing.index("}")
-    repeat_str = timing[repeat_str_start + 1:repeat_str_end]
-    remainder = timing[:repeat_str_start] + timing[repeat_str_end + 1:]
-    remainder = remainder.strip()
-    (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
-    if base_event_start not in repeated:
-        repeated[base_event_start] = []
-    repeated[base_event_start].append([base_event_end, orig_line, title, repeat_str])
-
 def reduce_from_single_repeated_event(repeated_event, repeat_str, non_repeated):
     """
     The repeated_event argument is a single repeated event in this form:
@@ -186,17 +230,41 @@ def remove_duplicated_with_repeated():
     Parses repeated events and removes one-time events that represent the same
     as one instance.
     """
-    os.chdir(HOME)
-    os.chdir("bus/config/calcurse")
-    with open("apts") as f:
-        lines = f.readlines()
-        f.close()
 
     # Dictionary whose keys are the start date, and the values are
     # a list of [end date, title, original_line].
     non_repeated = {}
     repeated = {}
 
+    # os.chdir(HOME)
+    # os.chdir("bus/config/calcurse")
+    # with open("apts") as f:
+        # lines = f.readlines()
+        # f.close()
+    # for l in lines:
+        # l = l.strip()
+        # if l == "":
+            # continue
+        # if "|" not in l:
+            # # Ignoring full-day events for now
+            # continue
+
+        # (timing, title) = l.split("|", 1)
+        # if "{" in timing and "}" in timing:
+            # parse_repeated_event(timing, title, l, repeated)
+        # else:
+            # parse_nonrepeated_event(timing, title, l, non_repeated)
+    print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
+    print("Parsed " + str(len(repeated)) + " repeated events")
+    reduce_non_repeated_from_repeated(repeated, non_repeated)
+
+def parse_calcurse_file():
+    all_events = set()
+    os.chdir(HOME)
+    os.chdir("bus/config/calcurse")
+    with open("apts") as f:
+        lines = f.readlines()
+        f.close()
     for l in lines:
         l = l.strip()
         if l == "":
@@ -204,15 +272,13 @@ def remove_duplicated_with_repeated():
         if "|" not in l:
             # Ignoring full-day events for now
             continue
-
-        (timing, title) = l.split("|", 1)
-        if "{" in timing and "}" in timing:
-            parse_repeated_event(timing, title, l, repeated)
-        else:
-            parse_nonrepeated_event(timing, title, l, non_repeated)
-    print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
-    print("Parsed " + str(len(repeated)) + " repeated events")
-    reduce_non_repeated_from_repeated(repeated, non_repeated)
+        e = Event(l)
+        if e.valid:
+            all_events.add(e)
+    for e in all_events:
+        print(str(e))
+    #return all_events
+    return []
 
 def remove_duplicates():
     os.chdir(HOME)

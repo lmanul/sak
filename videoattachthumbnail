@@ -1,0 +1,22 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+in_video = sys.argv[1]
+in_img = sys.argv[2]
+
+if not in_img.endswith(".jpg"):
+    print("Sorry I only take .jpg images right now")
+    sys.exit(1)
+
+bup = in_video + ".bup"
+
+os.system("mv " + in_video + " " + bup)
+cmd = ("ffmpeg "
+       "-i " + bup + " "
+       "-c copy "
+       "-attach " + in_img + " "
+       "-metadata:s:t mimetype=image/jpeg "
+       "" + in_video)
+os.system(cmd)
