@@ -70,9 +70,18 @@ class Event:
             return
         self.start = start
         self.end = end
+        self.orig_line = l.strip()
 
     def repeated(self):
         return self.repeat_str != ""
+
+    def sort_key(self):
+        m = str(self.start.month).zfill(2)
+        d = str(self.start.day).zfill(2)
+        return "-".join([str(self.start.year), m, d]) + "|" + \
+            ":".join([str(self.start.hour).zfill(2),
+                      str(self.start.minute).zfill(2)]) + "|" + \
+            self.title[0]
 
     def __str__(self):
         if not self.valid:
@@ -89,6 +98,18 @@ class Event:
         if self.repeated != other.repeated or self.repeat_str != other.repeat_str:
             return False
         return True
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __lt__(self, other):
+        self_key = self.sort_key()
+        other_key = other.sort_key()
+        if self_key == other_key:
+            if self.title == other.title:
+                return self.repeat_str < other.repeat_str
+            return self.title < other.title
+        return self.sort_key() < other.sort_key()
 
     def __hash__(self):
         if not self.valid:
@@ -182,28 +203,8 @@ def sort_by_date(line):
     return "-".join([y, m, d])
 
 def sort_calcurse_apts_by_date():
-    os.chdir(HOME)
-    os.chdir("bus/config/calcurse")
-    lines = []
-    i = 0
-    with open("apts") as f:
-        try:
-            for l in f:
-                lines.append(l)
-                i += 1
-        except UnicodeDecodeError as error:
-            print("One line I can't decode. Last line number was " + str(i))
-            print(str(error))
-
-        f.close()
-    cleaned_up_lines = []
-    for l in lines:
-        l = l.strip()
-        if l == "":
-            continue
-        cleaned_up_lines.append(l)
-    sorted_lines = sorted(cleaned_up_lines, key=sort_by_date, reverse=True)
-    output = "\n".join(sorted_lines)
+    all_events = sorted(parse_calcurse_file(), reverse=True)
+    output = "\n".join([e.orig_line for e in all_events])
     with open("apts_sorted_by_date", "w") as f:
         f.write(output)
         f.close()
@@ -236,24 +237,6 @@ def remove_duplicated_with_repeated():
     non_repeated = {}
     repeated = {}
 
-    # os.chdir(HOME)
-    # os.chdir("bus/config/calcurse")
-    # with open("apts") as f:
-        # lines = f.readlines()
-        # f.close()
-    # for l in lines:
-        # l = l.strip()
-        # if l == "":
-            # continue
-        # if "|" not in l:
-            # # Ignoring full-day events for now
-            # continue
-
-        # (timing, title) = l.split("|", 1)
-        # if "{" in timing and "}" in timing:
-            # parse_repeated_event(timing, title, l, repeated)
-        # else:
-            # parse_nonrepeated_event(timing, title, l, non_repeated)
     print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
     print("Parsed " + str(len(repeated)) + " repeated events")
     reduce_non_repeated_from_repeated(repeated, non_repeated)
@@ -275,10 +258,7 @@ def parse_calcurse_file():
         e = Event(l)
         if e.valid:
             all_events.add(e)
-    for e in all_events:
-        print(str(e))
-    #return all_events
-    return []
+    return all_events
 
 def remove_duplicates():
     os.chdir(HOME)
