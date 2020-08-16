@@ -76,6 +76,19 @@ class Event:
     def repeated(self):
         return self.repeat_str != ""
 
+    def includes(self, other):
+        if not self.repeated():
+            return False
+        if other.start < self.start:
+            return False
+        if self.start.hour != other.start.hour or \
+           self.start.minute != other.start.minute:
+            return False
+        for f in self.futures:
+            if datetime_to_date_tuple(other.start) == f:
+                return True
+        return False
+
     def sort_key(self):
         m = str(self.start.month).zfill(2)
         d = str(self.start.day).zfill(2)
