@@ -2,11 +2,17 @@ import datetime
 import os
 import shlex
 import subprocess
+import sys
+
+from datetime import timedelta
 
 DEBUG = False
 
 HOME = os.path.expanduser("~")
 CALCURSE_DATETIME_FORMAT = "%m/%d/%Y @ %H:%M"
+
+def datetime_to_date_tuple(dt):
+    return (dt.year, dt.month, dt.day)
 
 def parse_non_repeated_timing(timing):
     """
@@ -31,15 +37,6 @@ def parse_non_repeated_timing(timing):
         end.strip(), CALCURSE_DATETIME_FORMAT)
     return (start_date, end_date)
 
-def parse_nonrepeated_event(timing, title, orig_line, non_repeated):
-    # Nonrepeated event
-    (start, end) = parse_non_repeated_timing(timing)
-    if not start or not end:
-        return
-    if start not in non_repeated:
-        non_repeated[start] = []
-    # non_repeated[start].append([end, title, orig_line])
-
 def parse_repeated_timing(timing):
     repeat_str_start = timing.index("{")
     repeat_str_end = timing.index("}")
@@ -57,9 +54,13 @@ class Event:
         (timing, title) = l.split("|", 1)
         repeated = "{" in timing and "}" in timing
         self.title = title.strip()
+        # Only start times
+        self.futures = []
         if repeated:
             (start, end, repeat_str) = parse_repeated_timing(timing)
             self.repeat_str = repeat_str
+            if start.year == 2020 and start.month > 7:
+                self.futures = self.populate_futures(start, self.repeat_str)
         else:
             (start, end) = parse_non_repeated_timing(timing)
             self.repeat_str = ""
@@ -83,6 +84,54 @@ class Event:
                       str(self.start.minute).zfill(2)]) + "|" + \
             self.title[0]
 
+    def populate_futures(self, start, repeat_str):
+        max_calc_date = start + timedelta(days=3650)
+        parts = repeat_str.split(" ")
+        freq_str = parts[0][-1]
+        cur = 0
+        if freq_str == "W":
+            freq = timedelta(weeks=int(parts[cur][:-1]))
+        elif freq_str == "M":
+            print("Warning: I don't support month repeats yet "
+                  "('" + self.title + "')")
+            return []
+            # freq = timedelta(months=int(parts[cur][:-1]))
+        elif freq_str == "D":
+            freq = timedelta(days=int(parts[cur][:-1]))
+        else:
+            print("Sorry but I can't make sense of this frequency: " + parts[cur])
+            sys.exit(1)
+        cur += 1
+        until = None
+        if len(parts) > cur and parts[cur] == "->":
+            until = parts[cur + 1]
+            until_parts = until.split("/")
+            until = datetime.datetime(
+                int(until_parts[2]), int(until_parts[0]), int(until_parts[1]))
+            cur += 2
+        raw_excepts = []
+        if len(parts) > cur:
+            raw_excepts = parts[cur:]
+        for e in raw_excepts:
+            if not e.startswith("!"):
+                print("Should be an 'except' but doesn't start with '!': " + e)
+                sys.exit(1)
+        raw_excepts = [e[1:] for e in raw_excepts]
+        excepts = []
+        for e in raw_excepts:
+            if e.count("/") != 2:
+                print("Unexpected 'except format': " + e)
+            (m, d, y) = e.split("/")
+            excepts.append([int(y), int(m), int(d)])
+        cur_start = start
+        futures = [datetime_to_date_tuple(start)]
+        while True:
+            cur_start += freq
+            if cur_start > max_calc_date or (until and cur_start > until):
+                break
+            futures.append(datetime_to_date_tuple(cur_start))
+        return futures
+
     def __str__(self):
         if not self.valid:
             return "<invalid event>"
@@ -100,7 +149,7 @@ class Event:
         return True
 
     def __ne__(self, other):
-        return not (self == other)
+        return self != other
 
     def __lt__(self, other):
         self_key = self.sort_key()
