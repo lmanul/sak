@@ -119,8 +119,10 @@ class Event:
         if freq_str == "W":
             freq = timedelta(weeks=int(parts[cur][:-1]))
         elif freq_str == "M":
-            print("Warning: I don't support month repeats yet "
-                  "('" + self.title + "')")
+            # Don't warn for old events
+            if start > datetime.datetime.now() - timedelta(days=1000):
+                print("Warning: I don't support month repeats yet "
+                      "('" + self.title + "')")
             self.handsoff = True
             return []
             # freq = timedelta(months=int(parts[cur][:-1]))
