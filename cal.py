@@ -75,13 +75,13 @@ class Event:
         return self.repeat_str != ""
 
     def includes(self, other):
-        if not self.repeated():
-            return False
-        if self.title.lower() != other.title.lower():
-            return False
         if self.orig_line == other.orig_line:
             # Same event
             return False
+        if self.title.lower() != other.title.lower():
+            return False
+        if not self.repeated():
+            return self.start <= other.start and self.end >= other.end
         if other.start < self.start:
             return False
         if self.start.hour != other.start.hour or \
@@ -272,28 +272,13 @@ def get_events_for_next_n_days(days):
         added_events_for_today.add(event_fp)
     return out
 
-def remove_duplicated_with_repeated(events):
-    """
-    Parses repeated events and removes one-time events that represent the same
-    as one instance.
-    """
-    repeated = []
-    nonrepeated = []
+def reduce_events(events):
     pruned = []
-    for e in events:
-        if e.repeated():
-            repeated.append(e)
-        else:
-            nonrepeated.append(e)
-    print("I have " + str(len(repeated)) + " repeated events and "
-          "" + str(len(nonrepeated)) + " non-repeated ones")
-
-    # TODO: not optimal
     for e in events:
         should_add = True
         if not e.handsoff:
-            for r in repeated:
-                if r.includes(e):
+            for f in events:
+                if f.includes(e):
                     should_add = False
                     break
         if should_add:
@@ -322,7 +307,7 @@ def parse_calcurse_file():
 
 def consolidate_calcurse_file():
     all_events = parse_calcurse_file()
-    events_reduced = remove_duplicated_with_repeated(all_events)
+    events_reduced = reduce_events(all_events)
     # Put most recent events at the top
     sorted_events = sorted(events_reduced, reverse=True)
     output = "\n".join([e.orig_line for e in sorted_events])
