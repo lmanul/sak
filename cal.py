@@ -257,20 +257,20 @@ def get_events_for_next_n_days(days):
         added_events_for_today.add(event_fp)
     return out
 
-def sort_by_date(line):
-    date_chunk = line.split(" ")[0]
-    if date_chunk.count("/") != 2:
-        raise ValueError("Invalid date: " + date_chunk)
-    (m, d, y) = date_chunk.split("/")
-    return "-".join([y, m, d])
+# def sort_by_date(line):
+    # date_chunk = line.split(" ")[0]
+    # if date_chunk.count("/") != 2:
+        # raise ValueError("Invalid date: " + date_chunk)
+    # (m, d, y) = date_chunk.split("/")
+    # return "-".join([y, m, d])
 
-def sort_calcurse_apts_by_date():
-    all_events = sorted(parse_calcurse_file(), reverse=True)
-    output = "\n".join([e.orig_line for e in all_events])
-    with open("apts_sorted_by_date", "w") as f:
-        f.write(output)
-        f.close()
-    os.system("mv apts_sorted_by_date apts")
+# def sort_apts_by_date(apts):
+    # all_events = sorted(parse_calcurse_file(), reverse=True)
+    # output = "\n".join([e.orig_line for e in all_events])
+    # with open("apts_sorted_by_date", "w") as f:
+        # f.write(output)
+        # f.close()
+    # os.system("mv apts_sorted_by_date apts")
 
 def reduce_from_single_repeated_event(repeated_event, repeat_str, non_repeated):
     """
@@ -282,26 +282,47 @@ def reduce_from_single_repeated_event(repeated_event, repeat_str, non_repeated):
             continue
         #print("Match at " + str(start))
 
-def reduce_non_repeated_from_repeated(repeated, non_repeated):
-    for start in repeated.keys():
-        for repeated_event in repeated[start]:
-            (end, orig_line, title, repeat_str) =  repeated_event
-            reduce_from_single_repeated_event([start, end, title], repeat_str, non_repeated)
+# def reduce_non_repeated_from_repeated(repeated, non_repeated):
+    # for start in repeated.keys():
+        # for repeated_event in repeated[start]:
+            # (end, orig_line, title, repeat_str) =  repeated_event
+            # reduce_from_single_repeated_event([start, end, title], repeat_str, non_repeated)
 
-def remove_duplicated_with_repeated():
+def remove_duplicated_with_repeated(events):
     """
     Parses repeated events and removes one-time events that represent the same
     as one instance.
     """
+    repeated = []
+    nonrepeated = []
+    pruned_nonrepeated = []
+    for e in events:
+        if e.repeated():
+            repeated.append(e)
+        else:
+            nonrepeated.append(e)
+    print("I have " + str(len(repeated)) + " repeated events and "
+          "" + str(len(nonrepeated)) + " non-repeated ones")
 
-    # Dictionary whose keys are the start date, and the values are
-    # a list of [end date, title, original_line].
-    non_repeated = {}
-    repeated = {}
+    # TODO: not optimal
+    for n in nonrepeated:
+        should_add = True
+        for r in repeated:
+            if r.includes(n):
+                should_add = False
+                break
+        if should_add:
+            pruned_nonrepeated.append(n)
 
-    print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
-    print("Parsed " + str(len(repeated)) + " repeated events")
-    reduce_non_repeated_from_repeated(repeated, non_repeated)
+    # # Dictionary whose keys are the start date, and the values are
+    # # a list of [end date, title, original_line].
+    # non_repeated = {}
+    # repeated = {}
+
+    # print("Parsed " + str(len(non_repeated)) + " nonrepeated events")
+    # print("Parsed " + str(len(repeated)) + " repeated events")
+    # reduce_non_repeated_from_repeated(repeated, non_repeated)
+    return repeated + pruned_nonrepeated
 
 def parse_calcurse_file():
     all_events = set()
@@ -321,6 +342,17 @@ def parse_calcurse_file():
         if e.valid:
             all_events.add(e)
     return all_events
+
+def consolidate_calcurse_file():
+    all_events = parse_calcurse_file()
+    events_reduced = remove_duplicated_with_repeated(all_events)
+    # Put most recent events at the top
+    sorted_events = sorted(events_reduced, reverse=True)
+    output = "\n".join([e.orig_line for e in sorted_events])
+    with open("apts_consolidated", "w") as f:
+        f.write(output)
+        f.close()
+    os.system("mv apts_consolidated apts")
 
 def remove_duplicates():
     os.chdir(HOME)
