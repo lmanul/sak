@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+where = ""
+if len(sys.argv) > 1:
+    where = sys.argv[1]
+
+
+os.system("curl wttr.in/" + where)
