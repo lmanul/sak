@@ -307,9 +307,9 @@ def parse_calcurse_file():
             all_events.add(e)
     return all_events
 
-def consolidate_calcurse_file():
+def consolidate_calcurse_file(full=False):
     all_events = parse_calcurse_file()
-    events_reduced = reduce_events(all_events)
+    events_reduced = reduce_events(all_events) if full else all_events
     # Put most recent events at the top
     sorted_events = sorted(events_reduced, reverse=True)
     output = "\n".join([e.orig_line for e in sorted_events])
