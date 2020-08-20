@@ -1,0 +1,34 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+SELF_DIR = os.path.dirname(os.path.realpath(__file__))
+GIMP_SCRIPTS_DIR = os.path.join(
+    os.path.expanduser("~"), ".config", "GIMP", "2.10", "scripts")
+if not os.path.exists(GIMP_SCRIPTS_DIR):
+    os.mkdir(GIMP_SCRIPTS_DIR)
+
+if __name__ == "__main__":
+    INFILE = sys.argv[1]
+    SCHEME_FILE_NAME = "gimp_extract_layers.scm"
+    SCHEME_FILE_PATH = os.path.join(SELF_DIR, "gimp_scripts", SCHEME_FILE_NAME)
+
+    print("Copying script to GIMP's scripts folder...")
+    os.system("cp " + SCHEME_FILE_PATH + " " + GIMP_SCRIPTS_DIR + "/")
+
+    BATCH_CMD = (
+        "(gimp-extract-layers \"" + INFILE + "\")"
+    )
+
+    cmd = ("gimp-console "
+           "--no-data --no-interface --no-fonts --no-splash "
+           # "--batch-interpreter python-fu-eval "
+           "-b '" + BATCH_CMD + "' "
+           # "-b \"pdb.gimp_quit(1)\" "
+    )
+    print(cmd)
+    os.system(cmd)
+
+    print("Cleaning up script from GIMP's scripts folder...")
+    os.system("rm " + os.path.join(GIMP_SCRIPTS_DIR, SCHEME_FILE_NAME))
