@@ -23,9 +23,8 @@ if __name__ == "__main__":
 
     cmd = ("gimp-console "
            "--no-data --no-interface --no-fonts --no-splash "
-           # "--batch-interpreter python-fu-eval "
            "-b '" + BATCH_CMD + "' "
-           # "-b \"pdb.gimp_quit(1)\" "
+           "-b '(gimp-quit TRUE)' "
     )
     print(cmd)
     os.system(cmd)

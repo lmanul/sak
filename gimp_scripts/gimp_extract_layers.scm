@@ -1,8 +1,12 @@
 (define (gimp-extract-layers filename)
 
-(display (string-append "Loading " filename "...")) (newline)
+  (display (string-append "Loading " filename "...")) (newline)
 
-(let ((myimg (gimp-file-load RUN-NONINTERACTIVE filename filename))))
+  (let ((myimg (car (gimp-file-load RUN-NONINTERACTIVE filename filename)))))
 
-(gimp-quit FALSE)
+  (let ((layer-count (car (gimp-image-get-layers myimg)))))
+
+  (display (string-append "Found " layer-count " layers.")) (newline)
+
+  (gimp-image-delete myimg)
 )
