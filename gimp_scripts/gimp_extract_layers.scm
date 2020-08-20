@@ -25,6 +25,7 @@
       )
     )
 
+    (gimp-image-clean-all myimg)
     (gimp-image-delete myimg)
   )
 )
