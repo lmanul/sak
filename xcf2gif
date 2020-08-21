@@ -1,3 +1,31 @@
 #!/usr/bin/python3
 
+import argparse
 import os
+import sys
+
+import util
+
+REDUCED_SIZE = 600
+
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument("input_file", nargs=1)
+PARSER.add_argument("-f", dest="full", action="store_true",
+                    help="Process full-size image. By default, reduce size.")
+
+if __name__ == "__main__":
+    ARGS = PARSER.parse_args()
+    INPUT_FILE = ARGS.input_file[0]
+    BASE_NAME = INPUT_FILE.replace(".xcf", "")
+    GIF = BASE_NAME + ".gif"
+
+    util.run_bin_cmd("xcfextractlayers", args=INPUT_FILE)
+    layers = sorted([
+        f for f in os.listdir(".") if f.startswith(BASE_NAME) and "layer" in f])
+
+    if not ARGS.full:
+        os.system("map 'mkthumb " + str(REDUCED_SIZE) + "' " + " ".join(layers))
+        os.system("sub '_thumbnail'")
+
+    os.system("convert " + " ".join(layers) + " " + GIF)
+    os.system("rm " + " ".join(layers))
