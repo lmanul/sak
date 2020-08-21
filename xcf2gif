@@ -2,16 +2,26 @@
 
 import argparse
 import os
-import sys
 
 import util
 
-REDUCED_SIZE = 600
+REDUCED_SIZE = 800
+FRAME_DURATION_MS = 40
 
 PARSER = argparse.ArgumentParser()
 PARSER.add_argument("input_file", nargs=1)
+PARSER.add_argument("-p", dest="pairs", action="store_true",
+                    help=("Merge layers pair-wise before exporting. Useful "
+                          "when the strokes and color layers are "
+                          "separate"))
 PARSER.add_argument("-f", dest="full", action="store_true",
                     help="Process full-size image. By default, reduce size.")
+
+def merge_two_layers(a, b, out_filename):
+    cmd = ("convert " + a + " " + b + " "
+           "-compose multiply -composite " + out_filename)
+    print(cmd)
+    os.system(cmd)
 
 if __name__ == "__main__":
     ARGS = PARSER.parse_args()
@@ -27,5 +37,18 @@ if __name__ == "__main__":
         os.system("map 'mkthumb " + str(REDUCED_SIZE) + "' " + " ".join(layers))
         os.system("sub '_thumbnail'")
 
-    os.system("convert " + " ".join(layers) + " " + GIF)
+    if ARGS.pairs:
+        merged_layers = []
+        for i in range(int(len(layers) / 2)):
+            merged = BASE_NAME + "_merged_" + str(i).zfill(2) + ".jpg"
+            merge_two_layers(layers[2 * i], layers[2 * i + 1], merged)
+            merged_layers.append(merged)
+        os.system("rm " + " ".join(layers))
+        layers = merged_layers
+
+    cmd = ("convert "
+           "-delay " + str(FRAME_DURATION_MS) + " "
+           "" + " ".join(layers) + " " + GIF)
+    print(cmd)
+    os.system(cmd)
     os.system("rm " + " ".join(layers))
