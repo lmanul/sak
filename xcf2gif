@@ -33,10 +33,6 @@ if __name__ == "__main__":
     layers = sorted([
         f for f in os.listdir(".") if f.startswith(BASE_NAME) and "layer" in f])
 
-    if not ARGS.full:
-        os.system("map 'mkthumb " + str(REDUCED_SIZE) + "' " + " ".join(layers))
-        os.system("sub '_thumbnail'")
-
     if ARGS.pairs:
         merged_layers = []
         for i in range(int(len(layers) / 2)):
@@ -45,6 +41,10 @@ if __name__ == "__main__":
             merged_layers.append(merged)
         os.system("rm " + " ".join(layers))
         layers = merged_layers
+
+    if not ARGS.full:
+        os.system("map 'mkthumb " + str(REDUCED_SIZE) + "' " + " ".join(layers))
+        os.system("sub '_thumbnail'")
 
     cmd = ("convert "
            "-delay " + str(FRAME_DURATION_MS) + " "
