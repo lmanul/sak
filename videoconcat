@@ -1,17 +1,24 @@
 #!/usr/bin/python3
 
+import argparse
 import os
 import sys
 import util
 
 USE_CONCAT_DEMUXER = False
 
-videos = sys.argv[1:]
-ext = util.get_extension(videos[0])
+PARSER = argparse.ArgumentParser()
+PARSER.add_argument("videos", nargs="+")
+PARSER.add_argument("-n", "--no-audio", dest="no_audio", action="store_true",
+                    help="Concatenate videos with no audio track.")
+ARGS = PARSER.parse_args()
+ext = util.get_extension(ARGS.videos[0])
+
+
 
 if USE_CONCAT_DEMUXER:
     with open("list.txt", "w") as f:
-        f.write("\n".join(["file '" + v + "'" for v in videos]))
+        f.write("\n".join(["file '" + v + "'" for v in ARGS.videos]))
         f.close()
 
     cmd = "ffmpeg -f concat -safe 0 -i list.txt -c copy output." + ext
@@ -21,13 +28,25 @@ if USE_CONCAT_DEMUXER:
 
 else:
     cmd = "ffmpeg "
-    n = len(videos)
-    for v in videos:
+    n = len(ARGS.videos)
+    for v in ARGS.videos:
         cmd += "-i " + v + " "
     cmd += '-filter_complex "'
     for i in range(n):
-        cmd += "[" + str(i) + ":v] [" + str(i) + ":a] "
-    cmd += ' concat=n=' + str(n) + ':v=1:a=1 [v] [a]" '
-    cmd += '-map "[v]" -map "[a]" output.mkv'
+        cmd += "[" + str(i) + ":v] "
+        if not ARGS.no_audio:
+            cmd += "[" + str(i) + ":a] "
+    cmd += ' concat=n=' + str(n)
+    cmd += ':v=1'
+    if not ARGS.no_audio:
+        cmd += ':a=1'
+    cmd += '[v]'
+    if not ARGS.no_audio:
+        cmd += ' [a]'
+    cmd += '" '
+    cmd += '-map "[v]" '
+    if not ARGS.no_audio:
+        '-map "[a]" '
+    cmd += 'output.mkv'
     print(cmd)
     os.system(cmd)
