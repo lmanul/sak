@@ -47,9 +47,11 @@ def parse_repeated_timing(timing):
     return (base_event_start, base_event_end, repeat_str)
 
 class Event:
-    def __init__(self, l):
+    def __init__(self, l, i):
         (timing, title) = l.split("|", 1)
         repeated = "{" in timing and "}" in timing
+        self.line_number = i
+        self.orig_line = l.strip()
         self.title = title.strip()
         # "Hands off" when there are things I can't parse, don't modify
         self.handsoff = False
@@ -69,13 +71,12 @@ class Event:
             return
         self.start = start
         self.end = end
-        self.orig_line = l.strip()
 
     def repeated(self):
         return self.repeat_str != ""
 
     def includes(self, other):
-        if self.orig_line == other.orig_line:
+        if self.line_number == other.line_number:
             # Same event
             return False
         if self.title.lower() != other.title.lower():
@@ -152,14 +153,20 @@ class Event:
             if e.count("/") != 2:
                 print("Unexpected 'except format': " + e)
             (m, d, y) = e.split("/")
-            excepts.append([int(y), int(m), int(d)])
+            excepts.append((int(y), int(m), int(d)))
         cur_start = start
-        futures = [datetime_to_date_tuple(start)]
+        candidate = datetime_to_date_tuple(start)
+        if candidate not in excepts:
+            futures = [candidate]
+        else:
+            futures = []
         while True:
             cur_start += freq
             if cur_start > max_calc_date or (until and cur_start > until):
                 break
-            futures.append(datetime_to_date_tuple(cur_start))
+            candidate = datetime_to_date_tuple(cur_start)
+            if candidate not in excepts:
+                futures.append(candidate)
         return futures
 
     def __str__(self):
@@ -295,14 +302,14 @@ def parse_calcurse_file():
     with open("apts") as f:
         lines = f.readlines()
         f.close()
-    for l in lines:
-        l = l.strip()
+    for i in range(len(lines)):
+        l = lines[i].strip()
         if l == "":
             continue
         if "|" not in l:
             # Ignoring full-day events for now
             continue
-        e = Event(l)
+        e = Event(l, i)
         if e.valid:
             all_events.add(e)
     return all_events
