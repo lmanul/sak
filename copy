@@ -1,0 +1,7 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+os.system("cat " + sys.argv[1] + " | xclip -sel clip")
+print("Copied contents to clipboard")
