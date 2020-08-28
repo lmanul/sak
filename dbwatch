@@ -49,6 +49,8 @@ def get_list_of_syncing_files_internal(queue, output):
                 queue.append(what)
             else:
                 output.append(what)
+                if len(output) >= MAX_SYNCING_FILES_TO_SHOW:
+                    return (queue, output)
             added_further_el = True
     if not added_further_el:
         # We don't know any further about this folder. Just show it as syncing.
