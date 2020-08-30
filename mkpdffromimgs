@@ -9,7 +9,7 @@ origs = sys.argv[1:]
 pdfs_to_delete = []
 for o in origs:
     pdfs_to_delete.append(util.change_extension(o, "pdf"))
-pdfs_to_delete = sorted(pdfs_to_delete)
+pdfs_to_delete = pdfs_to_delete
 
 os.system("map mkpdf " + " ".join(sys.argv[1:]))
 
