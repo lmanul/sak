@@ -7,7 +7,7 @@ from pytz import timezone
 
 import timezones
 
-TZ_TO_INCLUDE = ["PST", "EST", "UTC", "CET"]
+TZ_TO_INCLUDE = ["PST", "EST", "UTC", "CET", "CST"]
 
 def convert(d, tz_from, tz_to):
     to_tz = timezone(timezones.TIMEZONES[tz_to])
