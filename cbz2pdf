@@ -28,7 +28,7 @@ if len(pngs):
 
 util.run_bin_cmd("sanitizefilenames", args="*")
 imgs = [f for f in os.listdir(".") if f.endswith(".jpg") or f.endswith(".png")]
-util.run_bin_cmd("mkpdffromimgs", args=" ".join(imgs))
+util.run_bin_cmd("mkpdffromimgs", args=" ".join(sorted(imgs)))
 os.system("mv output.pdf ../" + base_name + ".pdf")
 os.chdir("..")
 os.system("rm -rf " + base_name)
