@@ -3,7 +3,6 @@
 import glob
 import os
 import sys
-import local_util
 
 import util
 
@@ -11,7 +10,7 @@ cbz = sys.argv[1]
 base_name = cbz.replace(".cbz", "")
 base_name = util.sanitize_for_filename(base_name)
 print(base_name + "...")
-local_util.silent("unzip " + cbz + " -d " + base_name)
+util.silent("unzip " + cbz + " -d " + base_name)
 os.chdir(base_name)
 util.run_bin_cmd("sanitizefilenames", args="*")
 
