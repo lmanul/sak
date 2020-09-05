@@ -3,9 +3,14 @@
 import os
 import sys
 
-in_video = sys.argv[1]
-bup = in_video + ".bup"
+def process_one_video(in_video):
+    bup = in_video + ".bup"
 
-os.system("mv " + in_video + " " + bup)
-cmd = "ffmpeg -i " + bup + " " + in_video
-os.system(cmd)
+    os.system("mv " + in_video + " " + bup)
+    cmd = "ffmpeg -i " + bup + " " + in_video
+    os.system(cmd)
+
+if __name__ == "__main__":
+    in_videos = sys.argv[1:]
+    for v in in_videos:
+        process_one_video(v)
