@@ -8,6 +8,10 @@ import util
 music = sys.argv[1]
 tracklist = sys.argv[2]
 
+if not music.endswith(".mp3"):
+    print("Please convert the input to mp3 first.")
+    sys.exit(1)
+
 with open(tracklist) as f:
     lines = f.readlines()
     f.close()
