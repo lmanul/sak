@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import time
+
+if __name__ == "__main__":
+    HOME = os.path.expanduser("~")
+    DUR = sys.argv[1].strip()
+
+    # By default, assume minutes
+    MULTIPLIER = 60
+
+    DUR_SEC = 0
+    if DUR[-1].lower() == "m":
+        DUR = DUR[:-1]
+    elif DUR[-1].lower() == "s":
+        MULTIPLIER = 1
+        DUR = DUR[:-1]
+    elif DUR[-1].lower() == "h":
+        MULTIPLIER = 60 * 60
+        DUR = DUR[:-1]
+    DUR_SEC = MULTIPLIER * int(DUR)
+
+    print("Timer for " + str(DUR_SEC) + " seconds...")
+    time.sleep(DUR_SEC)
+    os.system("/usr/bin/play -q " + HOME + "/bus/reference/sounds/bell.mp3")
