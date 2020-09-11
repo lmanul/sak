@@ -347,8 +347,8 @@ def make_time_graph(values, out_file, names=[]):
                 first_date_string = point[0]
             if point[0] > last_date_string:
                 last_date_string = point[0]
-    first_date_parts = [int(v) for v in first_date_string.split(".")]
-    last_date_parts = [int(v) for v in last_date_string.split(".")]
+    first_date_parts = [int(v) for v in first_date_string.split("-")]
+    last_date_parts = [int(v) for v in last_date_string.split("-")]
     first_date = datetime.combine(date(*first_date_parts), datetime.min.time())
     last_date = datetime.combine(date(*last_date_parts), datetime.min.time())
     chart = leather.Chart("")
@@ -357,7 +357,7 @@ def make_time_graph(values, out_file, names=[]):
         name = names[i] if len(names) > i else ""
         series = []
         for point in values[i]:
-            date_parts = [int(p) for p in point[0].split(".")]
+            date_parts = [int(p) for p in point[0].split("-")]
             d = datetime.combine(date(*date_parts), datetime.min.time())
             value = float(point[1])
             series.append([d, value])
