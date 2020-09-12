@@ -8,7 +8,7 @@ import util
 
 HOME = os.path.expanduser("~")
 
-PODCASTS_DIR = os.path.join("Dropbox", "mini", "podcasts")
+PODCASTS_DIR = os.path.join("mini", "podcasts")
 FOLDERS_RAW = sorted([
     os.path.join(HOME, PODCASTS_DIR, d) for d in os.listdir(os.path.join(HOME, PODCASTS_DIR))])
 FOLDERS = []
