@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+
+import colorama
+import shlex
+import subprocess
+
+COLORS = [
+    [colorama.Fore.RED,    [1, 2, 3]],
+    [colorama.Fore.YELLOW, [4, 5, 6]],
+    [colorama.Fore.GREEN,  [7, 8, 9]],
+    [colorama.Fore.CYAN,   [0]],
+]
+
+def format(raw):
+    for l in raw.split("\n"):
+        l = l.strip()
+        if len(l) < 2 or l[1] != ".":
+            continue
+        pri = int(l[0])
+        for _, c in enumerate(COLORS):
+            if pri in c[1]:
+                print(c[0] + l + colorama.Style.RESET_ALL)
+
+if __name__ == "__main__":
+    RAW = subprocess.check_output(shlex.split("calcurse --todo")).decode()
+    format(RAW)
