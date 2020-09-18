@@ -5,7 +5,11 @@ import os
 import sys
 
 def is_mail_dir(d):
-    return "cur" in os.listdir(d)
+    subdirs = os.listdir(d)
+    for s in ["cur", "new", "tmp"]:
+        if s not in subdirs:
+            return False
+    return True
 
 def maildir_for_single_mail(mail_path):
     path_parts = mail_path.split(os.sep)
@@ -13,7 +17,6 @@ def maildir_for_single_mail(mail_path):
     i = 1
     while i < len(path_parts) - 1:
         current_path = os.sep.join(path_parts[:-i])
-        print("Looking for mail dir at " + current_path)
         if is_mail_dir(current_path):
             return mailbox.Maildir(current_path, factory=None)
         i += 1
@@ -23,35 +26,51 @@ def get_single_mail_object(maildir, mail_path):
     look_for = mail_path.split("/")[-1].split(":")[0]
     print("Look for " + look_for)
     for key in maildir.iterkeys():
-        print(key)
         if key == look_for:
-            print("Found")
-            return maildir[key]
+            return (key, maildir[key])
     print("I couldn't find mail " + mail_path + " in " + str(maildir))
-    return None
+    return (None, None)
 
-def detach_from_mail_in_maildir(mail, maildir, out_path_prefix):
+def detach_from_mail_in_maildir(mail, key, maildir, out_path_prefix):
     print("Detaching attachments...")
     maildir.lock()
-    for message_part in mail.walk():
-        main_type = message_part.get_content_maintype()
-        print("Found type " + main_type)
-        if main_type in ["text", "multipart"]:
-            continue
-        attachment_filename = message_part.get_filename()
-        if not attachment_filename:
-            print("Hmm, this attachment doesn't have a file name, skipping")
-            continue
-        output_path = os.path.join(out_path_prefix, attachment_filename)
-        print("Saving attachment to '" + output_path + "'...")
-        with open(output_path, "wb") as f:
-            f.write(message_part.get_payload(decode = 1))
-            f.close()
-    maildir.flush()
-    maildir.close()
+    try:
+        for message_part in mail.walk():
+            main_type = message_part.get_content_maintype()
+            print("Found type " + main_type)
+            if main_type in ["text", "multipart"]:
+                continue
+            attachment_filename = message_part.get_filename()
+            if not attachment_filename:
+                print("Hmm, this attachment doesn't have a file name, skipping")
+                continue
+            output_path = os.path.join(out_path_prefix, attachment_filename)
+            print("Saving attachment to '" + output_path + "'...")
+            with open(output_path, "wb") as f:
+                f.write(message_part.get_payload(decode = 1))
+                f.close()
+            print("Removing original attachment...")
+            for k in message_part.keys():
+                message_part.__delitem__(k)
+            message_part.set_payload("Detached with 'maildetach'")
+            message_part.set_param('Content-Type', 'text/html; charset=ISO-8859-1')
+            message_part.set_param('Content-Disposition', 'inline')
+            maildir.__setitem__(key, mail)
+        maildir.flush()
+    finally:
+        maildir.unlock()
+        maildir.close()
 
 if __name__ == "__main__":
     IN_MAIL_PATH = sys.argv[1]
     MAILDIR = maildir_for_single_mail(IN_MAIL_PATH)
-    MAIL = get_single_mail_object(MAILDIR, IN_MAIL_PATH)
-    detach_from_mail_in_maildir(MAIL, MAILDIR, os.getcwd())
+    if not MAILDIR:
+        print("I couldn't find a 'mail dir' owning this email. Are you sure "
+              "the 'cur', 'new', 'tmp' subfolders are present?")
+        sys.exit(1)
+    (KEY, MAIL) = get_single_mail_object(MAILDIR, IN_MAIL_PATH)
+    if not MAIL:
+        print("I couldn't find the given mail in the 'mail dir' that should "
+              "contain it.")
+        sys.exit(1)
+    detach_from_mail_in_maildir(MAIL, KEY, MAILDIR, os.getcwd())
