@@ -15,7 +15,7 @@ def maildir_for_single_mail(mail_path):
     path_parts = mail_path.split(os.sep)
     current_path = os.sep.join(path_parts[:-1])
     i = 1
-    while i < len(path_parts) - 1:
+    while i < len(path_parts):
         current_path = os.sep.join(path_parts[:-i])
         if is_mail_dir(current_path):
             return mailbox.Maildir(current_path, factory=None)
@@ -62,11 +62,11 @@ def detach_from_mail_in_maildir(mail, key, maildir, out_path_prefix):
         maildir.close()
 
 if __name__ == "__main__":
-    IN_MAIL_PATH = sys.argv[1]
+    IN_MAIL_PATH = os.path.join(os.getcwd(), sys.argv[1])
     MAILDIR = maildir_for_single_mail(IN_MAIL_PATH)
     if not MAILDIR:
-        print("I couldn't find a 'mail dir' owning this email. Are you sure "
-              "the 'cur', 'new', 'tmp' subfolders are present?")
+        print("I couldn't find a 'mail dir' owning:\n\n\t" + IN_MAIL_PATH + "\n\n"
+              "Are you sure the 'cur', 'new', 'tmp' subfolders are present?")
         sys.exit(1)
     (KEY, MAIL) = get_single_mail_object(MAILDIR, IN_MAIL_PATH)
     if not MAIL:
