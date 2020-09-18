@@ -4,10 +4,9 @@
 # https://codereview.stackexchange.com/questions/8958/n-largest-files-in-a-directory
 
 import heapq
-import os, os.path
+import os
 import sys
 import operator
-
 
 def file_sizes(directory):
     for path, _, filenames in os.walk(directory):
@@ -18,12 +17,11 @@ def file_sizes(directory):
             yield full_path, os.path.getsize(full_path)
 
 
-num_files = int(sys.argv[1]) if len(sys.argv) > 1 else 20
-directory = sys.argv[2] if len(sys.argv) > 2 else os.getcwd()
+NUM_FILES = int(sys.argv[1]) if len(sys.argv) > 1 else 20
+DIRECTORY = sys.argv[2] if len(sys.argv) > 2 else os.getcwd()
 
+BIG_FILES = heapq.nlargest(NUM_FILES, file_sizes(DIRECTORY), key=operator.itemgetter(1))
 
-big_files = heapq.nlargest(num_files, file_sizes(directory), key=operator.itemgetter(1))
-
-for f in big_files:
+for f in BIG_FILES:
     size_gb = str(round(f[1] / 1024.0 / 1024.0 / 1024.0, 2)) + " GB"
     print(size_gb + "\t" + f[0])
