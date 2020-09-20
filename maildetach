@@ -5,11 +5,20 @@ import os
 import sys
 
 def is_mail_dir(d):
+    expected = ["cur", "new", "tmp"]
     subdirs = os.listdir(d)
+    has_all_expected = True
+    if len(subdirs) == 0:
+        return False
+
     for s in ["cur", "new", "tmp"]:
         if s not in subdirs:
-            return False
-    return True
+            has_all_expected = False
+            break
+    if subdirs[0] in expected and not has_all_expected:
+        print("'" + d + "' has some of the expected dirs, but not all: "
+              "" + str(subdirs))
+    return has_all_expected
 
 def maildir_for_single_mail(mail_path):
     path_parts = mail_path.split(os.sep)
@@ -17,6 +26,8 @@ def maildir_for_single_mail(mail_path):
     i = 1
     while i < len(path_parts):
         current_path = os.sep.join(path_parts[:-i])
+        if len(current_path) == 0:
+            return None
         if is_mail_dir(current_path):
             return mailbox.Maildir(current_path, factory=None)
         i += 1
