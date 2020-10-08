@@ -13,6 +13,7 @@ streams = [
     ["franceinter", "http://direct.franceinter.fr/live/franceinter-midfi.mp3"],
     ["francemusique", "http://icecast.radiofrance.fr/francemusique-hifi.aac"],
     ["kcsm", "http://ice5.securenetsystems.net/KCSM"],
+    ["msnbc", "http://wrau.streamguys1.com/msnbc-free"],
     ["npr", "https://fm939.wnyc.org/wnycfm-web"],
     ["rireetchansons", "http://cdn.nrjaudio.fm/audio1/fr/30401/mp3_128.mp3"],
     ["tsfjazz", "http://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3"],
