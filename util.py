@@ -36,6 +36,9 @@ def get_platform():
         return "linux"
     return "unknown"
 
+def is_screen_session():
+    env_var = os.getenv("STY")
+    return env_var != None and env_var.strip() != ""
 
 # Returns whether a process containing the given name is running.
 def is_process_running(process, apart_from=None):
