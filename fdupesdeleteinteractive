@@ -3,6 +3,12 @@
 import os
 import subprocess
 
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-y", "--yes", action="store_true", help="Yes", default=False)
+(options, args) = parser.parse_args()
+
 NUMBER_OF_ENTRIES_TO_SHOW = 20
 
 PATTERNS_TO_IGNORE = [
@@ -56,7 +62,10 @@ for e in entries:
     print("\nSame files, size " + size_str + ":")
     print("\t" + ("X" if first == deletion_candidate else " ") + " " + first)
     print("\t" + ("X" if second == deletion_candidate else " ") + " " + second)
-    answer = input("--> Delete? [Enter] for Yes, n for No, o for Delete Other: ")
+    if options.yes:
+        answer = ""
+    else:
+        answer = input("--> Delete? [Enter] for Yes, n for No, o for Delete Other: ")
     if answer.strip() == "":
         print("Deleting")
         os.system("rm '" + deletion_candidate + "'")
