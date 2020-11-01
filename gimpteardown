@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+
+import os
+
+home = os.path.expanduser("~")
+gimp_config_dir = os.path.join(
+    os.path.expanduser("~"), "bus", "config", "config", "GIMP", "2.10"
+)
+
+# gimp_config_dir = os.path.join(os.path.expanduser("~"), "bus", "config",
+#    "gimp-2.8")
+
+os.chdir(gimp_config_dir)
+os.system("git checkout gimprc")
+util.run_bin_cmd("regularcleanup")
