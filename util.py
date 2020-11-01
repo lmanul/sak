@@ -260,6 +260,30 @@ def get_current_brightness_and_display_id():
                 return (brightness, current_display_id)
     return None
 
+# Returns an array of arrays: the first array is connected monitor ids,
+# the second is disconnected monitor ids.
+def get_monitors():
+    connected_monitors = []
+    disconnected_monitors = []
+    try:
+        xrandr_output = subprocess.check_output(shlex.split("xrandr")).decode()
+        for line in xrandr_output.split("\n"):
+            if line.strip() == "":
+                continue
+            if line.startswith("Screen"):
+                continue
+            if line.startswith("   "):
+                continue
+            tokens = line.split(" ")
+            id = tokens[0]
+            status = tokens[1]
+            if status == "connected":
+                connected_monitors.append(id)
+            elif status == "disconnected":
+                disconnected_monitors.append(id)
+    except subprocess.CalledProcessError:
+        print("Headless mode, not using xrandr")
+    return [connected_monitors, disconnected_monitors]
 
 def get_screen_dpi(index=None):
     raw = subprocess.check_output(shlex.split("xrandr --listactivemonitors")).decode()
