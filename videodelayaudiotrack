@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+movie = sys.argv[1]
+delay = sys.argv[2]
+bup = movie + ".bup"
+os.system("mv " + movie + " " + bup)
+
+cmd = ("ffmpeg "
+       "-i " + bup + " "
+       "-itsoffset " + delay + " "
+       "-i " + bup + " "
+       "-map 0:v -map 1:a -c copy "
+       "" + movie)
+
+#print(cmd)
+os.system(cmd)
