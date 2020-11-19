@@ -35,7 +35,6 @@ def maildir_for_single_mail(mail_path):
 
 def get_single_mail_object(maildir, mail_path):
     look_for = mail_path.split("/")[-1].split(":")[0]
-    print("Look for " + look_for)
     for key in maildir.iterkeys():
         if key == look_for:
             return (key, maildir[key])
@@ -43,12 +42,11 @@ def get_single_mail_object(maildir, mail_path):
     return (None, None)
 
 def detach_from_mail_in_maildir(mail, key, maildir, out_path_prefix):
-    print("Detaching attachments...")
     maildir.lock()
     try:
         for message_part in mail.walk():
             main_type = message_part.get_content_maintype()
-            print("Found type " + main_type)
+            # print("Found type " + main_type)
             if main_type in ["text", "multipart"]:
                 continue
             attachment_filename = message_part.get_filename()
