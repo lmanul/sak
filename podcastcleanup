@@ -137,9 +137,10 @@ def get_duration(e):
 def process_one_episode(e):
     override_date = OVERRIDE_DATES_CURRENTLY_IN_FILENAME
     date_prefix = util.get_date_prefix()
-    # If the file already has a date prefix, preserve it
+    # If the file already has a date prefix, we assume it has already been
+    # processed, and we skip it.
     if re.match(DATE_PATTERN, e) is not None:
-        date_prefix = e[:10]
+        return ""
     if override_date:
         date = get_date(e)
         if date:
