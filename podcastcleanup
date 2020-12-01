@@ -70,7 +70,11 @@ def get_tag(e, tag):
     # Assume we've retrieved all the tags at once
     if fp in TAGS_DB:
         return get_tag_from_cache(fp, tag)
-    data = subprocess.check_output(["id3v2", "-l", e]).decode().strip()
+    try:
+	      data = subprocess.check_output(["id3v2", "-l", e]).decode().strip()
+    except UnicodeDecodeError:
+        print("Decoding error on " + str(e))
+        return ""
     if "no id3v2 tags" not in data.lower() and data != "":
         process_id3v2_tags(fp, data)
     data = subprocess.check_output(
