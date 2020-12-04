@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+
+import os
+
+HOME = os.path.expanduser("~")
+LOCK_FILE = "audioloopbacklock"
+
+os.chdir(HOME)
+
+if os.path.exists(LOCK_FILE):
+    os.system("pactl unload-module module-loopback")
+    os.system("rm " + LOCK_FILE)
+else:
+    os.system("pactl load-module module-loopback latency_msec=1")
+    os.system("touch " + LOCK_FILE)
