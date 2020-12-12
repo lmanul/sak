@@ -1,0 +1,14 @@
+#!/usr/bin/python3
+"""JSON is inherently unsorted. But sometimes having a sorted output helps avoid
+meaningless diffs in version control systems."""
+
+import json
+import sys
+
+def normalize_json_string(in_json):
+    return json.dumps(json.loads(in_json), sort_keys=True)
+
+if __name__ == "__main__":
+    with open(sys.argv[1]) as f:
+        DATA = f.read()
+    print(normalize_json_string(DATA))
