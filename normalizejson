@@ -6,7 +6,7 @@ import json
 import sys
 
 def normalize_json_string(in_json):
-    return json.dumps(json.loads(in_json), sort_keys=True)
+    return json.dumps(json.loads(in_json), sort_keys=True, indent=4)
 
 if __name__ == "__main__":
     with open(sys.argv[1]) as f:
