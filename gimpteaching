@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+
+import os
+import util
+
+HOME = os.path.expanduser("~")
+
+orig_dir = os.getcwd()
+
+os.chdir(HOME)
+os.chdir("bus")
+os.system("cp config/config/GIMP/2.10/sessionteachingrc config/config/GIMP/2.10/sessionrc")
+
+util.run_bin_cmd("gimpsetup", args="teach")
+
+# os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
+os.system("/usr/bin/gimp-2.10")
+
+util.run_bin_cmd("gimpteardown")

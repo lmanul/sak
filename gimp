@@ -13,7 +13,7 @@ full_arguments = []
 for a in arguments:
     full_arguments.append(os.path.join(orig_dir, a))
 
-util.run_bin_cmd("gimpsetup")
+util.run_bin_cmd("gimpsetup", args="draw")
 # os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
 os.system("/usr/bin/gimp-2.10 " + " ".join(full_arguments))
 util.run_bin_cmd("gimpteardown")

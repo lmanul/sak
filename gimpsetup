@@ -12,12 +12,24 @@ gimp_config_dir = os.path.join(
 )
 # gimp_config_dir = os.path.join(os.path.expanduser("~"), "bus", "config",
 #    "gimp-2.8")
+
+if len(sys.argv) < 2:
+    print("draw or teach?")
+    sys.exit(1)
+
 os.chdir(gimp_config_dir)
 
 ram_gb = util.get_ram_gb()
 
-tile_cache_size = int(0.7 * ram_gb)
-undo_size = int(0.2 * ram_gb)
+activity = sys.argv[1]
+
+if activity == 'draw':
+    tile_cache_size = int(0.7 * ram_gb)
+    undo_size = int(0.2 * ram_gb)
+else:
+    tile_cache_size = int(0.2 * ram_gb)
+    undo_size = int(0.1 * ram_gb)
+
 
 print(
     "Adjusting for RAM = "
