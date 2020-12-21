@@ -203,7 +203,11 @@ else:
     os.system("find . -name '*conflicted*' -delete")
     os.system("find . -size 0 -delete")
     os.system("rm -rf *Conflict*")
-    os.system("rm -f .LOG/errors")
+    # os.system("rm -f .LOG/errors")
+    os.chdir(HOME)
+    os.system("rm -rf mini/.stversions/podcasts")
+    os.chdir(os.path.join("bus", "config", "podget"))
+    util.run_bin_cmd("sortinplace", args="done")
 
 for f in FOLDERS:
     if not os.path.exists(f):
