@@ -236,13 +236,13 @@ for f in FOLDERS:
     if len(episodes) == 0:
         os.system("rmdir '" + f + "'")
 
-if not SINGLE_FOLDER:
-    os.chdir(".LOG")
-    log_files = os.listdir(".")
-    for l in log_files:
-        if "conflict" in l:
-            os.system('rm "' + l + '"')
-    os.chdir("..")
+# if not SINGLE_FOLDER:
+    # os.chdir(".LOG")
+    # log_files = os.listdir(".")
+    # for l in log_files:
+        # if "conflict" in l:
+            # os.system('rm "' + l + '"')
+    # os.chdir("..")
 
 print("Removing backups...")
 os.system("find -name '*.bup' -delete")
