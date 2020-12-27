@@ -200,7 +200,7 @@ if CURRENT in FOLDERS:
 else:
     os.chdir(os.path.join(HOME, PODCASTS_DIR))
     util.run_bin_cmd("sanitizefilenamesrecursively")
-    os.system("find . -name '*conflicted*' -delete")
+    os.system("find . -name '*sync-conflict*' -delete")
     os.system("find . -size 0 -delete")
     os.system("rm -rf *Conflict*")
     # os.system("rm -f .LOG/errors")
