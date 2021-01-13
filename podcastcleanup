@@ -208,6 +208,7 @@ else:
     os.system("rm -rf mini/.stversions/podcasts")
     os.chdir(os.path.join("bus", "config", "podget"))
     util.run_bin_cmd("sortinplace", args="done")
+    os.system("mv done done_notunique && cat done_notunique | uniq -u > done && rm done_notunique")
 
 for f in FOLDERS:
     if not os.path.exists(f):
