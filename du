@@ -2,10 +2,13 @@
 
 import os
 
+# 1 MB
+THRESHOLD = 1024 * 1024
+
 if len([f for f in os.listdir(os.getcwd()) if f.startswith(".")]) > 0:
-    os.system("/usr/bin/du -hs .[!.]* * | sort -hr")
+    os.system("/usr/bin/du -hs -t " + str(THRESHOLD) + " .[!.]* * | sort -hr")
 else:
-    os.system("/usr/bin/du -hs * | sort -hr")
+    os.system("/usr/bin/du -hs -t " + str(THRESHOLD) + " * | sort -hr")
 
 # TODO: if Mac, then:
 # du='du -sk * | sort -rg | awk '\''{ numBytes = $1 * 1024; numUnits = split("B K M G T P", unit); num = numBytes; iUnit = 0; while(num >= 1024 && iUnit + 1 < numUnits) { num = num / 1024; iUnit++; } $1 = sprintf( ((num == 0) ? "%6d%s " : "%6.1f%s "), num, unit[iUnit + 1]); print $0; }'\'''
