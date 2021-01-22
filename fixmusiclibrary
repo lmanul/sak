@@ -58,7 +58,11 @@ def get_genre(all_tags):
 
 
 def file_has_cover_img(f):
-    all_tags = subprocess.check_output(["id3v2", "-l", f]).decode()
+    try:
+        all_tags = subprocess.check_output(["id3v2", "-l", f]).decode()
+    except UnicodeDecodeError:
+        print("Could not decode tags in '" + f + "'")
+        return False
     return "APIC " in all_tags
 
 
