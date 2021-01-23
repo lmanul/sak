@@ -1,11 +1,17 @@
+"""
+Various utilities related to managing and connecting to wireless networks.
+"""
+
 import os
 import shlex
 import subprocess
+import util
 
 DIGITS = [str(d) for d in range(10)]
 HEX_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
 
 def collapse_spaces(s):
+    "Collapses multiple spaces into just one"
     parts = s.split(" ")
     final_parts = []
     for p in parts:
@@ -38,3 +44,38 @@ def get_available_ssids():
             available_ssids.add(p)
             break
     return sorted(list(available_ssids))
+
+def connect_to_wifi(path_to_known_networks_list, debug=False):
+    "Connects to known wifi points"
+    online = util.is_online()
+    if online and debug:
+        print("Online")
+    if not online:
+        ssids = get_available_ssids()
+        wifis_raw = open(path_to_known_networks_list).readlines()
+        wifis = []
+        for l in wifis_raw:
+            l = l.strip()
+            if not l:
+                continue
+            if not l.startswith("#") or l.startswith("\\#"):
+                if l.startswith("\\#"):
+                    l = l[1:]
+                wifis.append(l.split(":"))
+        for w in wifis:
+            if w[0] in ssids:
+                target = w
+                break
+        if not target:
+            print("No known SSID found. Found:\n\t" + "\n\t".join(sorted(ssids)))
+            # Re-scan for next time? os.system("nmcli device wifi rescan")
+        else:
+            if debug:
+                print("Trying to connect to: " + str(target))
+            ssid = target[0]
+            cmd = 'nmcli device wifi connect "' + ssid + '"'
+            if target[1] != "":
+                cmd += " password '" + target[1] + "'"
+            if debug:
+                cmd += " 2>> ~/throwaway/tick.txt"
+            os.system(cmd)
