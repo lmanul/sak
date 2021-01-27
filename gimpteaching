@@ -13,7 +13,6 @@ os.system("cp config/config/GIMP/2.10/sessionteachingrc config/config/GIMP/2.10/
 
 util.run_bin_cmd("gimpsetup", args="teach")
 
-# os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
-os.system("/usr/bin/gimp-2.10")
+os.system("/usr/bin/gimp-2.10 reference/stream/blackboard.png")
 
 util.run_bin_cmd("gimpteardown")
