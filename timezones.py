@@ -5,6 +5,7 @@ TIMEZONES = {
     "EST": "US/Eastern",
     "ICT": "Asia/Bangkok",
     "CST": "Asia/Shanghai",
+    "MST": "US/Mountain",
     "JST": "Asia/Tokyo",
     "PST": "US/Pacific",
     "UTC": "UTC",
