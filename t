@@ -8,6 +8,7 @@ from colorama import Style, Fore
 TZ = [
     ["US/Hawaii", "Hawaii"],
     ["America/Los_Angeles", "San Francisco"],
+    ["America/Denver", "Denver"],
     ["America/New_York", "New York"],
     ["Etc/UTC", "UTC"],
     ["Europe/Paris", "Paris"],
