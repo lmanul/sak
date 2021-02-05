@@ -202,12 +202,15 @@ def change_extension(f, new_ext):
 
 def run_bin_cmd(cmd, args=None, detach=False):
     p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
+    local_p = os.path.join(os.getcwd(), cmd)
     sak_p = os.path.join(os.path.expanduser("~"), "repos", "sak", cmd)
     usr_bin_p = os.path.join("/usr", "bin", "", cmd)
-    if (not os.path.exists(p) and not os.path.exists(sak_p) and not os.path.exists(usr_bin_p)):
+    if not os.path.exists(p) and not os.path.exists(sak_p) and not os.path.exists(usr_bin_p) and not os.path.exists(local_p):
         print("Couldn't find '" + cmd + "', sorry!")
         sys.exit(1)
     good_path = p
+    if not os.path.exists(good_path):
+        good_path = local_p
     if not os.path.exists(good_path):
         good_path = sak_p
     if not os.path.exists(good_path):
