@@ -16,6 +16,6 @@ gimp_config_dir = os.path.join(
 
 os.chdir(gimp_config_dir)
 os.system("git checkout gimprc")
-os.system("git checkout sessionrc menurc colorrc contextrc devicerc")
+os.system("git checkout sessionrc menurc colorrc contextrc devicerc toolrc")
 os.system("git checkout tool-options/\*")
 util.run_bin_cmd("regularcleanup")
