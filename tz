@@ -19,7 +19,12 @@ def format_time(d):
 
 if __name__ == "__main__":
     t = sys.argv[1]
-    z = sys.argv[2]
+
+    if len(sys.argv) < 3:
+        z = "UTC"
+    else:
+        z = sys.argv[2]
+
     if ":" in t:
         (h, m) = [int(e) for e in t.split(":")]
     else:
