@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+"""Prints the system's audio volume."""
+import re
+import shlex
+import subprocess
+
+PATTERN = re.compile(r".*\[(\d+)%.*")
+
+raw = subprocess.check_output(shlex.split("amixer sget Master")).decode()
+for l in raw.split("\n"):
+    matches = PATTERN.match(l)
+    if matches:
+        print(matches[1])
