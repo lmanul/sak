@@ -199,6 +199,19 @@ def change_extension(f, new_ext):
     last_dot = f.rfind(".")
     return f[:last_dot] + "." + new_ext
 
+def get_busy_lock_path():
+    return os.path.join(os.path.expanduser("~"), "busy")
+
+def is_busy():
+    return os.path.exists(get_busy_lock_path())
+
+def set_busy(flag):
+    p = get_busy_lock_path()
+    if flag:
+        os.system("touch " + p)
+    else:
+        if is_busy():
+            os.system("rm " + p)
 
 def run_bin_cmd(cmd, args=None, detach=False):
     p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
