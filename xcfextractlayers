@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import getpass
 import os
 import sys
 
@@ -13,6 +14,7 @@ if __name__ == "__main__":
     INFILE = sys.argv[1]
     SCHEME_FILE_NAME = "gimp_extract_layers.scm"
     SCHEME_FILE_PATH = os.path.join(SELF_DIR, "gimp_scripts", SCHEME_FILE_NAME)
+    USER = getpass.getuser()
 
     print("Copying script to GIMP's scripts folder...")
     os.system("cp " + SCHEME_FILE_PATH + " " + GIMP_SCRIPTS_DIR + "/")
@@ -21,6 +23,9 @@ if __name__ == "__main__":
         "(gimp-extract-layers \"" + INFILE + "\")"
     )
 
+    if USER == "manucornet":
+        os.system("gimpsetup")
+
     cmd = ("gimp-console "
            "--no-data --no-interface --no-fonts --no-splash "
            "-b '" + BATCH_CMD + "' "
@@ -28,6 +33,8 @@ if __name__ == "__main__":
           )
     print(cmd)
     os.system(cmd)
+    if USER == "manucornet":
+        os.system("gimpteardown")
 
     print("Cleaning up script from GIMP's scripts folder...")
     os.system("rm " + os.path.join(GIMP_SCRIPTS_DIR, SCHEME_FILE_NAME))
