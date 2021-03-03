@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+"""Jupyter Notebook files are nice, but can be cumbersome to work with
+programmatically"""
+
+import os
+import sys
+
+ipynb = sys.argv[1]
+# py = ipynb.replace(".ipynb", "")
+
+os.system("jupyter nbconvert --to script " + ipynb)
