@@ -21,7 +21,12 @@ def get_subject_original_case(msg):
         return ""
     except TypeError:
         return ""
-    return str(h)
+    subject = str(h)
+    while "\n" in subject:
+        subject = subject.replace("\n", " ")
+    while "  " in subject:
+        subject = subject.replace("  ", " ")
+    return subject
 
 def get_subject(msg):
     return get_subject_original_case(msg).lower()
