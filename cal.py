@@ -232,6 +232,23 @@ def reduce_availability(events):
 
     return reduced
 
+def get_current_event():
+    now = int(datetime.datetime.now().timestamp())
+    events = get_events_for_next_n_days(1)
+    for e in events:
+        if e[0] <= now <= e[1]:
+            return e
+    return None
+
+def get_next_event():
+    now = int(datetime.datetime.now().timestamp())
+    events = get_events_for_next_n_days(1)
+    for e in events:
+        if e[0] >= now:
+            return e
+    return None
+
+
 # Returns a list where each element is itself a list of three elements:
 # start time, end time (both in seconds since the epoch) and title.
 def get_events_for_next_n_days(days):
