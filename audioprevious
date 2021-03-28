@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
 import audio
+import os
+import util
 
+if util.is_process_running("mpd"):
+    os.system("mpc prev")
 audio.send_command_to_music_player("Previous")
