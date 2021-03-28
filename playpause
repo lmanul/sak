@@ -10,5 +10,7 @@ if util.is_process_running("ffmpeg"):
     os.system("killall ffmpeg")
 elif util.is_process_running("ffplay"):
     os.system("killall ffplay")
+elif util.is_process_running("mpd"):
+    os.system("mpc toggle")
 else:
     audio.send_command_to_music_player("PlayPause")
