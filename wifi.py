@@ -54,6 +54,7 @@ def connect_to_wifi(path_to_known_networks_list, debug=False):
         ssids = get_available_ssids()
         wifis_raw = open(path_to_known_networks_list).readlines()
         wifis = []
+        target = None
         for l in wifis_raw:
             l = l.strip()
             if not l:
