@@ -83,7 +83,7 @@ def get_message_id(msg):
         if key not in msg.keys():
             return ""
     h = make_header(decode_header(msg.get(key)))
-    return str(h)
+    return str(h).strip()
 
 def mark_all_read_in_mbox(path):
     mbox = mailbox.Maildir(path, factory=None)
