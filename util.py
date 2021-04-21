@@ -368,6 +368,12 @@ def date_to_string(d):
 # [date, value] pair. A date is formatted as YYYY.MM.DD.
 def make_time_graph(values, out_file, names=[]):
     import leather
+    leather.theme.legend_font_family = 'Roboto'
+    leather.theme.legend_font_size = '12'
+    leather.theme.legend_color = '#999999'
+    leather.theme.tick_font_family = 'Roboto'
+    leather.theme.tick_font_size = '12'
+    leather.theme.tick_color = '#aaa'
 
     colors = [
         "#8c00e2",
