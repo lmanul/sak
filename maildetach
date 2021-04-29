@@ -51,12 +51,16 @@ def detach_from_mail_in_maildir(mail, key, maildir, out_path_prefix):
             if main_type in ["text", "multipart"]:
                 continue
             attachment_filename = message_part.get_filename()
+            if attachment_filename is None:
+                attachment_filename = "Untited_attachment"
             output_filename = util.sanitize_for_filename(attachment_filename)
             if attachment_filename:
                 output_path = os.path.join(out_path_prefix, output_filename)
                 print("Saving attachment to '" + output_path + "'...")
                 with open(output_path, "wb") as f:
-                    f.write(message_part.get_payload(decode = 1))
+                    payload = message_part.get_payload(decode=1)
+                    if payload is not None:
+                        f.write(message_part.get_payload(decode=1))
                     f.close()
             print("Removing original attachment...")
             for k in message_part.keys():
