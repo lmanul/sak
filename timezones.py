@@ -1,6 +1,7 @@
 TIMEZONES = {
     "CET": "Europe/Paris",
-    "CST": "Asia/Shanghai",
+    "CST": "US/Central",
+    "CNT": "Asia/Shanghai",
     "EET": "Europe/Tallinn",
     "EST": "US/Eastern",
     "ICT": "Asia/Bangkok",
@@ -19,6 +20,6 @@ SHORTS = {
     "C": "CET",
     "E": "EST",
     "P": "PST",
-    "S": "CST",
+    "S": "CNT",
     "U": "UTC",
 }
