@@ -3,6 +3,7 @@
 import os
 import shlex
 import subprocess
+import sys
 
 exceptions_to_keep = ["SNAX", "Google", "Google-A", "GoogleGuest", "Off-Corp Wired"]
 
@@ -11,6 +12,11 @@ os.system("nmcli radio wifi off")
 
 raw = subprocess.check_output(shlex.split("nmcli con")).decode()
 lines = raw.split("\n")
+
+if len(lines) == 0 or "UUID" not in lines[0]:
+    # There's probably nothing to delete
+    sys.exit()
+
 offset = lines[0].index("UUID")
 
 for l in lines[1:]:
