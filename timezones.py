@@ -1,11 +1,10 @@
 TIMEZONES = {
     "CET": "Europe/Paris",
-    "CST": "US/Central",
     "CNT": "Asia/Shanghai",
+    "CST": "US/Central",
     "EET": "Europe/Tallinn",
     "EST": "US/Eastern",
     "ICT": "Asia/Bangkok",
-    "CST": "Asia/Shanghai",
     "MST": "US/Mountain",
     "JST": "Asia/Tokyo",
     "PST": "US/Pacific",
