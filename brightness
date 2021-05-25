@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import os
+import shlex
+import subprocess
 import sys
 import util
 
@@ -16,40 +18,45 @@ parser.add_option(
     action="store_true",
     help="Daemon mode, can't use sudo",
 )
-(options, args) = parser.parse_args()
 
-max_brightness_file = "/sys/class/backlight/intel_backlight/max_brightness"
-cur_brightness_file = "/sys/class/backlight/intel_backlight/brightness"
+def get_max_brightness():
+    if os.path.exists("/usr/bin/brightnessctl"):
+        return int(subprocess.check_output(shlex.split("brightnessctl m")))
 
-hardware_enabled = os.path.exists(max_brightness_file) and os.path.exists(
-    cur_brightness_file
-)
+    max_brightness_file = "/sys/class/backlight/intel_backlight/max_brightness"
+    return int(open(max_brightness_file).read().strip())
 
-if len(args) == 0:
-    if hardware_enabled:
-        max_brightness = int(open(max_brightness_file).read().strip())
-        cur_brightness = int(open(cur_brightness_file).read().strip())
-        print("Current: " + str(cur_brightness) + " / " + str(max_brightness))
-    else:
-        (current, id) = util.get_current_brightness_and_display_id()
-        print("Current: " + str(current))
-    sys.exit(0)
+def get_current_brightness():
+    if os.path.exists("/usr/bin/brightnessctl"):
+        return int(subprocess.check_output(shlex.split("brightnessctl g")))
 
-up = args[0] == "u"
+    cur_brightness_file = "/sys/class/backlight/intel_backlight/brightness"
+    return int(open(cur_brightness_file).read().strip())
 
-can_sudo = not options.daemon
+def show_current_brightness():
+    print("" + str(get_current_brightness()) + ""
+          " / " + str(get_max_brightness()))
 
-if can_sudo and hardware_enabled:
-    max_brightness = int(open(max_brightness_file).read().strip())
-    cur_brightness = int(open(cur_brightness_file).read().strip())
-    new = cur_brightness
-    increment_absolute = int(INCREMENT_PERCENT * max_brightness / 100)
-    if up and cur_brightness < max_brightness:
-        new = min(max_brightness, cur_brightness + increment_absolute)
-    if not up and cur_brightness > 0:
-        new = max(0, cur_brightness - increment_absolute)
-    os.system("echo '" + str(new) + "' | sudo tee -a " + cur_brightness_file)
-else:
+def change_brightness_the_hard_way(up: bool, options):
+    cur_brightness_file = "/sys/class/backlight/intel_backlight/brightness"
+    max_brightness_file = "/sys/class/backlight/intel_backlight/max_brightness"
+    can_sudo = not options.daemon
+    hardware_enabled = os.path.exists(max_brightness_file) and os.path.exists(
+        cur_brightness_file
+    )
+
+    if can_sudo and hardware_enabled:
+        max_brightness = get_max_brightness()
+        cur_brightness = get_current_brightness()
+        new = cur_brightness
+        increment_absolute = int(INCREMENT_PERCENT * max_brightness / 100)
+        if up and cur_brightness < max_brightness:
+            new = min(max_brightness, cur_brightness + increment_absolute)
+        if not up and cur_brightness > 0:
+            new = max(0, cur_brightness - increment_absolute)
+        os.system("echo '" + str(new) + "' | sudo tee -a " + cur_brightness_file)
+        return
+
     # Use xrandr as a fallback
     (current, id) = util.get_current_brightness_and_display_id()
     new = current
@@ -58,3 +65,24 @@ else:
     if not up and current > 0.0:
         new = current - float(float(INCREMENT_PERCENT) / 100)
     os.system("xrandr --output " + id + " --brightness " + str(new))
+
+def change_brightness(up: bool, options):
+    max_brightness = get_max_brightness()
+
+    can_sudo = not options.daemon
+    if os.path.exists("/usr/bin/brightnessctl"):
+        os.system("sudo brightnessctl --quiet s 200" + ("+" if up else "-"))
+    else:
+        change_brightness_the_hard_way(up, options)
+    show_current_brightness()
+
+
+if __name__ == "__main__":
+
+    (options, args) = parser.parse_args()
+
+    if len(args) == 0:
+        show_current_brightness()
+    else:
+        up = args[0] == "u"
+        change_brightness(up, options)
