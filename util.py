@@ -225,7 +225,7 @@ def run_bin_cmd(cmd, args=None, detach=False):
     usr_bin_p = os.path.join("/usr", "bin", "", cmd)
     if not os.path.exists(p) and not os.path.exists(sak_p) and not os.path.exists(usr_bin_p) and not os.path.exists(local_p):
         print("Couldn't find '" + cmd + "', sorry!")
-        sys.exit(1)
+        return
     good_path = p
     if not os.path.exists(good_path):
         good_path = local_p
