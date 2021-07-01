@@ -18,6 +18,7 @@ for t in TIMEZONES:
 SHORTS = {
     "C": "CET",
     "E": "EST",
+    "J": "JST",
     "P": "PST",
     "S": "CNT",
     "U": "UTC",
