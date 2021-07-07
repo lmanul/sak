@@ -11,6 +11,11 @@ import sys
 from datetime import date
 from datetime import datetime
 
+try:
+    from colorama import Fore, Style
+    has_colorama = True
+except ModuleNotFoundError:
+    has_colorama = False
 
 def is_android():
     uname = subprocess.check_output(["uname", "-a"]).decode("utf-8")
@@ -363,6 +368,19 @@ def string_to_date(date_string):
 def date_to_string(d):
     return ".".join([str(d.year), str(d.month).zfill(2), str(d.day).zfill(2)])
 
+def color(text, color_name):
+    if not has_colorama:
+        return text
+    colors = {
+        "cyan": Fore.CYAN,
+        "dim": Style.DIM,
+        "green": Fore.GREEN,
+        "white": Fore.WHITE,
+        "yellow": Fore.YELLOW,
+    }
+    if color_name not in colors:
+        return text
+    return colors[color_name] + text + Style.RESET_ALL
 
 # |values| is a list of series. A series is a list of points. A point is a
 # [date, value] pair. A date is formatted as YYYY.MM.DD.
