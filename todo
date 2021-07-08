@@ -1,14 +1,15 @@
 #!/usr/bin/python3
 
-import colorama
 import shlex
 import subprocess
 
+import util
+
 COLORS = [
-    [colorama.Fore.RED,    [1, 2, 3]],
-    [colorama.Fore.YELLOW, [4, 5, 6]],
-    [colorama.Fore.GREEN,  [7, 8, 9]],
-    [colorama.Fore.CYAN,   [0]],
+    ["red",    [1, 2, 3]],
+    ["yellow", [4, 5, 6]],
+    ["green",  [7, 8, 9]],
+    ["cyan",   [0]],
 ]
 
 def format(raw):
@@ -19,7 +20,7 @@ def format(raw):
         pri = int(l[0])
         for _, c in enumerate(COLORS):
             if pri in c[1]:
-                print(c[0] + l + colorama.Style.RESET_ALL)
+                print(util.color(l, c[0]))
 
 if __name__ == "__main__":
     RAW = subprocess.check_output(shlex.split("calcurse --todo")).decode()
