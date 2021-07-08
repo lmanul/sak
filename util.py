@@ -14,7 +14,7 @@ from datetime import datetime
 try:
     from colorama import Fore, Style
     has_colorama = True
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
     has_colorama = False
 
 def is_android():
