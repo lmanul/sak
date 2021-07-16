@@ -1,8 +1,12 @@
 import datetime
 import os
+import pytz
+import re
 import shlex
 import subprocess
 import sys
+
+import util
 
 from datetime import timedelta
 
@@ -10,6 +14,8 @@ DEBUG = False
 
 HOME = os.path.expanduser("~")
 CALCURSE_DATETIME_FORMAT = "%m/%d/%Y @ %H:%M"
+TIME_RANGE_REGEXP = re.compile(r"^.*(\d\d):(\d\d)\s*->\s*(\d\d):(\d\d).*$")
+DESCRIPTION_REGEXP = re.compile(r"^\s*(.*)$")
 
 def datetime_to_date_tuple(dt):
     return (dt.year, dt.month, dt.day)
@@ -46,7 +52,93 @@ def parse_repeated_timing(timing):
     (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
     return (base_event_start, base_event_end, repeat_str)
 
+def is_past(d):
+    now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+    return now_utc > d
+
+def is_today(d):
+    now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+    return d.year == now.year and d.month == now.month and d.day == now.day
+
+def is_tomorrow(d):
+    now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+    tomorrow = now + datetime.timedelta(days=1)
+    return d.year == tomorrow.year and d.month == tomorrow.month and d.day == tomorrow.day
+
+def is_after_tomorrow(d):
+    now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+    aft_tmr = now + datetime.timedelta(days=2)
+    return d.year == aft_tmr.year and d.month == aft_tmr.month and d.day == aft_tmr.day
+
+def get_displayed_time(d):
+    color = "dim" if is_past(d) else "white"
+    return util.color(str(d.hour).zfill(2) + ":" + str(d.minute).zfill(2),
+                      color)
+
+def format_timedelta(minutes, prefix, suffix, highlight_color):
+    color = "white"
+    prefix = "(" + prefix + " "
+    suffix = suffix + ")"
+    if minutes > 24 * 60:
+        color = "dim"
+        infix = "> 1 day"
+    elif minutes > 60:
+        hours = int(minutes / 60)
+        remaining_minutes = minutes - hours * 60
+        infix = str(hours) + " h " + str(remaining_minutes) + " mn"
+    elif minutes < 60:
+        infix = str(minutes) + " mn"
+        if minutes < 30:
+            color = highlight_color
+    else:
+        infix = str(minutes) + " mn"
+    return util.color(prefix + infix + suffix, color)
+
+# TODO: merge with CalcurseFileEvent
 class Event:
+    def __init__(self, start, end, text):
+        self.start = start
+        self.end = end
+        self.text = text
+
+    def __str__(self):
+        result = (get_displayed_time(self.start) + ""
+                  " — "
+                  "" + get_displayed_time(self.end) + ""
+                  "  " + self.get_displayed_text())
+        if not is_past(self.start):
+            minutes_until_start = int(self.get_time_to_start().total_seconds() / 60)
+            result = result + " " + format_timedelta(
+                minutes_until_start, "in", "", "yellow")
+        if is_past(self.start) and not is_past(self.end):
+            minutes_until_end = int(self.get_time_to_end().total_seconds() / 60)
+            result = result + " " + format_timedelta(
+                minutes_until_end, "end in", "", "cyan")
+        elif is_past(self.end):
+            minutes_since_end = int(self.get_time_since_end().total_seconds() / 60)
+            result = result + " " + format_timedelta(
+                minutes_since_end, "ended ", " ago", "green")
+        return result
+
+    def get_displayed_text(self):
+        color = "white"
+        if is_past(self.start) and is_past(self.end):
+            color = "dim"
+        return util.color(self.text, color)
+
+    def get_time_to_start(self):
+        now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+        return self.start - now_utc
+
+    def get_time_to_end(self):
+        now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+        return self.end - now_utc
+
+    def get_time_since_end(self):
+        now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+        return now_utc - self.end
+
+class CalcurseFileEvent:
     def __init__(self, l, i):
         (timing, title) = l.split("|", 1)
         repeated = "{" in timing and "}" in timing
@@ -326,10 +418,67 @@ def parse_calcurse_file():
         if "|" not in l:
             # Ignoring full-day events for now
             continue
-        e = Event(l, i)
+        e = CalcurseFileEvent(l, i)
         if e.valid:
             all_events.add(e)
     return all_events
+
+def fetch_missing_end_time(remaining_lines):
+    for l in remaining_lines:
+        if "..:.. ->" not in l:
+            continue
+        real_info = l
+        real_info = real_info.replace("..:..", "")
+        real_info = real_info.replace("->", "")
+        real_info = real_info.replace("-", "")
+        real_info = real_info.strip()
+        return real_info
+
+    return "..:.."
+
+def process_calcurse(raw):
+    events = []
+
+    lines = raw.split("\n")
+    i = 0
+    while i < len(lines):
+        l = lines[i]
+        ends_next_day = False
+        if l.strip() == "":
+            i += 1
+            continue
+        if len(l) == 9 and l.count("/") == 2:
+            (month, day, year) = [int(c) for c in l[:-1].split("/")]
+            i += 1
+            continue
+        if "-> ..:.." in l:
+            missing = fetch_missing_end_time(lines[i + 1:])
+            l = l.replace("..:..", missing)
+            ends_next_day = True
+        if "..:.. ->" in l:
+            # Skip this and also the corresponding description
+            i += 2
+            continue
+        time_matches = TIME_RANGE_REGEXP.match(l)
+        if time_matches:
+            (start_h, start_m, end_h, end_m) = [int(time_matches.group(i)) for i in [1, 2, 3, 4]]
+            now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+            start = now_utc
+            start = start.replace(year=2000 + year, month=month, day=day,
+                                  hour=start_h, minute=start_m, second=0)
+            end = now_utc
+            end = end.replace(year=2000 + year, month=month,
+                              day=day + 1 if ends_next_day else day,
+                              hour=end_h, minute=end_m, second=0)
+            i += 1
+            continue
+        desc_matches = DESCRIPTION_REGEXP.match(l)
+        if desc_matches:
+            events.append(Event(start, end, desc_matches[1]))
+        i += 1
+
+    return events
+
 
 def consolidate_calcurse_file(full=False):
     all_events = parse_calcurse_file()
