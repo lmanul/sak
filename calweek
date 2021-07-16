@@ -1,29 +1,31 @@
 #!/usr/bin/python3
 
 import argparse
-import datetime
 import shlex
 import subprocess
 
-from pytz import timezone
-
 import cal
-import timezones
 
 def print_dashboard():
     """Prints the dashboard"""
     events = cal.process_calcurse(
         subprocess.check_output(shlex.split("calcurse -d 7")).decode())
 
+    arguments = [
+        ["Today", "yellow"],
+        ["Tomorrow", "cyan"],
+        ["After tomorrow", "green"],
+        ["D + 3", "dim"],
+        ["D + 4", "dim"],
+        ["D + 5", "dim"],
+        ["D + 6", "dim"],
+        ["D + 7", "dim"],
+    ]
+
     print("")
-    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(0), "Today", "yellow")
-    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(1), "Tomorrow", "cyan")
-    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(2), "After tomorrow", "green")
-    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(3), "D + 3", "dim")
-    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(4), "D + 4", "dim")
-    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(5), "D + 5", "dim")
-    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(6), "D + 6", "dim")
-    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(7), "D + 7", "dim")
+    for i in range(len(arguments)):
+        cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(i),
+                                    arguments[i][0], arguments[i][1])
 
 if __name__ == "__main__":
     # TODO: Use the time zone

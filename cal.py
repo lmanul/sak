@@ -74,11 +74,6 @@ def is_today_plus_n_days(n, d):
 def is_today_from_n_days_partial(n):
     return functools.partial(is_today_plus_n_days, n)
 
-def get_displayed_time(d):
-    color = "dim" if is_past(d) else "white"
-    return util.color(str(d.hour).zfill(2) + ":" + str(d.minute).zfill(2),
-                      color)
-
 def format_timedelta(minutes, prefix, suffix, highlight_color):
     color = "white"
     prefix = "(" + prefix + " "
@@ -106,9 +101,9 @@ class Event:
         self.text = text
 
     def __str__(self):
-        result = (get_displayed_time(self.start) + ""
+        result = (self.get_displayed_time(self.start) + ""
                   " — "
-                  "" + get_displayed_time(self.end) + ""
+                  "" + self.get_displayed_time(self.end) + ""
                   "  " + self.get_displayed_text())
         if not is_past(self.start):
             minutes_until_start = int(self.get_time_to_start().total_seconds() / 60)
@@ -123,6 +118,11 @@ class Event:
             result = result + " " + format_timedelta(
                 minutes_since_end, "ended ", " ago", "green")
         return result
+
+    def get_displayed_time(self, d):
+        color = "dim" if is_past(d) else "white"
+        return util.color(str(d.hour).zfill(2) + ":" + str(d.minute).zfill(2),
+                          color)
 
     def get_displayed_text(self):
         color = "white"
