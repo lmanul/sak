@@ -10,6 +10,7 @@ import sys
 import util
 
 from datetime import timedelta
+from event import Event
 
 DEBUG = False
 
@@ -53,10 +54,6 @@ def parse_repeated_timing(timing):
     (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
     return (base_event_start, base_event_end, repeat_str)
 
-def is_past(d):
-    now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
-    return now_utc > d
-
 def is_today(d):
     return is_today_plus_n_days(0, d)
 
@@ -74,74 +71,7 @@ def is_today_plus_n_days(n, d):
 def is_today_from_n_days_partial(n):
     return functools.partial(is_today_plus_n_days, n)
 
-def format_timedelta(minutes, prefix, suffix, highlight_color):
-    color = "white"
-    prefix = "(" + prefix + " "
-    suffix = suffix + ")"
-    if minutes > 24 * 60:
-        color = "dim"
-        infix = "> 1 day"
-    elif minutes > 60:
-        hours = int(minutes / 60)
-        remaining_minutes = minutes - hours * 60
-        infix = str(hours) + " h " + str(remaining_minutes) + " mn"
-    elif minutes < 60:
-        infix = str(minutes) + " mn"
-        if minutes < 30:
-            color = highlight_color
-    else:
-        infix = str(minutes) + " mn"
-    return util.color(prefix + infix + suffix, color)
-
-# TODO: merge with CalcurseFileEvent
-class Event:
-    def __init__(self, start, end, text):
-        self.start = start
-        self.end = end
-        self.text = text
-
-    def __str__(self):
-        result = (self.get_displayed_time(self.start) + ""
-                  " — "
-                  "" + self.get_displayed_time(self.end) + ""
-                  "  " + self.get_displayed_text())
-        if not is_past(self.start):
-            minutes_until_start = int(self.get_time_to_start().total_seconds() / 60)
-            result = result + " " + format_timedelta(
-                minutes_until_start, "in", "", "yellow")
-        if is_past(self.start) and not is_past(self.end):
-            minutes_until_end = int(self.get_time_to_end().total_seconds() / 60)
-            result = result + " " + format_timedelta(
-                minutes_until_end, "end in", "", "cyan")
-        elif is_past(self.end):
-            minutes_since_end = int(self.get_time_since_end().total_seconds() / 60)
-            result = result + " " + format_timedelta(
-                minutes_since_end, "ended ", " ago", "green")
-        return result
-
-    def get_displayed_time(self, d):
-        color = "dim" if is_past(d) else "white"
-        return util.color(str(d.hour).zfill(2) + ":" + str(d.minute).zfill(2),
-                          color)
-
-    def get_displayed_text(self):
-        color = "white"
-        if is_past(self.start) and is_past(self.end):
-            color = "dim"
-        return util.color(self.text, color)
-
-    def get_time_to_start(self):
-        now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
-        return self.start - now_utc
-
-    def get_time_to_end(self):
-        now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
-        return self.end - now_utc
-
-    def get_time_since_end(self):
-        now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
-        return now_utc - self.end
-
+# TODO: merge with Event
 class CalcurseFileEvent:
     def __init__(self, l, i):
         (timing, title) = l.split("|", 1)
