@@ -1,4 +1,5 @@
 import datetime
+import functools
 import os
 import pytz
 import re
@@ -69,6 +70,9 @@ def is_today_plus_n_days(n, d):
     now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
     target = now + datetime.timedelta(days=n)
     return d.year == target.year and d.month == target.month and d.day == target.day
+
+def is_today_from_n_days_partial(n):
+    return functools.partial(is_today_plus_n_days, n)
 
 def get_displayed_time(d):
     color = "dim" if is_past(d) else "white"

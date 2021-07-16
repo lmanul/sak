@@ -2,46 +2,35 @@
 
 import argparse
 import datetime
+import shlex
+import subprocess
 
 from pytz import timezone
 
 import cal
 import timezones
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-f", dest="full", action="store_true",
-                    help="Show full descriptions")
-parser.add_argument("timezone", nargs="?", default="UTC")
-args = parser.parse_args()
+def print_dashboard():
+    """Prints the dashboard"""
+    events = cal.process_calcurse(
+        subprocess.check_output(shlex.split("calcurse -d 7")).decode())
 
-days_to_display = 14
-max_title_length = 80 - len("Mon YYYY-MM-DD  HH:MM -> HH:MM  ")
+    print("")
+    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(0), "Today", "yellow")
+    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(1), "Tomorrow", "cyan")
+    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(2), "After tomorrow", "green")
+    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(3), "D + 3", "dim")
+    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(4), "D + 4", "dim")
+    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(5), "D + 5", "dim")
+    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(6), "D + 6", "dim")
+    cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(7), "D + 7", "dim")
 
-def display_time_from_unix(unix, tz):
-    d = datetime.datetime.fromtimestamp(unix).astimezone(
-        timezone(timezones.TIMEZONES[tz]))
-    display_date = d.strftime("%a %Y-%m-%d")
-    display_time = d.strftime("%H:%M")
-    return (display_date, display_time)
+if __name__ == "__main__":
+    # TODO: Use the time zone
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", dest="full", action="store_true",
+                        help="Show full descriptions")
+    parser.add_argument("timezone", nargs="?", default="UTC")
+    args = parser.parse_args()
 
-current_date = ""
-current_date_from_output = None
-events = cal.get_events_for_next_n_days(days_to_display)
-for e in events:
-    (start, end, title) = e
-    if len(title) > max_title_length and not args.full:
-        title = title[:max_title_length - 3] + "..."
-    separator = " -> "
-    (s_d, s_t) = display_time_from_unix(int(start), args.timezone)
-    display_date = s_d
-    if s_d == current_date:
-        display_date = " " * len("Mon YYYY-MM-DD")
-    else:
-        print("-" * 80)
-    (_, e_t) = display_time_from_unix(int(end), args.timezone)
-    print(""
-          "" + display_date + "  " + s_t + ""
-          "" + separator + ""
-          "" + e_t + ""
-          "  " + title)
-    current_date = s_d
+    print_dashboard()
