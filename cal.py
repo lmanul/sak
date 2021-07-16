@@ -57,18 +57,18 @@ def is_past(d):
     return now_utc > d
 
 def is_today(d):
-    now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
-    return d.year == now.year and d.month == now.month and d.day == now.day
+    return is_today_plus_n_days(0, d)
 
 def is_tomorrow(d):
-    now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
-    tomorrow = now + datetime.timedelta(days=1)
-    return d.year == tomorrow.year and d.month == tomorrow.month and d.day == tomorrow.day
+    return is_today_plus_n_days(1, d)
 
 def is_after_tomorrow(d):
+    return is_today_plus_n_days(2, d)
+
+def is_today_plus_n_days(n, d):
     now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
-    aft_tmr = now + datetime.timedelta(days=2)
-    return d.year == aft_tmr.year and d.month == aft_tmr.month and d.day == aft_tmr.day
+    target = now + datetime.timedelta(days=n)
+    return d.year == target.year and d.month == target.month and d.day == target.day
 
 def get_displayed_time(d):
     color = "dim" if is_past(d) else "white"
@@ -479,6 +479,14 @@ def process_calcurse(raw):
 
     return events
 
+def pretty_print_single_day(events, filter_method, title, color):
+    events = [e for e in events if filter_method(e.start)]
+    if len(events):
+        print(util.color(title + "\n" + ("-" * len(title)), color))
+    for e in events:
+        print(e)
+    if len(events):
+        print("")
 
 def consolidate_calcurse_file(full=False):
     all_events = parse_calcurse_file()
