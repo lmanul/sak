@@ -32,7 +32,7 @@ class Event:
         self.end = end
         self.text = text
 
-    def __str__(self):
+    def print(self, timezone):
         result = (self.get_displayed_time(self.start) + ""
                   " — "
                   "" + self.get_displayed_time(self.end) + ""
@@ -49,10 +49,7 @@ class Event:
             minutes_since_end = int(self.get_time_since_end().total_seconds() / 60)
             result = result + " " + format_timedelta(
                 minutes_since_end, "ended ", " ago", "green")
-        return result
-
-    def print(self, timezone):
-        print(self.__str__())
+        print(result)
 
     def get_displayed_time(self, d):
         color = "dim" if is_past(d) else "white"
