@@ -35,7 +35,7 @@ class Event:
     def print(self, timezone):
         result = (self.get_displayed_time(self.start) + ""
                   " — "
-                  "" + self.get_displayed_time(self.end) + ""
+                  "" + self.get_displayed_time(self.end, timezone) + ""
                   "  " + self.get_displayed_text())
         if not is_past(self.start):
             minutes_until_start = int(self.get_time_to_start().total_seconds() / 60)
@@ -51,7 +51,7 @@ class Event:
                 minutes_since_end, "ended ", " ago", "green")
         print(result)
 
-    def get_displayed_time(self, d):
+    def get_displayed_time(self, d, timezone="UTC"):
         color = "dim" if is_past(d) else "white"
         return util.color(str(d.hour).zfill(2) + ":" + str(d.minute).zfill(2),
                           color)
