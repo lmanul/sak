@@ -6,7 +6,7 @@ import subprocess
 
 import cal
 
-def print_dashboard():
+def print_dashboard(timezone="UTC"):
     """Prints the dashboard"""
     events = cal.process_calcurse(
         subprocess.check_output(shlex.split("calcurse -d 7")).decode())
@@ -35,4 +35,4 @@ if __name__ == "__main__":
     parser.add_argument("timezone", nargs="?", default="UTC")
     args = parser.parse_args()
 
-    print_dashboard()
+    print_dashboard(args.timezone)

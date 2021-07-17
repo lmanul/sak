@@ -413,12 +413,13 @@ def process_calcurse(raw):
 
     return events
 
-def pretty_print_single_day(events, filter_method, title, color):
+def pretty_print_single_day(events, filter_method, title, color,
+                            timezone="UTC"):
     events = [e for e in events if filter_method(e.start)]
     if len(events):
         print(util.color(title + "\n" + ("-" * len(title)), color))
     for e in events:
-        print(e)
+        e.print(timezone)
     if len(events):
         print("")
 

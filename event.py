@@ -51,6 +51,9 @@ class Event:
                 minutes_since_end, "ended ", " ago", "green")
         return result
 
+    def print(self, timezone):
+        print(self.__str__())
+
     def get_displayed_time(self, d):
         color = "dim" if is_past(d) else "white"
         return util.color(str(d.hour).zfill(2) + ":" + str(d.minute).zfill(2),
