@@ -25,13 +25,14 @@ def print_dashboard(timezone="UTC"):
     print("")
     for i in range(len(arguments)):
         title = arguments[i][0]
-        weekday = cal.get_weekday_n_days_from_today(i)
+        weekday = cal.get_weekday_n_days_from_today(i, timezone)
         if title == "":
             title = weekday
         else:
             title = title + " (" + weekday + ")"
 
-        cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(i),
+        cal.pretty_print_single_day(events,
+                                    cal.is_today_from_n_days_partial(i),
                                     title, arguments[i][1])
 
 if __name__ == "__main__":

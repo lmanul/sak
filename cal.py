@@ -9,6 +9,7 @@ import sys
 
 import pytz
 
+import timezones
 import util
 
 from datetime import timedelta
@@ -56,17 +57,17 @@ def parse_repeated_timing(timing):
     (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
     return (base_event_start, base_event_end, repeat_str)
 
-def is_today(d):
-    return is_today_plus_n_days(0, d)
+def is_today(d, tz):
+    return is_today_plus_n_days(0, d, tz)
 
-def is_tomorrow(d):
-    return is_today_plus_n_days(1, d)
+def is_tomorrow(d, tz):
+    return is_today_plus_n_days(1, d, tz)
 
-def is_after_tomorrow(d):
-    return is_today_plus_n_days(2, d)
+def is_after_tomorrow(d, tz):
+    return is_today_plus_n_days(2, d, tz)
 
-def is_today_plus_n_days(n, d):
-    now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+def is_today_plus_n_days(n, d, tz):
+    now = datetime.datetime.now(pytz.timezone(timezones.TIMEZONES[tz]))
     target = now + datetime.timedelta(days=n)
     return d.year == target.year and d.month == target.month and d.day == target.day
 
@@ -417,7 +418,7 @@ def process_calcurse(raw):
 
 def pretty_print_single_day(events, filter_method, title, color,
                             timezone="UTC"):
-    events = [e for e in events if filter_method(e.start)]
+    events = [e for e in events if filter_method(e.start, timezone)]
     if len(events):
         print(util.color(title + "\n" + ("-" * len(title)), color))
     for e in events:
@@ -425,8 +426,8 @@ def pretty_print_single_day(events, filter_method, title, color,
     if len(events):
         print("")
 
-def get_weekday_n_days_from_today(n):
-    now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+def get_weekday_n_days_from_today(n, tz):
+    now = datetime.datetime.now(pytz.timezone(timezones.TIMEZONES[tz]))
     target = now + datetime.timedelta(days=n)
     return calendar.day_name[target.weekday()]
 

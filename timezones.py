@@ -8,7 +8,7 @@ TIMEZONES = {
     "MST": "US/Mountain",
     "JST": "Asia/Tokyo",
     "PST": "US/Pacific",
-    "UTC": "UTC",
+    "UTC": "Etc/UTC",
 }
 
 TIMEZONES_REVERSE = {}
