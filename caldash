@@ -1,0 +1,42 @@
+#!/usr/bin/python3
+
+"""
+Returns a synthetic "what's up next" view of events, for a dashboard.
+"""
+
+import argparse
+import shlex
+import subprocess
+
+import cal
+
+def print_dashboard(timezone="UTC"):
+    """Prints the dashboard"""
+    events = cal.process_calcurse(
+        subprocess.check_output(shlex.split("calcurse -d 3")).decode())
+
+    arguments = [
+        ["Today", "yellow"],
+        ["Tomorrow", "cyan"],
+        ["After tomorrow", "green"],
+    ]
+
+    print("")
+    for i in range(len(arguments)):
+        title = arguments[i][0]
+        weekday = cal.get_weekday_n_days_from_today(i, timezone)
+        title = arguments[i][0] + " (" + weekday + ")"
+
+        cal.pretty_print_single_day(events,
+                                    cal.is_today_from_n_days_partial(i),
+                                    title, arguments[i][1], timezone)
+
+if __name__ == "__main__":
+    # TODO: Use the right time zone
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", dest="full", action="store_true",
+                        help="Show full descriptions")
+    parser.add_argument("timezone", nargs="?", default="UTC")
+    args = parser.parse_args()
+
+    print_dashboard(args.timezone)
