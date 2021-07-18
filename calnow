@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+import cal
+
+if __name__ == "__main__":
+    event = cal.get_current_event()
+    if event is not None:
+        print(event)
+    else:
+        print("No current event")
