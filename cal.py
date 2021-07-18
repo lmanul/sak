@@ -57,15 +57,6 @@ def parse_repeated_timing(timing):
     (base_event_start, base_event_end) = parse_non_repeated_timing(remainder)
     return (base_event_start, base_event_end, repeat_str)
 
-def is_today(d, tz):
-    return is_today_plus_n_days(0, d, tz)
-
-def is_tomorrow(d, tz):
-    return is_today_plus_n_days(1, d, tz)
-
-def is_after_tomorrow(d, tz):
-    return is_today_plus_n_days(2, d, tz)
-
 def is_today_plus_n_days(n, d, tz):
     now = datetime.datetime.now(pytz.timezone(timezones.TIMEZONES[tz]))
     target = now + datetime.timedelta(days=n)
