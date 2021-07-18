@@ -1,7 +1,9 @@
 import datetime
 
 import pytz
+
 import util
+import timezones
 
 def is_past(d):
     now_utc = datetime.datetime.now(pytz.timezone("Etc/UTC"))
@@ -33,7 +35,7 @@ class Event:
         self.text = text
 
     def print(self, timezone):
-        result = (self.get_displayed_time(self.start) + ""
+        result = (self.get_displayed_time(self.start, timezone) + ""
                   " — "
                   "" + self.get_displayed_time(self.end, timezone) + ""
                   "  " + self.get_displayed_text())
@@ -53,7 +55,10 @@ class Event:
 
     def get_displayed_time(self, d, timezone="UTC"):
         color = "dim" if is_past(d) else "white"
-        return util.color(str(d.hour).zfill(2) + ":" + str(d.minute).zfill(2),
+        tz = timezones.TIMEZONES[timezone]
+        d_with_tz = d.astimezone(pytz.timezone(tz))
+        return util.color(str(d_with_tz.hour).zfill(2) + ":"
+                          "" + str(d_with_tz.minute).zfill(2),
                           color)
 
     def get_displayed_text(self):
