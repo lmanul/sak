@@ -15,17 +15,24 @@ def print_dashboard(timezone="UTC"):
         ["Today", "yellow"],
         ["Tomorrow", "cyan"],
         ["After tomorrow", "green"],
-        ["D + 3", "dim"],
-        ["D + 4", "dim"],
-        ["D + 5", "dim"],
-        ["D + 6", "dim"],
-        ["D + 7", "dim"],
+        ["", "dim"],
+        ["", "dim"],
+        ["", "dim"],
+        ["", "dim"],
+        ["", "dim"],
     ]
 
     print("")
     for i in range(len(arguments)):
+        title = arguments[i][0]
+        weekday = cal.get_weekday_n_days_from_today(i)
+        if title == "":
+            title = weekday
+        else:
+            title = title + " (" + weekday + ")"
+
         cal.pretty_print_single_day(events, cal.is_today_from_n_days_partial(i),
-                                    arguments[i][0], arguments[i][1])
+                                    title, arguments[i][1])
 
 if __name__ == "__main__":
     # TODO: Use the time zone

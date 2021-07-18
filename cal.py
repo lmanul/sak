@@ -1,11 +1,13 @@
+import calendar
 import datetime
 import functools
 import os
-import pytz
 import re
 import shlex
 import subprocess
 import sys
+
+import pytz
 
 import util
 
@@ -422,6 +424,11 @@ def pretty_print_single_day(events, filter_method, title, color,
         e.print(timezone)
     if len(events):
         print("")
+
+def get_weekday_n_days_from_today(n):
+    now = datetime.datetime.now(pytz.timezone("Etc/UTC"))
+    target = now + datetime.timedelta(days=n)
+    return calendar.day_name[target.weekday()]
 
 def consolidate_calcurse_file(full=False):
     all_events = parse_calcurse_file()
