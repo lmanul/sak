@@ -224,20 +224,24 @@ def set_busy(flag):
             os.system("rm " + p)
 
 def run_bin_cmd(cmd, args=None, detach=False):
-    p = os.path.join(os.path.expanduser("~"), "bus", "bin", cmd)
-    local_p = os.path.join(os.getcwd(), cmd)
-    sak_p = os.path.join(os.path.expanduser("~"), "repos", "sak", cmd)
-    usr_bin_p = os.path.join("/usr", "bin", "", cmd)
-    if not os.path.exists(p) and not os.path.exists(sak_p) and not os.path.exists(usr_bin_p) and not os.path.exists(local_p):
+    locations = [
+        os.path.join(os.getcwd()),
+        os.path.join(os.path.expanduser("~"), "bus", "bin"),
+        os.path.join(os.path.expanduser("~"), "bus", "bin", "browsers"),
+        os.path.join(os.path.expanduser("~"), "repos", "sak"),
+        os.path.join("/usr", "bin"),
+    ]
+
+    good_path = ""
+    for l in locations:
+        if os.path.exists(os.path.join(l, cmd)):
+            good_path = os.path.join(l, cmd)
+            break
+
+    if good_path == "":
         print("Couldn't find '" + cmd + "', sorry!")
         return
-    good_path = p
-    if not os.path.exists(good_path):
-        good_path = local_p
-    if not os.path.exists(good_path):
-        good_path = sak_p
-    if not os.path.exists(good_path):
-        good_path = usr_bin_p
+
     if args:
         cmd = good_path + " " + args
     else:
