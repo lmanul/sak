@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+COMMON_VALUES = [102400, 204800, 409600]
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print("Usage: " + sys.argv[0] + " NUMBER. "
+              "Common values: " + ", ".join([str(v) for v in COMMON_VALUES]))
+        sys.exit(0)
+
+    os.system('echo "fs.inotify.max_user_watches=' + sys.argv[1] + '" | '
+              'sudo tee -a /etc/sysctl.conf')
+    os.system("sudo sh -c 'echo " + sys.argv[1] + " > /proc/sys/fs/inotify/max_user_watches'")
