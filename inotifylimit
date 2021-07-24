@@ -13,4 +13,5 @@ if __name__ == "__main__":
 
     os.system('echo "fs.inotify.max_user_watches=' + sys.argv[1] + '" | '
               'sudo tee -a /etc/sysctl.conf')
-    os.system("sudo sh -c 'echo " + sys.argv[1] + " > /proc/sys/fs/inotify/max_user_watches'")
+    os.system("sudo sh -c 'echo " + sys.argv[1] + " > "
+              "/proc/sys/fs/inotify/max_user_watches'")
