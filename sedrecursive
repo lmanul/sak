@@ -25,7 +25,7 @@ def process(one_file):
     # TODO: Give an idea of progress on the whole file set.
     sys.stderr.write(".")
     sys.stderr.flush()
-    main_cmd = "sed -I" if util.is_mac() else "sed -i"
+    main_cmd = 'sed -I ""' if util.is_mac() else "sed -i"
     cmd = main_cmd + ' "' + patt + '" ' + one_file
     # print(cmd)
     os.system(cmd)
