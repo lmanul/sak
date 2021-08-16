@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import getpass
 import os
 import re
 import shlex
@@ -35,7 +36,7 @@ proc_to_kill = []
 proc_cant_kill = []
 for l in running.split("\n"):
     if pattern in l:
-        if l.startswith("manu"):
+        if l.startswith(getpass.getuser()[:4]):
             # Don't kill ourselves
             if sys.argv[0] not in l:
                 proc_to_kill.append(l)
