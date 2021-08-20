@@ -1,0 +1,7 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+img = sys.argv[1]
+os.system("base64 -w 0 " + img + " > " + img + ".base64")
