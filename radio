@@ -5,6 +5,7 @@ import random
 import sys
 
 streams = [
+    ["bfm", "https://audio.bfmtv.com/bfmradio_128.mp3"],
     ["bfmbusiness", "https://chai5she.cdn.dvmr.fr/bfmbusiness"],
     ["europe1", "http://ais-live.cloud-services.paris:8000/europe1.mp3"],
     ["fip", "http://direct.fipradio.fr/live/fip-midfi.mp3"],
