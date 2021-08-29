@@ -75,9 +75,9 @@ if percent_diff_w > 0 or percent_diff_h > 0:
         + str(percent_diff_h)
         + "% in height"
     )
-    print("Max width  seen in: " + max_w_img + " (" + str(max_w) + ")")
-    print("    height        : " + max_h_img + " (" + str(max_h) + ")")
-    print("Min width  seen in: " + min_w_img + " (" + str(min_w) + ")")
-    print("    height        : " + min_h_img + " (" + str(min_h) + ")")
+    print("Width:  " + str(max_w) + " (" + max_w_img + ")")
+    print("        " + str(min_w) + " (" + min_w_img + ")")
+    print("Height: " + str(max_h) + " (" + max_h_img + ")")
+    print("        " + str(min_h) + " (" + min_h_img + ")")
 else:
     print("All images have the same size.")
