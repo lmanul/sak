@@ -2,6 +2,10 @@
 
 import os
 import sys
+import util
 
-os.system("cat " + sys.argv[1] + " | xclip -sel clip")
+if util.is_linux():
+    os.system("cat " + sys.argv[1] + " | xclip -sel clip")
+elif util.is_mac():
+    os.system("cat " + sys.argv[1] + " | pbcopy")
 print("Copied contents to clipboard")
