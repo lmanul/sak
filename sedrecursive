@@ -19,13 +19,14 @@ n_cpus = multiprocessing.cpu_count()
 # Leave one CPU for doing some other stuff
 n_threads = n_cpus - 1
 pool = ThreadPool(n_threads)
-
+is_mac = util.is_mac()
 
 def process(one_file):
     # TODO: Give an idea of progress on the whole file set.
+    global is_mac
     sys.stderr.write(".")
     sys.stderr.flush()
-    main_cmd = 'sed -I ""' if util.is_mac() else "sed -i"
+    main_cmd = 'sed -I ""' if is_mac else "sed -i"
     cmd = main_cmd + ' "' + patt + '" ' + one_file
     # print(cmd)
     os.system(cmd)
