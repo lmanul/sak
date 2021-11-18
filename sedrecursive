@@ -14,6 +14,7 @@ if len(sys.argv) < 2:
 
 patt = sys.argv[1]
 extensions = sys.argv[2:] if len(sys.argv) > 2 else None
+ignored_extensions = ["jpg", "png"]
 
 n_cpus = multiprocessing.cpu_count()
 # Leave one CPU for doing some other stuff
@@ -45,6 +46,10 @@ for path, _, filenames in os.walk(os.getcwd()):
                 if f.endswith(e):
                     should_proceed = True
                     break
+        for e in ignored_extensions:
+            if f.endswith(e):
+                should_proceed = False
+                break
         if should_proceed:
             f_full = os.path.join(path, f)
             if not os.path.exists(f_full):
