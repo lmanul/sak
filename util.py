@@ -315,9 +315,11 @@ def get_monitors():
         print("Headless mode, not using xrandr")
     return [connected_monitors, disconnected_monitors]
 
-def get_screen_dpi(index=None):
+# Returns an array of tuples. There is one tuple per screen, and each tuple is
+# (id, width_px, width_mm, height_px, height_mm)
+def get_monitor_data():
     raw = subprocess.check_output(shlex.split("xrandr --listactivemonitors")).decode()
-    dpis = []
+    data = []
     for i in range(10):
         for l in raw.split("\n"):
             l = l.strip()
@@ -330,18 +332,25 @@ def get_screen_dpi(index=None):
                     int(matches.group(3)),
                     int(matches.group(4)),
                 )
-                w_in = float(w_mm) / 25.4
-                h_in = float(h_mm) / 25.4
-                dpi_x = int(float(w_px) / w_in)
-                dpi_y = int(float(h_px) / h_in)
-                dpi = int(float((dpi_x + dpi_y) / 2))
-                dpis.append(dpi)
+                data.append(["TODO", w_px, w_mm, h_px, h_mm])
+    return data
+
+def get_screen_dpi(index=None):
+    monitor_data = get_monitor_data()
+    dpis = []
+    for monitor in monitor_data:
+        (monitor_id, w_px, w_mm, h_px, h_mm) = monitor
+        w_in = float(w_mm) / 25.4
+        h_in = float(h_mm) / 25.4
+        dpi_x = int(float(w_px) / w_in)
+        dpi_y = int(float(h_px) / h_in)
+        dpi = int(float((dpi_x + dpi_y) / 2))
+        dpis.append(dpi)
 
     if index is not None:
         return dpis[index]
     else:
         return dpis
-
 
 def is_online():
     try:
