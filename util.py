@@ -325,6 +325,7 @@ def get_monitor_data():
             l = l.strip()
             parts = l.split(" ")
             if parts[0] == str(i) + ":":
+                monitor_id = parts[-1]
                 matches = re.match(r"(\d+)/(\d+)x(\d+)/(\d+)", parts[2])
                 (w_px, w_mm, h_px, h_mm) = (
                     int(matches.group(1)),
@@ -332,14 +333,14 @@ def get_monitor_data():
                     int(matches.group(3)),
                     int(matches.group(4)),
                 )
-                data.append(["TODO", w_px, w_mm, h_px, h_mm])
+                data.append([monitor_id, w_px, w_mm, h_px, h_mm])
     return data
 
 def get_screen_dpi(index=None):
     monitor_data = get_monitor_data()
     dpis = []
     for monitor in monitor_data:
-        (monitor_id, w_px, w_mm, h_px, h_mm) = monitor
+        (_, w_px, w_mm, h_px, h_mm) = monitor
         w_in = float(w_mm) / 25.4
         h_in = float(h_mm) / 25.4
         dpi_x = int(float(w_px) / w_in)
@@ -351,6 +352,18 @@ def get_screen_dpi(index=None):
         return dpis[index]
     else:
         return dpis
+
+def get_id_of_largest_monitor():
+    monitor_data = get_monitor_data()
+    largest_monitor_id = "Unknown"
+    largest_pixel_count = 0
+    for monitor in monitor_data:
+        (monitor_id, width_px, _, height_px, _) = monitor
+        pixels = width_px * height_px
+        if pixels > largest_pixel_count:
+            largest_pixel_count = pixels
+            largest_monitor_id = monitor_id
+    return largest_monitor_id
 
 def is_online():
     try:
