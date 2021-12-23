@@ -209,6 +209,21 @@ def change_extension(f, new_ext):
     last_dot = f.rfind(".")
     return f[:last_dot] + "." + new_ext
 
+
+def get_git_branches():
+    "Returns a list of git branch names in the current directory"
+    raw = subprocess.check_output(shlex.split("git branch")).decode()
+    branches = []
+    for line in raw.split("\n"):
+        line = line.strip()
+        if line == "":
+            continue
+        if line.startswith("* "):
+            line = line[2:]
+        branches.append(line)
+    return branches
+
+
 def get_busy_lock_path():
     return os.path.join(os.path.expanduser("~"), "busy")
 
