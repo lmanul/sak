@@ -1,0 +1,36 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+HOME = os.path.expanduser("~")
+XCF = sys.argv[1]
+
+INITIAL_DIR = os.getcwd()
+XCF_PATH = os.path.join(INITIAL_DIR, XCF)
+PNG_PATH = XCF_PATH.replace(".xcf", ".png")
+
+os.chdir(HOME)
+TEMP_DIR_NAME = "xcf2png_" + str(os.getpid())
+os.mkdir(TEMP_DIR_NAME)
+os.chdir(TEMP_DIR_NAME)
+os.system("cp " + os.path.join(INITIAL_DIR, XCF) + " .")
+
+cmd = """/usr/bin/gimp-2.10 -n -i -b - <<EOF
+(let* ( (file's (cadr (file-glob "*.xcf" 1))) (filename "") (image 0) (layer 0) )
+  (while (pair? file's)
+    (set! image (car (gimp-file-load RUN-NONINTERACTIVE (car file's) (car file's))))
+    (set! layer (car (gimp-image-merge-visible-layers image CLIP-TO-IMAGE)))
+    (set! filename (string-append (substring (car file's) 0 (- (string-length (car file's)) 4)) ".png"))
+    (gimp-file-save RUN-NONINTERACTIVE image layer filename filename)
+    (gimp-image-delete image)
+    (set! file's (cdr file's))
+    )
+  (gimp-quit 0)
+  )
+EOF"""
+
+os.system(cmd)
+os.system("mv *.png " + PNG_PATH)
+os.chdir("..")
+os.system("rm -rf " + TEMP_DIR_NAME)
