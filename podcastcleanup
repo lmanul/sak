@@ -209,6 +209,9 @@ else:
     os.chdir(os.path.join("bus", "config", "podget"))
     util.run_bin_cmd("sortinplace", args="done")
     os.system("mv done done_notunique && cat done_notunique | uniq -u > done && rm done_notunique")
+    os.system("sed -i '/>>>/d' done")
+    os.system("sed -i '/>>>/d' done")
+    os.system("sed -i '/===/d' done")
 
 for f in FOLDERS:
     if not os.path.exists(f):
