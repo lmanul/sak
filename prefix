@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+if __name__ == "__main__":
+    try:
+        prefix = sys.argv[1]
+        in_file = sys.argv[2]
+    except IndexError:
+        print(f"Usage: {sys.argv[0]} prefix filename")
+        sys.exit(1)
+
+    out_file = prefix + in_file
+    print(f"{in_file} -> {out_file}")
+    os.system(f"mv {in_file} {out_file}")
