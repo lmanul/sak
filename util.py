@@ -479,5 +479,10 @@ def make_time_graph(values, out_file, names=[]):
             series, name=name, width=0.75, stroke_color=colors[i % len(colors)]
         )
     chart.to_svg("temp.svg")
-    os.system("convert -density 1000 temp.svg " + out_file)
-    os.system("rm temp.svg")
+    if out_file.endswith(".svg"):
+        os.system("mv temp.svg " + out_file)
+    elif out_file.endswith(".png"):
+        os.system("convert -density 800 temp.svg " + out_file)
+        os.system("rm temp.svg")
+    else:
+        print("Sorry, I don't recognize the extension for '" + out_file + "'")
