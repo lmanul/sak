@@ -34,7 +34,10 @@ def process(one_file):
 
 
 files_to_process = []
-for path, _, filenames in os.walk(os.getcwd()):
+for path, dirs, filenames in os.walk(os.getcwd()):
+    filenames = [f for f in filenames if not f[0] == '.']
+    dirs[:] = [d for d in dirs if not d[0] == '.']
+
     if path.startswith("."):
         continue
     for f in filenames:
