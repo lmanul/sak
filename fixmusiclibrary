@@ -22,6 +22,7 @@ pool = ThreadPool(n_cpus)
 def silent(command):
     os.system(command + " > /dev/null 2> /dev/null")
 
+os.system('find . -name ".DS_Store" -delete')
 
 for root, dirs, files in os.walk("."):
     for file in sorted(files):
