@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+"Deletes branches that have no differences with the 'master' branch."
+
+import os
+import util
+import shlex
+import subprocess
+
+if __name__ == "__main__":
+    branches = util.get_git_branches()
+    cleaned_up = 0
+    for branch in branches:
+        if branch == "master":
+            continue
+        print("Switching to '" + branch + "'...")
+        os.system("git checkout '" + branch + "'")
+        diffs = subprocess.check_output(shlex.split("git diff --name-only master")).decode().strip()
+        if diffs == "":
+          print("\tEmpty diff, deleting branch '" + branch + "'...")
+          os.system("git checkout master && git branch -D '" + branch + "'");
+          cleaned_up += 1
+        else:
+          print("\tNon-empty changes. Doing nothing.")
+    os.system("git checkout master")
+
+    print("Cleaned up " + str(cleaned_up) + " branches.")
