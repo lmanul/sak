@@ -181,59 +181,60 @@ def keep_only_latest_episode_in_folder_matching_name(name):
                 os.system(cmd)
             os.chdir("..")
 
-# Don't use getcwd(), we want to keep symlinks unresolved
-CURRENT = os.getenv("PWD")
-if CURRENT.endswith("/"):
-    CURRENT = CURRENT[:-1]
-SINGLE_FOLDER = False
-# If we are in a podcast folder, only process this one
-if CURRENT in FOLDERS:
-    FOLDERS = [CURRENT]
-    SINGLE_FOLDER = True
-    print("Single folder mode...")
-else:
-    os.chdir(os.path.join(HOME, PODCASTS_DIR))
-    util.run_bin_cmd("sanitizefilenamesrecursively")
-    os.system("find . -name '*sync-conflict*' -delete")
-    os.system("find . -size 0 -delete")
-    os.system("rm -rf *Conflict*")
-    # os.system("rm -f .LOG/errors")
-    os.chdir(HOME)
-    os.system("rm -rf mini/.stversions/podcasts")
-    os.chdir(os.path.join("bus", "config", "podget"))
-    util.run_bin_cmd("sortinplace", args="done")
-    os.system("mv done done_notunique && cat done_notunique | uniq -u > done && rm done_notunique")
-    os.system("sed -i '/>>>/d' done")
-    os.system("sed -i '/>>>/d' done")
-    os.system("sed -i '/===/d' done")
+if __name__ == "__main__":
+    # Don't use getcwd(), we want to keep symlinks unresolved
+    CURRENT = os.getenv("PWD")
+    if CURRENT.endswith("/"):
+        CURRENT = CURRENT[:-1]
+    SINGLE_FOLDER = False
+    # If we are in a podcast folder, only process this one
+    if CURRENT in FOLDERS:
+        FOLDERS = [CURRENT]
+        SINGLE_FOLDER = True
+        print("Single folder mode...")
+    else:
+        os.chdir(os.path.join(HOME, PODCASTS_DIR))
+        util.run_bin_cmd("sanitizefilenamesrecursively")
+        os.system("find . -name '*sync-conflict*' -delete")
+        os.system("find . -size 0 -delete")
+        os.system("rm -rf *Conflict*")
+        # os.system("rm -f .LOG/errors")
+        os.chdir(HOME)
+        os.system("rm -rf mini/.stversions/podcasts")
+        os.chdir(os.path.join("bus", "config", "podget"))
+        util.run_bin_cmd("sortinplace", args="done")
+        os.system("mv done done_notunique && cat done_notunique | uniq -u > done && rm done_notunique")
+        os.system("sed -i '/>>>/d' done")
+        os.system("sed -i '/>>>/d' done")
+        os.system("sed -i '/===/d' done")
 
-for f in FOLDERS:
-    if not os.path.exists(f):
-        continue
-    print(f + "...")
-    os.chdir(f)
-    episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
-    n_threads = multiprocessing.cpu_count() - 1
-    pool = multiprocessing.Pool(n_threads)
-    results = pool.map(process_one_episode, episodes)
-    pool.close()
-    pool.join()
-    os.chdir("..")
+    for f in FOLDERS:
+        if not os.path.exists(f):
+            continue
+        print(f + "...")
+        os.chdir(f)
+        episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
+        n_threads = multiprocessing.cpu_count() - 1
+        pool = multiprocessing.Pool(n_threads)
+        results = pool.map(process_one_episode, episodes)
+        pool.close()
+        pool.join()
+        os.chdir("..")
 
-if not SINGLE_FOLDER:
-    keep_only_latest_episode_in_folder_matching_name("matins_de_france_culture")
-    keep_only_latest_episode_in_folder_matching_name("journal_de_7h30")
-    keep_only_latest_episode_in_folder_matching_name("NYT_Daily")
+    if not SINGLE_FOLDER:
+        keep_only_latest_episode_in_folder_matching_name("matins_de_france_culture")
+        keep_only_latest_episode_in_folder_matching_name("journal_de_7h30")
+        keep_only_latest_episode_in_folder_matching_name("NYT_Daily")
 
-for f in FOLDERS:
-    if not os.path.exists(f):
-        continue
-    os.chdir(f)
-    episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
-    os.chdir("..")
-    if len(episodes) == 0:
-        os.system("rmdir '" + f + "'")
+    for f in FOLDERS:
+        if not os.path.exists(f):
+            continue
+        os.chdir(f)
+        episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
+        os.chdir("..")
+        if len(episodes) == 0:
+            os.system("rmdir '" + f + "'")
 
-print("Removing backups...")
-os.system("find -name '*.bup' -delete")
-print("All done.")
+    print("Removing backups...")
+    os.system("find -name '*.bup' -delete")
+    print("All done.")
