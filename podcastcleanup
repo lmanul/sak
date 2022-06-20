@@ -82,12 +82,6 @@ def get_tag(e, tag):
         stderr=FNULL).decode().strip()
     process_eyed3_tags(fp, data)
     return get_tag_from_cache(fp, tag)
-    #except UnicodeDecodeError:
-    # ids = subprocess.check_output(shlex.split("eyeD3 " + e)).decode()
-    # if ids:
-        # for l in ids.split("\n"):
-            # if "title" in l:
-                # return l.split(":", 1)[1].strip()
 
 def get_episode_number(e):
     for t in ["TRCK", "track"]:
@@ -240,19 +234,6 @@ for f in FOLDERS:
     if len(episodes) == 0:
         os.system("rmdir '" + f + "'")
 
-# if not SINGLE_FOLDER:
-    # os.chdir(".LOG")
-    # log_files = os.listdir(".")
-    # for l in log_files:
-        # if "conflict" in l:
-            # os.system('rm "' + l + '"')
-    # os.chdir("..")
-
 print("Removing backups...")
 os.system("find -name '*.bup' -delete")
-# Remove down-sampling for now, creating more issues than it's worth
-#print("Down-sampling...")
-#os.system("downsampleallmp3srecursively 64")
-#print("Removing backups again...")
-#os.system("find -name '*.bup' -delete")
 print("All done.")
