@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+if __name__ == "__main__":
+  ARGS = " ".join(sys.argv[1:])
+
+  COMMON_OPTIONS = "-u"
+  BIN = "/usr/bin/diff"
+
+  if util.is_mac():
+    os.system("grc " + BIN + " " + COMMON_OPTIONS + " " + ARGS)
+  else:
+    os.system(BIN + " " + COMMON_OPTIONS + " --color=always " + ARGS)
