@@ -23,12 +23,19 @@ parser.add_option(
     action="store_true",
     help="Scale images before padding them",
 )
+parser.add_option(
+    "-q",
+    "--quiet",
+    dest="quiet",
+    action="store_true",
+    help="Just do it, don't say a word",
+)
 
 (options, args) = parser.parse_args()
 
 ins = args[0:]
 
-if not options.scale:
+if not options.scale and not options.quiet:
     print("--scale (-s) not passed, only padding images")
 
 max_width = 0
@@ -91,23 +98,29 @@ if len(ins) == 0:
     print("I need at least one argument")
     sys.exit(1)
 
-print("Looking for maximum dimensions...")
+if not options.quiet:
+    print("Looking for maximum dimensions...")
 for i in ins:
     (width, height) = util.get_image_dimensions(i)
-    sys.stdout.write(str(width) + "x" + str(height))
-    sys.stdout.flush()
+    if not options.quiet:
+        sys.stdout.write(str(width) + "x" + str(height))
+        sys.stdout.flush()
     if width > max_width:
         max_width = width
         max_width_file = i
-        sys.stdout.write(" <- new max width for " + i)
-        sys.stdout.flush()
+        if not options.quiet:
+            sys.stdout.write(" <- new max width for " + i)
+            sys.stdout.flush()
     if height > max_height:
         max_height = height
         max_height_file = i
-        sys.stdout.write(" <- new max height for " + i)
-        sys.stdout.flush()
-    sys.stdout.write("\n")
-print("Found max width in " + max_width_file + " and height in " + max_height_file)
+        if not options.quiet:
+            sys.stdout.write(" <- new max height for " + i)
+            sys.stdout.flush()
+    if not options.quiet:
+        sys.stdout.write("\n")
+if not options.quiet:
+    print("Found max width in " + max_width_file + " and height in " + max_height_file)
 
 n_cpus = multiprocessing.cpu_count()
 pool = ThreadPool(n_cpus)

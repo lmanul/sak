@@ -1,12 +1,24 @@
 #!/usr/bin/python3
 
 import os
-import sys
+
+from optparse import OptionParser
+
 
 HOME = os.path.expanduser("~")
-XCF = sys.argv[1]
 
 INITIAL_DIR = os.getcwd()
+
+parser = OptionParser()
+parser.add_option(
+    "-q",
+    "--quiet",
+    dest="quiet",
+    action="store_true",
+    help="Just do it, don't say a word",
+)
+(options, args) = parser.parse_args()
+XCF = args[0]
 XCF_PATH = os.path.join(INITIAL_DIR, XCF)
 PNG_PATH = XCF_PATH.replace(".xcf", ".png")
 
@@ -30,7 +42,10 @@ cmd = """/usr/bin/gimp-2.10 -n -i -b - <<EOF
   )
 EOF"""
 
-os.system(cmd)
+if options.quiet:
+  os.system(cmd + " > /dev/null 2>&1")
+else:
+  os.system(cmd)
 os.system("mv *.png " + PNG_PATH)
 os.chdir("..")
 os.system("rm -rf " + TEMP_DIR_NAME)
