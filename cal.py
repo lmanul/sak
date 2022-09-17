@@ -407,16 +407,38 @@ def process_calcurse(raw):
 
     return events
 
-def pretty_print_single_day(events, filter_method, title, color,
+def get_birthdays():
+    birthdays = []
+    with open(os.path.join(HOME, "bus", "reference", "contacts.txt")) as f:
+        lines = f.readlines()
+        for l in lines:
+            l = l.strip()
+            if l == "":
+                continue
+            parts = l.split("|")
+            if parts[8] != "":
+                if "-" not in parts[8]:
+                    continue
+                display_name = parts[1] + " " + parts[0]
+                if "." in parts[8]:
+                    print("Oops, must fix birthday for " + display_name)
+                (y, m, d) = parts[8].split("-")
+                birthdays.append([display_name, int(d), int(m)])
+    return birthdays
+
+def pretty_print_single_day(events, birthday_names, filter_method, title, color,
                             timezone="UTC"):
     events = [e for e in events if filter_method(e.start, timezone)]
-    if len(events):
+    if len(events) > 0 or len(birthday_names) > 0:
         print(util.color(title + "\n" + ("-" * len(title)), color))
+    for name in birthday_names:
+        print(name + "'s birthday")
     for e in events:
         e.print(timezone)
     if len(events):
         print("")
 
+# TODO: The three following functions are silly. Bundle.
 def get_weekday_n_days_from_today(n, tz):
     now = datetime.datetime.now(pytz.timezone(timezones.TIMEZONES[tz]))
     target = now + datetime.timedelta(days=n)
@@ -426,6 +448,11 @@ def get_day_of_month_n_days_from_today(n, tz):
     now = datetime.datetime.now(pytz.timezone(timezones.TIMEZONES[tz]))
     target = now + datetime.timedelta(days=n)
     return target.day
+
+def get_month_n_days_from_today(n, tz):
+    now = datetime.datetime.now(pytz.timezone(timezones.TIMEZONES[tz]))
+    target = now + datetime.timedelta(days=n)
+    return target.month
 
 def consolidate_calcurse_file(full=False):
     all_events = parse_calcurse_file()
