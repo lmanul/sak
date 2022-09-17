@@ -26,10 +26,12 @@ def print_dashboard(timezone="UTC"):
     for i in range(len(arguments)):
         title = arguments[i][0]
         weekday = cal.get_weekday_n_days_from_today(i, timezone)
+        day_of_month = cal.get_day_of_month_n_days_from_today(i, timezone)
+        weekday_and_day_of_month = weekday + " " + str(day_of_month)
         if title == "":
-            title = weekday
+            title = weekday_and_day_of_month
         else:
-            title = title + " (" + weekday + ")"
+            title = title + " (" + weekday_and_day_of_month + ")"
 
         cal.pretty_print_single_day(events,
                                     cal.is_today_from_n_days_partial(i),

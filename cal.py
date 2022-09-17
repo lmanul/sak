@@ -422,6 +422,11 @@ def get_weekday_n_days_from_today(n, tz):
     target = now + datetime.timedelta(days=n)
     return calendar.day_name[target.weekday()]
 
+def get_day_of_month_n_days_from_today(n, tz):
+    now = datetime.datetime.now(pytz.timezone(timezones.TIMEZONES[tz]))
+    target = now + datetime.timedelta(days=n)
+    return target.day
+
 def consolidate_calcurse_file(full=False):
     all_events = parse_calcurse_file()
     events_reduced = reduce_events(all_events) if full else all_events
