@@ -14,6 +14,7 @@ def print_dashboard(timezone="UTC"):
     """Prints the dashboard"""
     events = cal.process_calcurse(
         subprocess.check_output(shlex.split("calcurse -d 3")).decode())
+    birthdays = cal.get_birthdays()
 
     arguments = [
         ["Today", "yellow"],
@@ -25,11 +26,18 @@ def print_dashboard(timezone="UTC"):
     for i in range(len(arguments)):
         title = arguments[i][0]
         weekday = cal.get_weekday_n_days_from_today(i, timezone)
-        title = arguments[i][0] + " (" + weekday + ")"
+        day_of_month = cal.get_day_of_month_n_days_from_today(i, timezone)
+        month = cal.get_month_n_days_from_today(i, timezone)
+        weekday_and_day_of_month = weekday + " " + str(day_of_month)
+        title = arguments[i][0] + " (" + weekday_and_day_of_month + ")"
 
-        cal.pretty_print_single_day(events,
+        birthdays_today = []
+        for b in birthdays:
+            if b[1] == day_of_month and b[2] == month:
+                birthdays_today.append(b[0])
+        cal.pretty_print_single_day(events, birthdays_today,
                                     cal.is_today_from_n_days_partial(i),
-                                    title, arguments[i][1], timezone)
+                                    title, arguments[i][1], "yellow", timezone)
 
 if __name__ == "__main__":
     # TODO: Use the right time zone

@@ -416,6 +416,7 @@ def color(text, color_name):
         "cyan": Fore.CYAN,
         "dim": Style.DIM,
         "green": Fore.GREEN,
+        "lightred": Fore.LIGHTRED_EX,
         "red": Fore.RED,
         "white": Fore.WHITE,
         "yellow": Fore.YELLOW,

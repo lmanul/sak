@@ -427,12 +427,12 @@ def get_birthdays():
     return birthdays
 
 def pretty_print_single_day(events, birthday_names, filter_method, title, color,
-                            timezone="UTC"):
+                            birthday_color, timezone="UTC"):
     events = [e for e in events if filter_method(e.start, timezone)]
     if len(events) > 0 or len(birthday_names) > 0:
         print(util.color(title + "\n" + ("-" * len(title)), color))
     for name in birthday_names:
-        print(name + "'s birthday")
+        print(util.color(name + "'s birthday", birthday_color))
     for e in events:
         e.print(timezone)
     if len(events):

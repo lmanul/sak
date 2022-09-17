@@ -43,7 +43,7 @@ def print_dashboard(timezone="UTC"):
         cal.pretty_print_single_day(events,
                                     birthdays_today,
                                     cal.is_today_from_n_days_partial(i),
-                                    title, arguments[i][1], timezone)
+                                    title, arguments[i][1], "yellow", timezone)
 
 if __name__ == "__main__":
     # TODO: Use the time zone
