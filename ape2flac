@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+ape = sys.argv[1]
+flac = ape.replace("ape", "flac")
+
+os.system("ffmpeg -i " + ape + " " + flac)
+
