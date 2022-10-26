@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+
+import os
+import shlex
+import subprocess
+import sys
+import util
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Please give me the name of the branch as an argument")
+        sys.exit(1)
+
+    branch = sys.argv[1]
+
+    confirm = input("This will delete the entire history of this repository "
+                  "located at " + os.getcwd() + ". Are you sure? Please "
+                  "type 'Yes' and hit Enter ")
+    if confirm != "Yes":
+        print("Phew, aborting.")
+        sys.exit(0)
+
+    if not os.path.exists(".git"):
+        print("This does not seem to be a git repository. Aborting.")
+        sys.exit(1)
+
+    print("Cleaning untracked files...")
+    os.system("git clean -f")
+
+    origin_info = subprocess.check_output(shlex.split("git remote show origin")).decode()
+    print(origin_info)
+    push_url = None
+
+    for line in origin_info.split("\n"):
+        line = line.strip()
+        print(line)
+
+        if line.startswith("Push  URL:"):
+            push_url = line[len("Push  URL: "):]
+            break
+
+    if not push_url:
+        print("Could not find this repo's push URL, aborting.")
+        sys.exit(1)
+
+    print("Found push URL: " + push_url)
+
+    os.system("git switch " + branch)
+
+    print("Cleaning history")
+    os.system("rm -rf .git")
+    os.system("git init --initial-branch=" + branch)
+    os.system("git add .")
+    os.system("git commit -m 'Initial commit after history clean.'")
+
+    os.system("git remote add origin " + push_url)
+    os.system("git push -u --force origin " + branch)
