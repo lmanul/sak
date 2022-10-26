@@ -28,12 +28,10 @@ if __name__ == "__main__":
     os.system("git clean -f")
 
     origin_info = subprocess.check_output(shlex.split("git remote show origin")).decode()
-    print(origin_info)
     push_url = None
 
     for line in origin_info.split("\n"):
         line = line.strip()
-        print(line)
 
         if line.startswith("Push  URL:"):
             push_url = line[len("Push  URL: "):]
