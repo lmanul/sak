@@ -8,6 +8,7 @@ input_file = sys.argv[1]
 
 output = util.change_extension(input_file, "gif")
 
+# TODO: Detect input video size and use same output. Try just omitting scale.
 os.system('ffmpeg -i ' + input_file + ' '
           '-vf "fps=10,scale=1200:-1:flags=lanczos,split[s0][s1];'
           '[s0]palettegen[p];[s1][p]paletteuse" -loop 0 '
