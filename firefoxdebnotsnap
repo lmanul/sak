@@ -5,12 +5,16 @@ import os
 os.system("sudo snap remove firefox")
 os.system("sudo add-apt-repository ppa:mozillateam/ppa")
 
-#echo '
-#Package: *
-#Pin: release o=LP-PPA-mozillateam
-#Pin-Priority: 1001
-#' | sudo tee /etc/apt/preferences.d/mozilla-firefox
+apt_pref_ff_path = "/etc/apt/preferences.d/mozilla-firefox"
+if not os.path.exists(apt_pref_ff_path):
+  with open(apt_pref_ff_path) as f:
+    f.write("Package: *\n")
+    f.write("Pin: release o=LP-PPA-mozillateam\n")
+    f.write("Pin-Priority: 1001\n")
 
-#echo 'Unattended-Upgrade::Allowed-Origins:: "LP-PPA-mozillateam:${distro_codename}";' | sudo tee /etc/apt/apt.conf.d/51unattended-upgrades-firefox
+unattended_path = "/etc/apt/apt.conf.d/51unattended-upgrades-firefox"
+if not os.path.exists(unattended_path):
+  with open(unattended_path):
+    f.write('Unattended-Upgrade::Allowed-Origins::"LP-PPA-mozillateam:${distro_codename}";\n'
 
-# sudo apt install firefox
+os.system("sudo apt install firefox")
