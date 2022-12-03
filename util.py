@@ -437,14 +437,17 @@ def make_time_graph(values, out_file, names=[]):
     leather.theme.tick_color = '#aaa'
 
     colors = [
-        "#8c00e2",
-        "#1981d4",
-        "#00a22c",
-        "#ea8500",
-        "#e32d14",
-        "#ff72db",
-        "#00d69e",
-        "#1618db",
+        "#8c00e2",  # purple
+        "#1981d4",  # dark sky blue
+        "#007806",  # dark deep green
+        "#8fba00",  # dark apple green
+        "#f2ee00",  # darkish yellow
+        "#ea8500",  # orange
+        "#e32d14",  # red
+        "#ff72db",  # pink
+        "#00d69e",  # turquoise
+        "#1618db",  # dark army blue
+        "#733700",  # brown
     ]
     if len(names) != 0:
         if len(names) != len(values):
