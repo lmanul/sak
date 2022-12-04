@@ -427,7 +427,7 @@ def color(text, color_name):
 
 # |values| is a list of series. A series is a list of points. A point is a
 # [date, value] pair. A date is formatted as YYYY.MM.DD.
-def make_time_graph(values, out_file, names=[]):
+def make_time_graph(values, out_file, names=[], minimum=None, maximum=None):
     import leather
     leather.theme.legend_font_family = 'Roboto'
     leather.theme.legend_font_size = '12'
@@ -471,6 +471,8 @@ def make_time_graph(values, out_file, names=[]):
     last_date = datetime.combine(date(*last_date_parts), datetime.min.time())
     chart = leather.Chart("")
     chart.add_x_scale(first_date, last_date)
+    if minimum is not None and maximum is not None:
+      chart.add_y_scale(minimum, maximum)
     for i in range(len(values)):
         name = names[i] if len(names) > i else ""
         series = []
