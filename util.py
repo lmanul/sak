@@ -167,6 +167,7 @@ def sanitize_for_filename_one_pass(input):
         output = output.replace(".PNG", ".png")
     output = output.replace("._", "_")
     output = output.replace("_.", ".")
+    output = output.replace("_-", "_")
     output = output.replace("-_", "_")
     output = output.replace("__", "_")
     output = output.replace("..", ".")
