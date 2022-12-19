@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+
+from PIL import Image, ExifTags
+
+import os
+import re
+import shlex
+import subprocess
+import sys
+import util
+
+if __name__ == "__main__":
+    img_file = sys.argv[1]
+    exif = util.get_image_exif_data(img_file)
+    print(exif)

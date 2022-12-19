@@ -10,6 +10,7 @@ import sys
 
 from datetime import date
 from datetime import datetime
+from PIL import Image, ExifTags
 
 try:
     from colorama import Fore, Style
@@ -101,6 +102,19 @@ def get_image_resolution(img):
                 y_res = re.search(r"(\d+)", l).group(1)
     return str(x_res) + "x" + y_res
 
+
+def get_image_exif_data(img_path):
+    img = Image.open(img_path)
+    img_exif = img.getexif()
+    if not img_exif:
+        return {}
+    else:
+        exif = {}
+        for key, val in img_exif.items():
+            if key in ExifTags.TAGS:
+                exif[ExifTags.TAGS[key]] = val
+        return exif
+    return {}
 
 def get_pdf_pages(pdf_path):
     "Returns the number of pages in the given PDF file"
