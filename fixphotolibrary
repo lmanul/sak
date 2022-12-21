@@ -1,0 +1,48 @@
+#!/usr/bin/python3
+
+import multiprocessing
+import os
+import random
+import subprocess
+import sys
+
+from multiprocessing.dummy import Pool as ThreadPool
+
+PREFIXES_TO_IGNORE = [
+  ".stversions",
+]
+
+n_cpus = multiprocessing.cpu_count()
+pool = ThreadPool(n_cpus)
+all_jpg_files = []
+
+def silent(command):
+    os.system(command + " > /dev/null 2> /dev/null")
+
+def process_one_file(jpg):
+    if jpg.startswith("./"):
+        jpg = jpg[2:]
+    try:
+        (decade, year, album, file) = jpg.split("/")
+        # print(decade)
+    except ValueError:
+        print("Unexpected path format: " + jpg)
+
+if __name__ == "__main__":
+    os.system('find . -name ".DS_Store" -delete')
+
+    for root, dirs, files in os.walk("."):
+        for file in sorted(files):
+            full_file = os.path.join(root, file)
+            if full_file.startswith("./"):
+                full_file = full_file[2:]
+            ignore = False
+            for prefix in PREFIXES_TO_IGNORE:
+                if full_file.startswith(prefix):
+                    ignore = True
+                    break
+            if not ignore and file.endswith(".jpg"):
+                all_jpg_files.append(full_file)
+
+    all_jpg_files = sorted(all_jpg_files)
+    results = pool.map(process_one_file, all_jpg_files)
