@@ -15,38 +15,39 @@ ARGS = PARSER.parse_args()
 ext = util.get_extension(ARGS.videos[0])
 
 
+if __name__ == "__main__":
 
-if USE_CONCAT_DEMUXER:
-    with open("list.txt", "w") as f:
-        f.write("\n".join(["file '" + v + "'" for v in ARGS.videos]))
-        f.close()
+    if USE_CONCAT_DEMUXER:
+        with open("list.txt", "w") as f:
+            f.write("\n".join(["file '" + v + "'" for v in ARGS.videos]))
+            f.close()
 
-    cmd = "ffmpeg -f concat -safe 0 -i list.txt -c copy output." + ext
-    print(cmd)
-    os.system(cmd)
-    os.system("rm list.txt")
+        cmd = "ffmpeg -f concat -safe 0 -i list.txt -c copy output." + ext
+        print(cmd)
+        os.system(cmd)
+        os.system("rm list.txt")
 
-else:
-    cmd = "ffmpeg "
-    n = len(ARGS.videos)
-    for v in ARGS.videos:
-        cmd += "-i " + v + " "
-    cmd += '-filter_complex "'
-    for i in range(n):
-        cmd += "[" + str(i) + ":v] "
+    else:
+        cmd = "ffmpeg "
+        n = len(ARGS.videos)
+        for v in ARGS.videos:
+            cmd += "-i " + v + " "
+        cmd += '-filter_complex "'
+        for i in range(n):
+            cmd += "[" + str(i) + ":v] "
+            if not ARGS.no_audio:
+               cmd += "[" + str(i) + ":a] "
+        cmd += ' concat=n=' + str(n)
+        cmd += ':v=1'
         if not ARGS.no_audio:
-            cmd += "[" + str(i) + ":a] "
-    cmd += ' concat=n=' + str(n)
-    cmd += ':v=1'
-    if not ARGS.no_audio:
-        cmd += ':a=1'
-    cmd += '[v]'
-    if not ARGS.no_audio:
-        cmd += ' [a]'
-    cmd += '" '
-    cmd += '-map "[v]" '
-    if not ARGS.no_audio:
-        '-map "[a]" '
-    cmd += 'output.mkv'
-    print(cmd)
-    os.system(cmd)
+            cmd += ':a=1'
+        cmd += '[v]'
+        if not ARGS.no_audio:
+            cmd += ' [a]'
+        cmd += '" '
+        cmd += '-map "[v]" '
+        if not ARGS.no_audio:
+            '-map "[a]" '
+        cmd += 'output.ts'
+        print(cmd)
+        os.system(cmd)
