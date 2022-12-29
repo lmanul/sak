@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import os
+import shlex
+import subprocess
 import sys
 import util
 
@@ -11,6 +13,9 @@ if __name__ == "__main__":
   BIN = "/usr/bin/diff"
 
   if util.is_mac():
-    os.system("grc " + BIN + " " + COMMON_OPTIONS + " " + ARGS)
+    proc = subprocess.run(shlex.split("grc " + BIN + " " + COMMON_OPTIONS + " " + ARGS))
+    sys.exit(proc.returncode)
   else:
-    os.system(BIN + " " + COMMON_OPTIONS + " --color=always " + ARGS)
+    proc = subprocess.run(shlex.split(BIN + " " + COMMON_OPTIONS + " --color=always " + ARGS))
+    sys.exit(proc.returncode)
+
