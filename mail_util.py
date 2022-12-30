@@ -1,11 +1,14 @@
 # coding=utf-8
 
+import datetime
+import email.utils
 import mailbox
 import re
 
 from email.header import Header, decode_header, make_header
 
 CC = "Cc"
+DATE = "Date"
 DELIVERED_TO = "Delivered-To"
 FROM = "From"
 MESSAGE_ID = "Message-ID"
@@ -106,3 +109,63 @@ def mark_all_read_in_mbox(path):
     mbox.unlock()
     mbox.close()
     return len(messages_to_update)
+
+def days_elapsed(msg):
+    parsed = email.utils.parsedate_tz(msg.get(DATE))
+    if not parsed or len(parsed) < 3:
+        print("WARNING: Couldn't parse '" + str(msg.get(DATE)) + "'")
+        return 0
+    (year, month, day) = (parsed[0], parsed[1], parsed[2])
+    old = datetime.datetime(year=year, month=month, day=day)
+    now = datetime.datetime.now()
+    diff = now - old
+    return diff.days
+
+def harvest_mimetype(obj, cur, mimetype, level):
+    debug = False
+    if obj.is_multipart():
+        try:
+            parts = obj.get_payload()
+            if debug:
+                print("\t" * level + "multipart, " + str(len(parts)) + " parts")
+            if parts:
+                for p in parts:
+                    cur = harvest_mimetype(p, cur, mimetype, level + 1)
+        except MemoryError:
+            print("Memory error, not sure what happened.")
+            return cur
+    else:
+        params = obj.get_params()
+        if debug:
+            print("\t" * level + "single part " + str(params))
+        if "image" in str(params):
+            return cur
+        if params:
+            text = ""
+            html = ""
+            for param in params:
+                if mimetype in param:
+                    try:
+                        if mimetype == "text/html":
+                            payload = obj.get_payload(decode=True)
+                            if payload:
+                                cur += payload.decode()
+                        else:
+                            cur += obj.get_payload()
+                    except UnicodeDecodeError:
+                        print("Decoding error, skipping...")
+                        whatever = 1
+    return cur
+
+def get_body_original_case(msg):
+    harvested = harvest_mimetype(msg, "", "text/plain", 0)
+    if harvested == "":
+        harvested = harvest_mimetype(msg, "", "text/html", 0)
+    return harvested
+
+def get_body(msg):
+    return get_body_original_case(msg).lower()
+
+def get_body_html(msg):
+    harvested = harvest_mimetype(msg, "", "text/html", 0)
+    return harvested
