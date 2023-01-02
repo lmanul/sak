@@ -10,7 +10,6 @@ import sys
 
 from datetime import date
 from datetime import datetime
-from PIL import Image, ExifTags
 
 try:
     from colorama import Fore, Style
@@ -104,6 +103,7 @@ def get_image_resolution(img):
 
 
 def get_image_exif_data(img_path):
+    from PIL import Image, ExifTags
     img = Image.open(img_path)
     img_exif = img.getexif()
     if not img_exif:
