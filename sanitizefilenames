@@ -17,10 +17,10 @@ def rename_and_move(path):
     lastPart = path[lastSep + 1 :]
     newName = util.sanitize_for_filename(lastPart)
     newPath = dontModify + newName
-    if os.path.exists(newPath):
-        print("Destination file '" + newPath + "' already exists, not overwriting")
-        return
     if newPath != path:
+        if os.path.exists(newPath):
+            print("Destination file '" + newPath + "' already exists, not overwriting")
+            return
         print(path + " -> " + newPath)
         subprocess.call(["mv", path, newPath])
 
