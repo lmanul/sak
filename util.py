@@ -204,6 +204,9 @@ def get_date_prefix():
     now = datetime.now()
     return str(now.year) + "-" + str(now.month).zfill(2) + "-" + str(now.day).zfill(2)
 
+def get_current_year():
+    now = datetime.now()
+    return str(now.year)
 
 def remove_extension(f):
     last_dot = f.rfind(".")
