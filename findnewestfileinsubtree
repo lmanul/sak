@@ -15,9 +15,12 @@ for path, _, filenames in os.walk(os.getcwd()):
             os.readlink(f_full) if os.path.islink(f_full) else f_full
         ):
             continue
-        if os.path.getmtime(f_full) > newest_mtime:
-            newest_mtime = os.path.getmtime(f_full)
-            newest_file = f_full
+        try:
+            if os.path.getmtime(f_full) > newest_mtime:
+                newest_mtime = os.path.getmtime(f_full)
+                newest_file = f_full
+        except FileNotFoundError:
+            pass
 
 print(
     "Newest file: " + newest_file + " which was modified last on "
