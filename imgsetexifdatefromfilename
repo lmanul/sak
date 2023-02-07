@@ -11,7 +11,7 @@ if __name__ == "__main__":
         sys.exit(0)
     pieces = img_file.split("_")
     for piece in pieces:
-        if len(piece) == 8 and (piece.startswith("20") or piece.startswith("19")):
+        if piece.isdigit() and len(piece) == 8 and (piece.startswith("20") or piece.startswith("19")):
             print(piece)
             formatted = piece[0:4] + ":" + piece[4:6] + ":" + piece[6:8] + " 12:00:00"
             util.save_image_with_modified_exif(img_file, {
