@@ -104,17 +104,32 @@ def get_image_resolution(img):
 
 def get_image_exif_data(img_path):
     from PIL import Image, ExifTags
-    img = Image.open(img_path)
-    img_exif = img.getexif()
-    if not img_exif:
-        return {}
-    else:
-        exif = {}
-        for key, val in img_exif.items():
-            if key in ExifTags.TAGS:
-                exif[ExifTags.TAGS[key]] = val
-        return exif
+    with Image.open(img_path) as img:
+        img_exif = img.getexif()
+        if not img_exif:
+            return {}
+        else:
+            exif = {}
+            for key, val in img_exif.items():
+                if key in ExifTags.TAGS:
+                    exif[ExifTags.TAGS[key]] = val
+            return exif
     return {}
+
+def save_image_with_modified_exif(file_path, modified_exif):
+    from exif import Image as ExifImage
+
+    # TODO: Need to handle all tags properly
+    current_exif = get_image_exif_data(file_path)
+    for key in modified_exif:
+        current_exif[key] = modified_exif[key]
+
+    with open(file_path, "rb") as input_file:
+        img = ExifImage(input_file)
+        if "DateTime" in modified_exif:
+            img.datetime = modified_exif["DateTime"]
+        with open(file_path, "wb") as ofile:
+                ofile.write(img.get_file())
 
 def get_pdf_pages(pdf_path):
     "Returns the number of pages in the given PDF file"
