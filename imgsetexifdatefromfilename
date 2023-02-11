@@ -9,6 +9,9 @@ if __name__ == "__main__":
     img_file = sys.argv[1]
     try:
         exif = util.get_image_exif_data(img_file)
+    except OSError as e:
+        print(e)
+        print("This is for file " + img_file)
     except PIL.Image.DecompressionBombError as e:
         print(e)
         print("This is for file " + img_file)
