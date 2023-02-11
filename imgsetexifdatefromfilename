@@ -3,9 +3,15 @@
 import sys
 import util
 
+import PIL
+
 if __name__ == "__main__":
     img_file = sys.argv[1]
-    exif = util.get_image_exif_data(img_file)
+    try:
+        exif = util.get_image_exif_data(img_file)
+    except PIL.Image.DecompressionBombError as e:
+        print(e)
+        print("This is for file " + img_file)
     if "DateTime" in exif:
         # print("Exif date and time already there, aborting")
         sys.exit(0)
