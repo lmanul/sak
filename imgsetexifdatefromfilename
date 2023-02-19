@@ -5,8 +5,17 @@ import util
 
 import PIL
 
+def likely_year(s):
+    return s.startswith("20") or piece.startswith("19")
+
 if __name__ == "__main__":
     img_file = sys.argv[1]
+    if img_file.startswith("./"):
+        img_file = img_file[2:]
+    if "/" in img_file:
+        filename = img_file[img_file.rindex("/") + 1:]
+    else:
+        filename = img_file
     try:
         exif = util.get_image_exif_data(img_file)
     except OSError as e:
@@ -18,11 +27,41 @@ if __name__ == "__main__":
     if "DateTime" in exif:
         # print("Exif date and time already there, aborting")
         sys.exit(0)
-    pieces = img_file.split("_")
+    pieces = filename.split("_")
     for piece in pieces:
-        if piece.isdigit() and len(piece) == 8 and (piece.startswith("20") or piece.startswith("19")):
-            print(piece)
+        if piece.isdigit() and len(piece) == 8 and likely_year(piece):
             formatted = piece[0:4] + ":" + piece[4:6] + ":" + piece[6:8] + " 12:00:00"
+            print("\nGuessed date " + formatted + " for " + img_file + "\n")
             util.save_image_with_modified_exif(img_file, {
               "DateTime": formatted
             })
+            sys.exit(0)
+        elif piece.count("-") >= 2:
+            subpieces = piece.split("-")
+            for i in range(len(subpieces)):
+                subpiece = subpieces[i]
+                if subpiece.isdigit() and len(subpiece) == 4 and likely_year(piece) and \
+                        len(subpieces) >= i + 3 and \
+                        len(subpieces[i + 1]) == 2 and (subpieces[i + 1]).isdigit() and \
+                        len(subpieces[i + 2]) == 2 and (subpieces[i + 2]).isdigit():
+                    formatted = subpieces[i] + ":" + subpieces[i + 1] + ":" + subpieces[i + 2]
+                    print("\nGuessed date " + formatted + " for " + img_file + "\n")
+                    util.save_image_with_modified_exif(img_file, {
+                        "DateTime": formatted
+                    })
+                    sys.exit(0)
+
+    # We haven't found anything yet. Let's try to use the folder name.
+    folders = img_file.split("/")
+    for folder in folders:
+        if likely_year(folder[:4]):
+            y = folder[:4]
+            m = folder[5:7]
+            d = folder[8:10]
+            formatted = y + ":" + m + ":" + d
+            if y.isdigit() and m.isdigit() and d.isdigit():
+                print("\nGuessed date " + formatted + " for " + img_file + "\n")
+                util.save_image_with_modified_exif(img_file, {
+                    "DateTime": formatted
+                })
+                sys.exit(0)
