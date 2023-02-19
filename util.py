@@ -104,16 +104,19 @@ def get_image_resolution(img):
 
 def get_image_exif_data(img_path):
     from PIL import Image, ExifTags
-    with Image.open(img_path) as img:
-        img_exif = img.getexif()
-        if not img_exif:
-            return {}
-        else:
-            exif = {}
-            for key, val in img_exif.items():
-                if key in ExifTags.TAGS:
-                    exif[ExifTags.TAGS[key]] = val
-            return exif
+    try:
+        with Image.open(img_path) as img:
+            img_exif = img.getexif()
+            if not img_exif:
+                return {}
+            else:
+                exif = {}
+                for key, val in img_exif.items():
+                    if key in ExifTags.TAGS:
+                        exif[ExifTags.TAGS[key]] = val
+                return exif
+    except OSError as e:
+        print("OSError with file " + img_path + ": " + str(e))
     return {}
 
 def save_image_with_modified_exif(file_path, modified_exif):
