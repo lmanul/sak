@@ -1,0 +1,19 @@
+#!/usr/bin/python3
+"Rotates an image interactively to straighten it"
+
+import random
+import string
+import sys
+
+ANGLE_INCREMENT = 0.1
+
+def random_string():
+    "Generates a short random string"
+    return "".join(random.choice(
+        string.ascii_lowercase + string.digits) for _ in range(5))
+
+if __name__ == "__main__":
+    img = sys.argv[1]
+    random_infix = random_string()
+    print(random_infix)
+
