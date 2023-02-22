@@ -426,16 +426,44 @@ def get_birthdays():
                 birthdays.append([display_name, int(d), int(m)])
     return birthdays
 
-def pretty_print_single_day(events, birthday_names, filter_method, title, color,
-                            birthday_color, timezone="UTC"):
+def rental_next_events():
+    "Returns a list of pairs where the first element is the date and the second is a description"
+    events = []
+    rental_dir = os.path.join(HOME, "bus", "rental")
+    cals = [f for f in os.listdir(rental_dir) if f.endswith(".txt") and f not in ["infos.txt", "emails.txt"]]
+
+    for cal in cals:
+        cal_name = cal.replace(".txt", "")
+        cal_name = cal_name[0].upper() + cal_name[1:]
+        with open(os.path.join(rental_dir, cal)) as f:
+            contents = f.readlines()
+            for line in contents:
+                line = line.strip()
+                if "# Past" in line:
+                    break
+                if line.startswith("#") or line.startswith(";;") or line == "" or line.startswith("--"):
+                    continue
+                while "   " in line:
+                    line = line.replace("   ", "  ")
+                (first, last, in_date, in_time, out_date, out_time, country) = \
+                    line.split("  ")
+                events.append([in_date, util.color(cal_name + ": " + first + " " + last + " checks in", "green")])
+                events.append([out_date, util.color(cal_name + ": " + first + " " + last + " checks out", "red")])
+    return events
+
+def pretty_print_single_day(events, birthday_names, rental_events,
+                            filter_method, title, color, birthday_color, timezone="UTC"):
+    we_got_somethin = len(events) > 0 or len(birthday_names) > 0 or len(rental_events) > 0
     events = [e for e in events if filter_method(e.start, timezone)]
-    if len(events) > 0 or len(birthday_names) > 0:
+    if we_got_somethin:
         print(util.color(title + "\n" + ("-" * len(title)), color))
+    for rental_event in rental_events:
+        print(rental_event)
     for name in birthday_names:
         print(util.color(name + "'s birthday", birthday_color))
     for e in events:
         e.print(timezone)
-    if len(events):
+    if we_got_somethin:
         print("")
 
 # TODO: The three following functions are silly. Bundle.

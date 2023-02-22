@@ -10,17 +10,23 @@ import subprocess
 
 import cal
 
+DAYS_AHEAD = 10
+
 def print_dashboard(timezone="UTC"):
     """Prints the dashboard"""
     events = cal.process_calcurse(
-        subprocess.check_output(shlex.split("calcurse -d 3")).decode())
+        subprocess.check_output(shlex.split("calcurse -d " + str(DAYS_AHEAD))).decode())
     birthdays = cal.get_birthdays()
+    next_rental_events = cal.rental_next_events()
 
     arguments = [
         ["Today", "yellow"],
         ["Tomorrow", "cyan"],
         ["After tomorrow", "green"],
     ]
+
+    while len(arguments) < DAYS_AHEAD:
+        arguments.append(["", ""])
 
     print("")
     for i in range(len(arguments)):
@@ -29,15 +35,21 @@ def print_dashboard(timezone="UTC"):
         day_of_month = cal.get_day_of_month_n_days_from_today(i, timezone)
         month = cal.get_month_n_days_from_today(i, timezone)
         weekday_and_day_of_month = weekday + " " + str(day_of_month)
-        title = arguments[i][0] + " (" + weekday_and_day_of_month + ")"
+        if arguments[i][0] == "":
+            title = weekday_and_day_of_month
+        else:
+            title = arguments[i][0] + " (" + weekday_and_day_of_month + ")"
 
         birthdays_today = []
         for b in birthdays:
             if b[1] == day_of_month and b[2] == month:
                 birthdays_today.append(b[0])
-        cal.pretty_print_single_day(events, birthdays_today,
+        rentals_today = [e[1] for e in next_rental_events \
+            if int(e[0].split("-")[1]) == month and int(e[0].split("-")[2]) == day_of_month]
+        cal.pretty_print_single_day(events, birthdays_today, rentals_today,
                                     cal.is_today_from_n_days_partial(i),
                                     title, arguments[i][1], "yellow", timezone)
+
 
 if __name__ == "__main__":
     # TODO: Use the right time zone
