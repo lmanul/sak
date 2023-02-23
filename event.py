@@ -51,7 +51,7 @@ class Event:
             minutes_since_end = int(self.get_time_since_end().total_seconds() / 60)
             result = result + " " + format_timedelta(
                 minutes_since_end, "ended ", " ago", "green")
-        print(result)
+        print("\t" + result)
 
     def get_displayed_time(self, d, timezone="UTC"):
         color = "dim" if is_past(d) else "white"

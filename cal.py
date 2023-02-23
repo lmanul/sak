@@ -458,9 +458,9 @@ def pretty_print_single_day(events, birthday_names, rental_events,
     if we_got_somethin:
         print(util.color(title + "\n" + ("-" * len(title)), color))
     for rental_event in rental_events:
-        print(rental_event)
+        print("\t" + rental_event)
     for name in birthday_names:
-        print(util.color(name + "'s birthday", birthday_color))
+        print("\t"+ util.color(name + " 🎂", birthday_color))
     for e in events:
         e.print(timezone)
     if we_got_somethin:
