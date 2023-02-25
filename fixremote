@@ -5,4 +5,7 @@
 
 import os
 
-os.system("sed -i 's#https://github.com/#git@github.com:#g' .git/config")
+import util
+
+cmd = util.is_mac() ? "sed -I" else "sed -i"
+os.system(cmd + " 's#https://github.com/#git@github.com:#g' .git/config")
