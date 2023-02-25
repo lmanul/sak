@@ -7,5 +7,5 @@ import os
 
 import util
 
-cmd = util.is_mac() ? "sed -I" else "sed -i"
+cmd = "sed -I \"\"" if util.is_mac() else "sed -i"
 os.system(cmd + " 's#https://github.com/#git@github.com:#g' .git/config")

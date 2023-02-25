@@ -41,7 +41,7 @@ print(
 )
 
 is_mac = util.is_mac()
-sed = "sed -I" if is_mac else "sed -i"
+sed = "sed -I \"\"" if is_mac else "sed -i"
 command = sed + " 's/TILE_CACHE_SIZE/" + str(tile_cache_size) + "G/' gimprc"
 os.system(command)
 # print(command)
