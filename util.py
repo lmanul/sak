@@ -158,12 +158,17 @@ def get_pdf_dimension(pdf_path):
 
 def get_ram_gb():
     "Returns the amount of RAM in gigabytes"
-    output = subprocess.check_output(shlex.split("free -g")).decode()
-    lines = output.split("\n")
-    for l in lines:
-        if l.startswith("Mem:"):
-            parsed = re.match(r"Mem:\s+([\d]+)\s+.*", l)
-            return int(parsed.group(1))
+    if is_mac():
+        output = subprocess.check_output(shlex.split("sysctl hw.memsize")).decode()
+        (key, value) = output.split(": ")
+        return int(int(value) / (1024 * 1024 * 1024))
+    else:
+        output = subprocess.check_output(shlex.split("free -g")).decode()
+        lines = output.split("\n")
+        for l in lines:
+            if l.startswith("Mem:"):
+                parsed = re.match(r"Mem:\s+([\d]+)\s+.*", l)
+                return int(parsed.group(1))
     return None
 
 

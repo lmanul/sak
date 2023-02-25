@@ -40,10 +40,12 @@ print(
     + str(undo_size)
 )
 
-command = "sed -i 's/TILE_CACHE_SIZE/" + str(tile_cache_size) + "G/' gimprc"
+is_mac = util.is_mac()
+sed = "sed -I" if is_mac else "sed -i"
+command = sed + " 's/TILE_CACHE_SIZE/" + str(tile_cache_size) + "G/' gimprc"
 os.system(command)
 # print(command)
-command = "sed -i 's/UNDO_SIZE/" + str(undo_size) + "G/' gimprc"
+command = sed +" 's/UNDO_SIZE/" + str(undo_size) + "G/' gimprc"
 # print(command)
 os.system(command)
 
