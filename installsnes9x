@@ -1,0 +1,7 @@
+#!/usr/bin/python3
+
+import os
+
+os.system("sudo apt-get install flatpak")
+os.system("flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo")
+os.system("flatpak install flathub com.snes9x.Snes9x")
