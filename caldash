@@ -10,7 +10,7 @@ import subprocess
 
 import cal
 
-DAYS_AHEAD = 10
+DAYS_AHEAD = 7
 
 def print_dashboard(timezone="UTC"):
     """Prints the dashboard"""
