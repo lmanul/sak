@@ -34,6 +34,12 @@ class Event:
         self.end = end
         self.text = text
 
+    def __str__(self):
+        return f"[Event {self.text} — {self.start} - {self.end}]"
+
+    def is_past(self):
+        return is_past(self.end)
+
     def print(self, timezone):
         result = (self.get_displayed_time(self.start, timezone) + ""
                   " — "

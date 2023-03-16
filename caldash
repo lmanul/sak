@@ -25,6 +25,20 @@ def print_dashboard(timezone="UTC"):
         ["After tomorrow", "green"],
     ]
 
+    filtered_events = []
+    already_have_self_care = False
+
+    for e in events:
+        if "Self care" in e.text:
+            if already_have_self_care:
+                continue
+            if e.is_past():
+                continue
+            filtered_events.append(e)
+            already_have_self_care = True
+        else:
+            filtered_events.append(e)
+
     while len(arguments) < DAYS_AHEAD:
         arguments.append(["", ""])
 
@@ -41,12 +55,13 @@ def print_dashboard(timezone="UTC"):
             title = arguments[i][0] + " (" + weekday_and_day_of_month + ")"
 
         birthdays_today = []
+
         for b in birthdays:
             if b[1] == day_of_month and b[2] == month:
                 birthdays_today.append(b[0])
         rentals_today = [e[1] for e in next_rental_events \
             if int(e[0].split("-")[1]) == month and int(e[0].split("-")[2]) == day_of_month]
-        cal.pretty_print_single_day(events, birthdays_today, rentals_today,
+        cal.pretty_print_single_day(filtered_events, birthdays_today, rentals_today,
                                     cal.is_today_from_n_days_partial(i),
                                     title, arguments[i][1], "yellow", timezone)
 
