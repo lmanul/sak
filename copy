@@ -4,8 +4,13 @@ import os
 import sys
 import util
 
-if util.is_linux():
-    os.system("cat " + sys.argv[1] + " | xclip -sel clip")
-elif util.is_mac():
+if util.is_mac():
     os.system("cat " + sys.argv[1] + " | pbcopy")
+else:
+    session = os.environ['DESKTOP_SESSION']
+    if "wayland" in session:
+        os.system("wl-copy < " + sys.argv[1])
+    else:
+        os.system("cat " + sys.argv[1] + " | xclip -sel clip")
+
 print("Copied contents to clipboard")
