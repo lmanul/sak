@@ -71,7 +71,7 @@ def change_brightness(up: bool, options):
 
     can_sudo = not options.daemon
     if os.path.exists("/usr/bin/brightnessctl"):
-        os.system("sudo brightnessctl --quiet s 200" + ("+" if up else "-"))
+        os.system("sudo brightnessctl --quiet s " + str(INCREMENT_PERCENT) + "%" + ("+" if up else "-"))
     else:
         change_brightness_the_hard_way(up, options)
     show_current_brightness()
