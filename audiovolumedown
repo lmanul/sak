@@ -5,5 +5,5 @@ import os
 
 HOME = os.path.expanduser("~")
 
-os.system("amixer -D pulse set 'Master' 5%-")
+os.system("pactl -- set-sink-volume @DEFAULT_SINK@ -5%")
 os.system("/usr/bin/play -q " + HOME + "/bus/reference/sounds/water_droplet.mp3")
