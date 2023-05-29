@@ -482,6 +482,11 @@ def get_month_n_days_from_today(n, tz):
     target = now + datetime.timedelta(days=n)
     return target.month
 
+def get_year_n_days_from_today(n, tz):
+    now = datetime.datetime.now(pytz.timezone(timezones.TIMEZONES[tz]))
+    target = now + datetime.timedelta(days=n)
+    return target.year
+
 def consolidate_calcurse_file(full=False):
     all_events = parse_calcurse_file()
     events_reduced = reduce_events(all_events) if full else all_events
