@@ -26,18 +26,9 @@ def print_dashboard(timezone="UTC"):
     ]
 
     filtered_events = []
-    already_have_self_care = False
 
     for e in events:
-        if "Self care" in e.text:
-            if already_have_self_care:
-                continue
-            if e.is_past():
-                continue
-            filtered_events.append(e)
-            already_have_self_care = True
-        else:
-            filtered_events.append(e)
+        filtered_events.append(e)
 
     while len(arguments) < DAYS_AHEAD:
         arguments.append(["", ""])
