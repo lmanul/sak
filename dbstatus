@@ -1,6 +1,15 @@
 #!/usr/bin/python3
 
-import os
+import shlex
+import subprocess
 
 if __name__ == "__main__":
-    pass
+    CMD = shlex.split("dropbox status")
+    process = subprocess.Popen(CMD, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, err = process.communicate()
+
+    FILTERED = []
+    for line in output.decode().split("\n"):
+        FILTERED.append(line)
+
+    print("\n".join(FILTERED))
