@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import os
+
+if __name__ == "__main__":
+  REPOS = os.listdir(".")
+
+  for r in REPOS:
+    print(r + ":\n")
+    os.chdir(r)
+    os.system("git branch")
+    print("\n")
+    os.chdir("..")
