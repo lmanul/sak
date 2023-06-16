@@ -45,6 +45,8 @@ def get_single_mail_object(maildir, mail_path):
 def detach_from_mail_in_maildir(mail, key, maildir, out_path_prefix):
     maildir.lock()
     try:
+        print("\tFrom: " + mail["From"])
+        print("\tSubj: " + mail["Subject"])
         for message_part in mail.walk():
             main_type = message_part.get_content_maintype()
             # print("Found type " + main_type)
@@ -73,6 +75,7 @@ def detach_from_mail_in_maildir(mail, key, maildir, out_path_prefix):
     finally:
         maildir.unlock()
         maildir.close()
+    print("")
 
 if __name__ == "__main__":
     IN_MAIL_PATH = os.path.join(os.getcwd(), sys.argv[1])
