@@ -54,7 +54,9 @@ ordered_size_recap = sorted(
     size_recap.items(), key=operator.itemgetter(1), reverse=True
 )
 for item in ordered_size_recap:
-    print(item[0] + ": " + str(item[1]))
+    (w, h) = item[0].split("x")
+    ratio = round(int(w) / int(h), 3)
+    print(item[0] + " (" + str(ratio) + "): " + str(item[1]))
 
 print("\nResolution\n----------")
 ordered_resolution_recap = sorted(
