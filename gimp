@@ -19,4 +19,4 @@ if util.is_mac():
 else:
     # os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
     os.system("/usr/bin/gimp-2.10 " + " ".join(full_arguments))
-util.run_bin_cmd("gimpteardown")
+#util.run_bin_cmd("gimpteardown")
