@@ -486,7 +486,7 @@ def date_to_string(d):
 
 def color(text, color_name):
     if not has_colorama:
-        return text
+        return str(text)
     colors = {
         "cyan": Fore.CYAN,
         "dim": Style.DIM,
@@ -497,8 +497,8 @@ def color(text, color_name):
         "yellow": Fore.YELLOW,
     }
     if color_name not in colors:
-        return text
-    return colors[color_name] + text + Style.RESET_ALL
+        return str(text)
+    return colors[color_name] + str(text) + Style.RESET_ALL
 
 # |values| is a list of series. A series is a list of points. A point is a
 # [date, value] pair. A date is formatted as YYYY.MM.DD.

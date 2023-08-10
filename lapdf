@@ -5,120 +5,132 @@ import re
 import shlex
 import subprocess
 import sys
-import util
 
 from optparse import OptionParser
 
-parser = OptionParser()
-parser.add_option(
-    "-b",
-    "--bypass",
-    action="store_true",
-    help="Whether to bypass the copying of PDF",
-    default=False,
-)
-(options, args) = parser.parse_args()
+import colorama
 
-if len(args) != 1:
-    print("I need exactly one file to compile, but arguments were: " + str(args))
-    sys.exit(1)
-
-tex = args[0]
-log = tex.replace(".tex", ".log")
-pdf = tex.replace(".tex", ".pdf")
-
-latex = subprocess.Popen(
-    shlex.split("pdflatex " + tex), stderr=subprocess.PIPE, stdout=subprocess.PIPE
-)
-
-# Short name: regexp match, long name, count, pages
-fulls = {
-    "Uh": ["Underfull \\hbox", "H Under", 0, []],
-    "Uv": ["Underfull \\vbox", "V Under", 0, []],
-    "Oh": ["Overfull \\hbox", "H Over", 0, []],
-    "Ov": ["Overfull \\vbox", "V Over", 0, []],
-}
-
-n_pages = 0
-undef_ref = False
-unavailable_fonts = False
-compile_errors = False
-
-page_number_regex = re.compile("\[(\d+)")
-current_page_number = 0
-
-while not latex.poll():
-    l = latex.stdout.readline()
-    try:
-        l = l.decode()
-    except UnicodeDecodeError:
-        l = str(l)
-    if l:
-        for match in page_number_regex.finditer(l):
-            current_page_number = str(int(match.group(1)))
-            sys.stdout.write(current_page_number + " ")
-            sys.stdout.flush()
-        maybe_problematic_lines = None
-        if l.startswith("!"):
-            compile_errors = True
-            os.system("rm -f *.aux")
-            break
-        if "in paragraph at lines" in l:
-            matches = re.match(".*graph at lines (\d+..\d+)", l)
-            if matches:
-                maybe_problematic_lines = str(matches.group(1))
-        if not maybe_problematic_lines:
-            maybe_problematic_lines = "?"
-        for f in fulls:
-            v = fulls[f]
-            if l.startswith(v[0]):
-                v[2] += 1
-                v[3].append(str(current_page_number) + "/" + maybe_problematic_lines)
-                sys.stdout.write("##" + f + "## ")
-                sys.stdout.flush()
-        if "There were undefined references" in l:
-            undef_ref = True
-        if "font shapes were not available" in l:
-            unavailable_fonts = True
-        if l.startswith("Output written on"):
-            matches = re.match(".*\((\d+).*\spages?", l)
-            if matches:
-                n_pages = int(matches.group(1))
-    else:
-        break
-print("\n")
-
-total = 0
-for f in fulls:
-    total += fulls[f][2]
-
+import util
 
 def print_one_report_line(name, number, pages):
     details = ""
     if len(pages) > 0:
         details = " (" + ", ".join(pages) + ")"
-    print(name + ": " + str(number) + details)
+    if number == 0:
+        colored_number = util.color(number, "green")
+    else:
+        colored_number = util.color(number, "red")
+    print(name + ": " + colored_number + details)
+
+if __name__ == "__main__":
+  parser = OptionParser()
+  parser.add_option(
+      "-b",
+      "--bypass",
+      action="store_true",
+      help="Whether to bypass the copying of PDF",
+      default=False,
+  )
+  (options, args) = parser.parse_args()
+
+  if len(args) != 1:
+      print("I need exactly one file to compile, but arguments were: " + str(args))
+      sys.exit(1)
+
+  tex = args[0]
+  log = tex.replace(".tex", ".log")
+  pdf = tex.replace(".tex", ".pdf")
+
+  latex = subprocess.Popen(
+      shlex.split("pdflatex " + tex), stderr=subprocess.PIPE, stdout=subprocess.PIPE
+  )
+
+  # Short name: regexp match, long name, count, pages
+  fulls = {
+      "Uh": ["Underfull \\hbox", "H Under", 0, []],
+      "Uv": ["Underfull \\vbox", "V Under", 0, []],
+      "Oh": ["Overfull \\hbox", "H Over ", 0, []],
+      "Ov": ["Overfull \\vbox", "V Over ", 0, []],
+  }
+
+  n_pages = 0
+  undef_ref = False
+  unavailable_fonts = False
+  compile_errors = False
+
+  page_number_regex = re.compile("\[(\d+)")
+  current_page_number = 0
+
+  while not latex.poll():
+      l = latex.stdout.readline()
+      try:
+          l = l.decode()
+      except UnicodeDecodeError:
+          l = str(l)
+      if l:
+          for match in page_number_regex.finditer(l):
+              current_page_number = str(int(match.group(1)))
+              sys.stdout.write(current_page_number + " ")
+              sys.stdout.flush()
+          maybe_problematic_lines = None
+          if l.startswith("!"):
+              compile_errors = True
+              os.system("rm -f *.aux")
+              break
+          if "in paragraph at lines" in l:
+              matches = re.match(".*graph at lines (\d+..\d+)", l)
+              if matches:
+                  maybe_problematic_lines = str(matches.group(1))
+          if not maybe_problematic_lines:
+              maybe_problematic_lines = "?"
+          for f in fulls:
+              v = fulls[f]
+              if l.startswith(v[0]):
+                  v[2] += 1
+                  v[3].append(str(current_page_number) + "/" + maybe_problematic_lines)
+                  sys.stdout.write("##" + f + "## ")
+                  sys.stdout.flush()
+          if "There were undefined references" in l:
+              undef_ref = True
+          if "font shapes were not available" in l:
+              unavailable_fonts = True
+          if l.startswith("Output written on"):
+              matches = re.match(".*\((\d+).*\spages?", l)
+              if matches:
+                  n_pages = int(matches.group(1))
+      else:
+          break
+  print("\n")
+
+  total = 0
+  for f in fulls:
+      total += fulls[f][2]
 
 
-for f in fulls:
-    v = fulls[f]
-    print_one_report_line(v[1], v[2], v[3])
+  for f in fulls:
+      v = fulls[f]
+      print_one_report_line(v[1], v[2], v[3])
 
-print(
-    "=============\n"
-    "Total  : " + str(total) + "\n"
-    "\n"
-    "" + str(n_pages) + " page(s)\n"
-)
+  if total == 0:
+    colored_total = util.color(total, "green")
+  else:
+    colored_total = util.color(total, "red")
 
-if compile_errors:
-    print("!!! There were compilation errors !!!\n")
-if undef_ref:
-    print("Warning: undefined references.\n")
-if unavailable_fonts:
-    print("Warning: unavailable fonts.\n")
+  print(
+      "=============\n"
+      "Total  : " + colored_total + "\n"
+      "\n"
+      "" + util.color(n_pages, "cyan") + " page(s)\n"
+  )
 
-if not options.bypass:
-    os.system("cp " + pdf + " " + pdf.replace(".pdf", "_stable.pdf"))
+  if compile_errors:
+      print("!!! There were compilation errors !!!\n")
+  if undef_ref:
+      print("Warning: undefined references.\n")
+  if unavailable_fonts:
+      print("Warning: unavailable fonts.\n")
 
-latex.kill()
+  if not options.bypass:
+      os.system("cp " + pdf + " " + pdf.replace(".pdf", "_stable.pdf"))
+
+  latex.kill()
