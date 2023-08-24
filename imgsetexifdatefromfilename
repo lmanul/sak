@@ -44,6 +44,7 @@ if __name__ == "__main__":
     except PIL.Image.DecompressionBombError as e:
         print(e)
         print("This is for file " + img_file)
+    print(exif)
     if "DateTime" in exif:
         value = exif["DateTime"]
         if len(value) == len("YYYY:MM:DD HH:MM:SS"):
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     nums = harvest_numbers_from_string(filename)
     if DEBUG:
         print(nums)
-    if len(nums) == 2 and len(nums[0]) == 8 and len(nums[1]) == 6:
+    if (len(nums) == 2 or len(nums) == 3) and len(nums[0]) == 8 and len(nums[1]) == 6:
         # Year and time in two numbers
         formatted = nums[0][0:4] + ":" + nums[0][4:6] + ":" + nums[0][6:8] + " " + \
                     nums[1][0:2] + ":" + nums[1][2:4] + ":" + nums[1][4:6]
@@ -121,7 +122,7 @@ if __name__ == "__main__":
             formatted = y + ":" + m + ":" + d + " 12:00:00"
             if y.isdigit() and m.isdigit() and d.isdigit():
                 print("\nGuessed date " + formatted + " for " + img_file + "\n")
-                #util.save_image_with_modified_exif(img_file, {
-                #    "DateTime": formatted
-                #})
+                util.save_image_with_modified_exif(img_file, {
+                    "DateTime": formatted
+                })
                 sys.exit(0)
