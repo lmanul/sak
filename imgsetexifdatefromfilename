@@ -44,7 +44,6 @@ if __name__ == "__main__":
     except PIL.Image.DecompressionBombError as e:
         print(e)
         print("This is for file " + img_file)
-    print(exif)
     if "DateTime" in exif:
         value = exif["DateTime"]
         if len(value) == len("YYYY:MM:DD HH:MM:SS"):
@@ -63,8 +62,7 @@ if __name__ == "__main__":
             "DateTime": formatted
         })
         sys.exit(0)
-    if (likely_year(nums[0]) and len(nums) == 6) or \
-       (likely_year(nums[0]) and len(nums) == 7):
+    if len(nums) in [6, 7] and likely_year(nums[0]):
         # Year and time, or maybe year and time and a duplicated "2" at the end.
         formatted = nums[0] + ":" + nums[1] + ":" + nums[2] + " " + \
                     nums[3] + ":" + nums[4] + ":" + nums[5]
