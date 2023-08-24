@@ -1,0 +1,36 @@
+#!/usr/bin/python3
+
+import os
+import shlex
+import subprocess
+import sys
+
+N_ROWS = 3
+N_COLS = 3
+
+def switch(current, direction):
+    target = current
+    if direction == "l":
+        is_leftmost = (current % N_COLS == 1)
+        if not is_leftmost:
+            target = current - 1
+    if direction == "r":
+        is_rightmost = (current % N_COLS == 0)
+        if not is_rightmost:
+            target = current + 1
+    if direction == "u":
+        is_topmost = (current <= N_COLS)
+        if not is_topmost:
+            target = current - N_COLS
+    if direction == "d":
+        is_bottommost = (current > (N_ROWS - 1) * N_COLS)
+        if not is_bottommost:
+            target = current + N_COLS
+    if target != current:
+        os.system("bspc desktop -f " + str(target))
+
+if __name__ == "__main__":
+    DIRECTION = sys.argv[1]
+    CURRENT = subprocess.check_output(
+        shlex.split("bspc query -D -d focused --names")).decode().strip()
+    switch(int(CURRENT), DIRECTION)
