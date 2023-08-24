@@ -65,6 +65,11 @@ def is_process_running(process, apart_from=None):
 def spawn(cmd):
     subprocess.Popen(shlex.split(cmd), stdin=None, stdout=None, stderr=None)
 
+def spawn_if_not_running(process):
+    if is_process_running(process):
+        return
+    spawn(process)
+
 def get_image_dimensions(img):
     if img.endswith(".xcf"):
         output = (
