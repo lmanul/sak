@@ -31,9 +31,13 @@ def switch(current, direction):
         if not is_bottommost:
             target = current + N_COLS
     if target != current:
+        focused_monitor = subprocess.check_output(shlex.split(
+            "bspc query -M -d focused --names")).decode().strip()
         os.system("bspc monitor -f eDP-1; bspc desktop -f " + str(target))
         target_roman = ROMAN_NUMERALS[target - 1]
         os.system("bspc monitor -f DP-1; bspc desktop -f " + str(target_roman))
+        # Restore focused monitor
+        os.system("bspc monitor -f " + focused_monitor)
 
 if __name__ == "__main__":
     DIRECTION = sys.argv[1]
