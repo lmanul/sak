@@ -8,6 +8,10 @@ import sys
 N_ROWS = 3
 N_COLS = 3
 
+ROMAN_NUMERALS = [
+  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX",
+]
+
 def switch(current, direction):
     target = current
     if direction == "l":
@@ -27,10 +31,15 @@ def switch(current, direction):
         if not is_bottommost:
             target = current + N_COLS
     if target != current:
-        os.system("bspc desktop -f " + str(target))
+        os.system("bspc monitor -f eDP-1; bspc desktop -f " + str(target))
+        target_roman = ROMAN_NUMERALS[target - 1]
+        os.system("bspc monitor -f DP-1; bspc desktop -f " + str(target_roman))
 
 if __name__ == "__main__":
     DIRECTION = sys.argv[1]
     CURRENT = subprocess.check_output(
         shlex.split("bspc query -D -d focused --names")).decode().strip()
+    if CURRENT in ROMAN_NUMERALS:
+        CURRENT = ROMAN_NUMERALS.index(CURRENT) + 1
+    print(CURRENT)
     switch(int(CURRENT), DIRECTION)
