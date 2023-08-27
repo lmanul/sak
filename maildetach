@@ -45,8 +45,10 @@ def get_single_mail_object(maildir, mail_path):
 def detach_from_mail_in_maildir(mail, key, maildir, out_path_prefix):
     maildir.lock()
     try:
-        print("\tFrom: " + mail["From"])
-        print("\tSubj: " + mail["Subject"])
+        fromStr = mail["From"] if "From" in mail["From"] else "[No sender]"
+        subjectStr = mail["Subject"] if "Subject" in mail else "[No subject]"
+        print("\tFrom: " + fromStr)
+        print("\tSubj: " + subjectStr)
         for message_part in mail.walk():
             main_type = message_part.get_content_maintype()
             # print("Found type " + main_type)
