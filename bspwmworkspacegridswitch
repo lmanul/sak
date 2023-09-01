@@ -38,6 +38,18 @@ def switch(current, direction):
         os.system("bspc monitor -f DP-1; bspc desktop -f " + str(target_roman))
         # Restore focused monitor
         os.system("bspc monitor -f " + focused_monitor)
+        print("Poof")
+        icon_filename = (
+            "workspace_"
+            "" + str(N_ROWS) + "x"
+            "" + str(N_COLS) + "_"
+            "" + str(target) + ""
+            ".svg"
+        )
+        icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
+            icon_filename)
+        print(icon_path)
+        os.system("notify-send --urgency=low --expire-time=500 ' ' --icon " + icon_path)
 
 if __name__ == "__main__":
     DIRECTION = sys.argv[1]
