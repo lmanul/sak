@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+import os
+import shlex
+import subprocess
+
+def main():
+    # TODO: query current status and toggle
+    # output = subprocess.check_outout(shlex.split(""))
+    os.system("bspc node -t fullscreen")
+
+if __name__ == "__main__":
+    main()
