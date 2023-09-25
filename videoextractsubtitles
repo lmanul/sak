@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+v = sys.argv[1]
+output = util.change_extension(v, "srt")
+
+# Use 0:s:1 for the second subtitle track, and so on.
+os.system("ffmpeg -i " + v + " -map 0:s:0 " + output)

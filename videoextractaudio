@@ -7,8 +7,8 @@ import subprocess
 import sys
 import util
 
-input = sys.argv[1]
-output = util.change_extension(input, "mp3")
+v = sys.argv[1]
+output = util.change_extension(v, "mp3")
 
-os.system("ffmpeg -i " + input + " " + output)
+os.system("ffmpeg -i " + v + " " + output)
 # os.system("ffmpeg -i " + input + " -q:a 0 -map a " + output)
