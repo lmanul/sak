@@ -8,10 +8,14 @@ if __name__ == "__main__":
     subs = sys.argv[2]
     dot_index = movie.rfind(".")
     out = movie[:dot_index] + "_burned" + movie[dot_index:]
+    if out.endswith("mkv"):
+        out = out.replace("mkv", "mp4")
+    if out.endswith("avi"):
+        out = out.replace("avi", "mp4")
 
     cmd = ("ffmpeg "
            "-i " + movie + " "
-           "-vf subtitles=" + subs + " "
+           "-vf subtitles=" + subs + ":force_style='FontSize=24' "
            "" + out)
 
     # print(cmd)
