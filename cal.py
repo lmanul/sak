@@ -445,8 +445,11 @@ def rental_next_events():
                     continue
                 while "   " in line:
                     line = line.replace("   ", "  ")
-                (first, last, in_date, in_time, out_date, out_time, country) = \
-                    line.split("  ")
+                try:
+                    (first, last, in_date, in_time, out_date, out_time, country) = \
+                        line.split("  ")
+                except ValueError:
+                    print("Oops: " + line)
                 events.append([in_date, util.color(cal_name + ": " + first + " " + last + " checks in", "green")])
                 events.append([out_date, util.color(cal_name + ": " + first + " " + last + " checks out", "red")])
     return events
