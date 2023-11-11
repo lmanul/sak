@@ -27,22 +27,26 @@ if __name__ == "__main__":
     for i in range(len(TZ)):
         tz = TZ[i]
         filler = " " * (MAX_WIDTH - len(tz[1]))
-        now = datetime.datetime.now(pytz.timezone(tz[0]))
-        now_str = str(now).split(" ")
-        day_of_week = now.strftime("%a")
-        day = day_of_week + " " + now_str[0]
-        day_for_next_line = day
-        day_for_prev_line = day
-        if i < len(TZ) - 1:
-            now_in_next_line = datetime.datetime.now(pytz.timezone(TZ[i + 1][0]))
-            now_in_next_line_str = str(now_in_next_line).split(" ")
-            day_of_week_next_line = now_in_next_line.strftime("%a")
-            day_for_next_line = day_of_week_next_line + " " + now_in_next_line_str[0]
-        if i > 0:
-            now_in_prev_line = datetime.datetime.now(pytz.timezone(TZ[i - 1][0]))
-            now_in_prev_line_str = str(now_in_prev_line).split(" ")
-            day_of_week_prev_line = now_in_prev_line.strftime("%a")
-            day_for_prev_line = day_of_week_prev_line + " " + now_in_prev_line_str[0]
+        try:
+            now = datetime.datetime.now(pytz.timezone(tz[0]))
+            now_str = str(now).split(" ")
+            day_of_week = now.strftime("%a")
+            day = day_of_week + " " + now_str[0]
+            day_for_next_line = day
+            day_for_prev_line = day
+            if i < len(TZ) - 1:
+                now_in_next_line = datetime.datetime.now(pytz.timezone(TZ[i + 1][0]))
+                now_in_next_line_str = str(now_in_next_line).split(" ")
+                day_of_week_next_line = now_in_next_line.strftime("%a")
+                day_for_next_line = day_of_week_next_line + " " + now_in_next_line_str[0]
+            if i > 0:
+                now_in_prev_line = datetime.datetime.now(pytz.timezone(TZ[i - 1][0]))
+                now_in_prev_line_str = str(now_in_prev_line).split(" ")
+                day_of_week_prev_line = now_in_prev_line.strftime("%a")
+                day_for_prev_line = day_of_week_prev_line + " " + now_in_prev_line_str[0]
+        except pytz.exceptions.UnknownTimeZoneError:
+            print("Warning, unknown time zone " + str(tz))
+            continue
 
         # Remove precision after minutes
         time = now_str[1][:-16]

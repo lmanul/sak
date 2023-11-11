@@ -3,7 +3,7 @@
 import datetime
 import sys
 
-from pytz import timezone
+from pytz import timezone, exceptions
 
 import timezones
 
@@ -44,4 +44,8 @@ if __name__ == "__main__":
           "    v "
           " \n")
     for tz in TZ_TO_INCLUDE:
-        print(format_time(convert(d, z, tz)) + " " + tz)
+        try:
+            print(format_time(convert(d, z, tz)) + " " + tz)
+        except exceptions.UnknownTimeZoneError:
+            print("Warning, unknown timezone " + str(tz))
+            pass
