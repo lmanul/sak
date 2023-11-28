@@ -8,7 +8,7 @@ from colorama import Style, Fore
 MAX_WIDTH = 15
 
 TZ = [
-    ["US/Hawaii", "Hawaii"],
+    ["Pacific/Honolulu", "Hawaii"],
     ["America/Los_Angeles", "San Francisco"],
     ["America/Denver", "Denver"],
     ["America/Chicago", "Chicago"],
@@ -45,7 +45,7 @@ if __name__ == "__main__":
                 day_of_week_prev_line = now_in_prev_line.strftime("%a")
                 day_for_prev_line = day_of_week_prev_line + " " + now_in_prev_line_str[0]
         except pytz.exceptions.UnknownTimeZoneError:
-            print("Warning, unknown time zone " + str(tz))
+            print("Warning, unknown time zone " + str(tz[0]))
             continue
 
         # Remove precision after minutes
