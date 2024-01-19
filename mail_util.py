@@ -56,7 +56,9 @@ def get_recipient(msg):
         return ""
     h = make_header(decode_header(msg.get(header)))
     if "undisclosed-recipients" in str(h).lower():
-        h = make_header(decode_header(msg.get(DELIVERED_TO)))
+        delivered = msg.get(DELIVERED_TO)
+        if delivered:
+            h = make_header(decode_header(delivered))
     return str(h).lower()
 
 
