@@ -1,13 +1,13 @@
 TIMEZONES = {
     "CET": "Europe/Paris",
     "CNT": "Asia/Shanghai",
-    "CST": "US/Central",
+    "CST": "America/Chicago",
     "EET": "Europe/Tallinn",
-    "EST": "US/Eastern",
+    "EST": "America/New_York",
     "ICT": "Asia/Bangkok",
-    "MST": "US/Mountain",
+    "MST": "America/Boise",
     "JST": "Asia/Tokyo",
-    "PST": "US/Pacific",
+    "PST": "America/Los_Angeles",
     "UTC": "Etc/UTC",
 }
 

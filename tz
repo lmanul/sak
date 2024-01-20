@@ -33,7 +33,11 @@ if __name__ == "__main__":
 
     d = datetime.datetime.now()
     d = d.replace(hour=h, minute=m, second=0)
-    d = timezone(timezones.TIMEZONES[z]).localize(d)
+    try:
+        d = timezone(timezones.TIMEZONES[z]).localize(d)
+    except exceptions.UnknownTimeZoneError as e:
+        print("Sorry I don't know this one: " + str(e))
+        sys.exit(1)
 
     if len(z) == 1:
         z = timezones.SHORTS[z]
