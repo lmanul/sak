@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+m4a = sys.argv[1]
+mp3 = m4a.replace("m4a", "mp3")
+
+os.system(
+    "ffmpeg -i " + m4a + " "
+    "-c:v copy "
+    "-c:a libmp3lame "
+    # Change this between 0 and 9 (compression)
+    "-q:a 6 "
+    "" + mp3
+)
