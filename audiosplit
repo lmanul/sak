@@ -8,6 +8,11 @@ import util
 music = sys.argv[1]
 tracklist = sys.argv[2]
 
+# Example of a timestamp file:
+# 00:00:00 Title
+# 00:29:07 Another title
+# 00:59:51 One more title
+
 if not music.endswith(".mp3"):
     print("Please convert the input to mp3 first.")
     sys.exit(1)
