@@ -1,0 +1,27 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+TEMPLATE = """#!/usr/bin/python
+
+def main():
+    pass
+
+if __name__ == "__main__":
+    main()
+"""
+
+def main():
+    script_name = sys.argv[1]
+
+    if os.path.exists(script_name):
+        print(script_name + " already exists!")
+        sys.exit(1)
+
+    with open(script_name, "w") as f:
+        f.write(TEMPLATE)
+    os.system("chmod +x " + script_name)
+
+if __name__ == "__main__":
+    main()
