@@ -1,0 +1,28 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+def main(class_name):
+    file_name = class_name + ".java"
+    output = [
+        "public class " + class_name + " {"
+        ""
+        "    public static void main(String[] args) {"
+        "        System.out.println(\"Hello World\");"
+        "    }"
+        "}"
+    ]
+
+    if os.path.exists(file_name):
+        print(file_name + " already exists")
+        sys.exit(1)
+
+    with open(file_name, "w") as f:
+        f.write("\n".join(output))
+
+if __name__ == "__main__":
+    class_name = sys.argv[1]
+    if class_name.endswith(".java"):
+        class_name = class_name.replace(".java", "")
+    main(class_name)
