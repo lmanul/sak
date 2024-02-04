@@ -4,14 +4,18 @@ import os
 import random
 import sys
 
+# fi = "lofi"
+# fi = "medfi"
+fi = "hifi"
+
 streams = [
     ["bfm", "https://audio.bfmtv.com/bfmradio_128.mp3"],
     ["bfmbusiness", "https://chai5she.cdn.dvmr.fr/bfmbusiness"],
     ["europe1", "http://ais-live.cloud-services.paris:8000/europe1.mp3"],
     ["fip", "http://direct.fipradio.fr/live/fip-midfi.mp3"],
-    ["franceculture", "http://direct.franceculture.fr/live/franceculture-midfi.mp3"],
-    ["franceinfo", "http://direct.franceinfo.fr/live/franceinfo-midfi.mp3"],
-    ["franceinter", "http://direct.franceinter.fr/live/franceinter-midfi.mp3"],
+    ["franceculture", "https://stream.radiofrance.fr/franceculture/franceculture_" + fi + ".m3u8?id=radiofrance"],
+    ["franceinfo", "https://stream.radiofrance.fr/franceinfo/franceinfo_" + fi + ".m3u8?id=radiofrance"],
+    ["franceinter", "https://stream.radiofrance.fr/franceinter/franceinter_" + fi + ".m3u8?id=radiofrance"],
     ["francemusique", "http://icecast.radiofrance.fr/francemusique-hifi.aac"],
     ["kcsm", "http://ice5.securenetsystems.net/KCSM"],
     #  ["msnbc", "http://wrau.streamguys1.com/msnbc-free"],
