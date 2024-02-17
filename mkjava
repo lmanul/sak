@@ -6,12 +6,13 @@ import sys
 def main(class_name):
     file_name = class_name + ".java"
     output = [
-        "public class " + class_name + " {"
-        ""
-        "    public static void main(String[] args) {"
-        "        System.out.println(\"Hello World\");"
-        "    }"
-        "}"
+        "public class " + class_name + " {",
+        "",
+        "    public static void main(String[] args) {",
+        "        System.out.println(\"Hello World\");",
+        "    }",
+        "}",
+        "",
     ]
 
     if os.path.exists(file_name):
