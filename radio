@@ -9,8 +9,9 @@ import sys
 fi = "hifi"
 
 streams = [
+    ["bbc", "https://a.files.bbci.co.uk/ms6/live/3441A116-B12E-4D2F-ACA8-C1984642FA4B/audio/simulcast/dash/nonuk/pc_hd_abr_v2/aks/bbc_world_service.mpd"],
     ["bfm", "https://audio.bfmtv.com/bfmradio_128.mp3"],
-    ["bfmbusiness", "https://chai5she.cdn.dvmr.fr/bfmbusiness"],
+    ["bfmbusiness", "https://audio.bfmtv.com/bfmbusiness_128.mp3"],
     ["europe1", "http://ais-live.cloud-services.paris:8000/europe1.mp3"],
     ["fip", "http://direct.fipradio.fr/live/fip-midfi.mp3"],
     ["franceculture", "https://stream.radiofrance.fr/franceculture/franceculture_" + fi + ".m3u8?id=radiofrance"],
