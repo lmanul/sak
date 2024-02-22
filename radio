@@ -43,4 +43,4 @@ else:
     print("I need an argument!")
     sys.exit(1)
 
-os.system("cvlc " + stream)
+os.system("cvlc 2> /dev/null " + stream)
