@@ -1,0 +1,7 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+if __name__ == "__main__":
+    os.system("xxd -b " + sys.argv[0] + " | cut -d: -f 2 | sed 's/  .*//; s/ //g'")

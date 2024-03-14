@@ -9,7 +9,7 @@ TRACK_ID_REGEXP = r"Track\s+ID\s+(.+)\:\s+.*"
 input = sys.argv[1]
 bup = input + ".bup"
 os.system("mv " + input + " " +  bup)
-# input = util.change_extension(input, "mp4")
+input = util.change_extension(input, "mp4")
 
 #subtitles_option = "-vf subtitles=" + input + " " if input.endswith(".mkv") else ""
 subtitles_option = ""
