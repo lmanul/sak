@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+if __name__ == "__main__":
+    # Which branch to rebase on?
+    main_branch = sys.argv[1]
+    branches = util.get_git_branches()
+    for branch in branches:
+        if branch == main_branch:
+            continue
+        print("Branch \u001b[32m" + branch + "\u001b[0m " + "...")
+        result = os.system("git checkout " + branch)
+        if result != 0:
+            print("Could not check out branch " + branch)
+            sys.exit(1)
+
+        result = os.system("git rebase " + main_branch)
+        if result != 0:
+            print("Could not rebase " + branch)
+            sys.exit(1)
+    os.system("git checkout " + main_branch)
+
+    print("All done.")
