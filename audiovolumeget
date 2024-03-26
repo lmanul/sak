@@ -6,8 +6,14 @@ import subprocess
 
 PATTERN = re.compile(r".*\[(\d+)%.*")
 
-raw = subprocess.check_output(shlex.split("amixer sget Master")).decode()
-for l in raw.split("\n"):
-    matches = PATTERN.match(l)
-    if matches:
-        print(matches[1])
+def main():
+    raw = subprocess.check_output(shlex.split("amixer sget Master")).decode()
+    for l in raw.split("\n"):
+        matches = PATTERN.match(l)
+        if matches:
+            print(matches[1])
+            # Only print one
+            return
+
+if __name__ == "__main__":
+    main()
