@@ -4,12 +4,24 @@ import os
 import shlex
 import subprocess
 import sys
+import util
 
 N_ROWS = 3
 N_COLS = 3
 
+ARABIC_NUMERALS = [
+    "1", "2", "3", "4", "5", "6", "7", "8", "9",
+]
+
 ROMAN_NUMERALS = [
-  "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX",
+    "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX",
+]
+CHINESE_NUMERALS = [
+    "一", "二", "三", "四", "五", "六", "七", "八", "九",
+]
+
+ALL_NUMERALS = [
+    ARABIC_NUMERALS, ROMAN_NUMERALS, CHINESE_NUMERALS,
 ]
 
 def switch(current, direction):
@@ -33,12 +45,19 @@ def switch(current, direction):
     if target != current:
         focused_monitor = subprocess.check_output(shlex.split(
             "bspc query -M -d focused --names")).decode().strip()
-        os.system("bspc monitor -f eDP-1; bspc desktop -f " + str(target))
-        target_roman = ROMAN_NUMERALS[target - 1]
-        os.system("bspc monitor -f DP-1; bspc desktop -f " + str(target_roman))
+
+        monitors = util.get_monitor_data()
+        i = 0
+        for monitor in monitors:
+            monitor_id = monitor[0]
+            target_numeral = ALL_NUMERALS[i % 3][target - 1]
+            print(target_numeral)
+            os.system("bspc monitor -f " + monitor_id)
+            os.system("bspc desktop -f " + str(target_numeral))
+            i += 1
+
         # Restore focused monitor
         os.system("bspc monitor -f " + focused_monitor)
-        print("Poof")
         icon_filename = (
             "workspace_"
             "" + str(N_ROWS) + "x"
@@ -48,7 +67,6 @@ def switch(current, direction):
         )
         icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
             icon_filename)
-        print(icon_path)
         os.system("notify-send --urgency=low --expire-time=500 ' ' --icon " + icon_path)
 
 if __name__ == "__main__":
@@ -57,5 +75,4 @@ if __name__ == "__main__":
         shlex.split("bspc query -D -d focused --names")).decode().strip()
     if CURRENT in ROMAN_NUMERALS:
         CURRENT = ROMAN_NUMERALS.index(CURRENT) + 1
-    print(CURRENT)
     switch(int(CURRENT), DIRECTION)
