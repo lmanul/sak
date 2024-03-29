@@ -11,6 +11,8 @@ import sys
 from datetime import date
 from datetime import datetime
 
+from process import Process
+
 try:
     from colorama import Fore, Style
     has_colorama = True
@@ -45,16 +47,16 @@ def is_screen_session():
     env_var = os.getenv("STY")
     return env_var != None and env_var.strip() != ""
 
-def instances_of_process_running(process, apart_from=None):
+def instances_of_process_running(binary_name, apart_from=None):
     s = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
     instances = []
     for x in s.stdout:
-        l = x.decode().strip()
-        if re.search(process, l):
-            if apart_from != None and str(apart_from) in l:
+        line = x.decode().strip()
+        p = Process.parse_ps_aux_line(line)
+        if p.matches_binary(binary_name):
+            if p.pid == str(apart_from):
                 continue
-            if not "defunct" in l:
-                instances.append(l)
+            instances.append(line)
     return instances
 
 # Returns whether a process containing the given name is running.
