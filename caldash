@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
 """
 Returns a synthetic "what's up next" view of events, for a dashboard.

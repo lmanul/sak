@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 """Prints the system's audio volume."""
 import re
 import shlex
