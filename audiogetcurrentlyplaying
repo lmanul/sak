@@ -8,6 +8,7 @@ def main():
     title = "?"
     album = "?"
     author = "?"
+    empty = True
     # Parsing this manually is mildly silly
     key = ""
     for line in raw.split("\n"):
@@ -19,14 +20,18 @@ def main():
             else:
                 value = line.split('"')[1]
                 if key == "album":
+                    empty = False
                     album = value
                 if key == "title":
+                    empty = False
                     title = value
                 if key == "artist":
+                    empty = False
                     author = value
     if title.endswith(".mp3"):
         title = title[:-4]
-    print(" | ".join([title, album, author]))
+    if not empty:
+        print(" | ".join([title, album, author]))
 
 if __name__ == "__main__":
     main()
