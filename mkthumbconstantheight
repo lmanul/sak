@@ -1,0 +1,18 @@
+#!/usr/bin/python3
+
+import os
+import sys
+
+size = sys.argv[1]
+file = sys.argv[2]
+
+if "thumbnail" in file:
+    print(file + " is already a thumbnail")
+    sys.exit(1)
+
+out = file.replace(".", "_thumbnail.")
+
+os.system("convert -size x" + size + " " + file + " -resize x" + size + " " + out)
+
+if os.path.exists("thumbs"):
+    os.system("mv " + out + " thumbs/")
