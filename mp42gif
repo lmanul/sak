@@ -1,0 +1,28 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+if len(sys.argv) < 3:
+    print("Usage: " + sys.argv[0] + " video.mp4 fps")
+    sys.exit(1)
+
+video = sys.argv[1]
+fps = int(sys.argv[2])
+
+if os.path.exists("frames"):
+    print("'frames' already exists, I don't want to mess it up. Aborting.")
+    sys.exit(1)
+
+os.mkdir("frames")
+
+os.system("ffmpeg -i " + video + "  -r " + str(fps) + " 'frames/frame-%03d.jpg'")
+
+os.chdir("frames")
+
+delay = 100 / fps
+os.system("convert -delay " + str(delay) + " -loop 0 *.jpg myimage.gif")
+
+os.system("mv myimage.gif ../" + video.replace(".mp4", ".gif"))
+
+os.system("rm -rf frames")
