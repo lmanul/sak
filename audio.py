@@ -1,8 +1,10 @@
-import os
+import shlex
+import subprocess
 
 import dbus
 
-PREFIX = "/org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player."
+CMD_PREFIX = "org.mpris.MediaPlayer2.Player"
+OBJECT = "/org/mpris/MediaPlayer2"
 
 MUSIC_PLAYERS = [
   "clementine",
@@ -10,7 +12,7 @@ MUSIC_PLAYERS = [
   "vlc",
 ]
 
-def send_command_to_music_player(cmd):
+def send_command_to_music_player(cmd, print_reply=False, cmd_prefix=CMD_PREFIX, msg_payload=""):
 
     destination = ""
     for service in dbus.SessionBus().list_names():
@@ -25,4 +27,13 @@ def send_command_to_music_player(cmd):
                 break
 
     if destination:
-        os.system("dbus-send --type=method_call --dest='" + destination + "' " + PREFIX + cmd)
+        output = subprocess.check_output(shlex.split(
+            "dbus-send "
+            "--type=method_call "
+            "" + ("--print-reply " if print_reply else "") + ""
+            "--dest='" + destination + "' "
+            "" + OBJECT + " "
+            "" + cmd_prefix +  "." + cmd + " "
+            "" + msg_payload + ""
+        )).decode()
+        return output

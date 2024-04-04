@@ -1,0 +1,32 @@
+#!/usr/bin/python
+
+import audio
+
+def main():
+    raw = audio.send_command_to_music_player("Get", print_reply=True,
+        cmd_prefix="org.freedesktop.DBus.Properties", msg_payload="string:Metadata " * 2)
+    title = "?"
+    album = "?"
+    author = "?"
+    # Parsing this manually is mildly silly
+    key = ""
+    for line in raw.split("\n"):
+        line = line.strip()
+        if "string" in line:
+            line = line.replace("variant", "").strip()
+            if "xesam:" in line:
+                key = line.split(":")[1][:-1]
+            else:
+                value = line.split('"')[1]
+                if key == "album":
+                    album = value
+                if key == "title":
+                    title = value
+                if key == "artist":
+                    author = value
+    if title.endswith(".mp3"):
+        title = title[:-4]
+    print(" | ".join([title, album, author]))
+
+if __name__ == "__main__":
+    main()
