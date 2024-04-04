@@ -1,0 +1,152 @@
+#!/usr/bin/python3
+
+import argparse
+import os
+import sys
+import time
+
+TESTING = False
+HOME = os.path.expanduser("~")
+BATCH_SIZE = 20
+SECONDS_BETWEEN_BATCHES = 5 if TESTING else 300
+
+class Contact:
+    "Represents a single contact, with name and email."
+    def __init__(self, email, display_name):
+        self.email = email
+        self.display_name = display_name
+
+    def format(self):
+        return self.display_name + " <" + self.email + ">"
+
+    def __str__(self):
+        return "<" + self.display_name + ">"
+
+    def __repr__(self):
+        return self.__str__()
+
+def add_emails_to_scratch(email_list, scratch_file):
+    print("Adding " + str(len(email_list)) + " emails to scratch as done.")
+    new_scratch = []
+    with open(scratch_file) as f:
+        for l in f:
+            new_scratch.append(l.strip())
+    new_scratch += email_list
+    with open(scratch_file, "w") as f:
+        f.write("\n".join(sorted(new_scratch)))
+
+def batch_bcc(subject, content, contacts, scratch_file):
+    recipients_as_string = ", ".join([c.format() for c in contacts])
+    with open("tmp.txt", "w") as f:
+        f.write(
+            "From: Manu Cornet <m@ma.nu>\n"
+            "To: Manu Cornet <m@ma.nu>\n"
+            "Bcc: " + recipients_as_string + "\n"
+            "Subject: " + subject + "\n"
+            "MIME-Version: 1.0\n"
+            "Content-Type: text/html\n"
+            "\n"
+            "" + content
+        )
+        f.close()
+    cmd = "msmtp -t -a 'persofastmail' --remove-bcc-headers=on < tmp.txt"
+    print(cmd)
+    os.system(cmd)
+    add_emails_to_scratch([c.email for c in contacts], scratch_file)
+    os.system("rm tmp.txt")
+
+def process_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-e", "--english", action="store_true", help="EN", default=False)
+    parser.add_argument("-f", "--francais", action="store_true", help="FR", default=False)
+    parser.add_argument("subject", nargs="?", default="")
+    parser.add_argument("contents_file", nargs="?", default="")
+    parser.add_argument("scratch_file", nargs="?", default="")
+    args = parser.parse_args()
+
+    if not args.subject or not args.contents_file or not args.scratch_file:
+        print("Usage: " + sys.argv[0] + " [subject] [contents_file] [scratch_file]")
+        sys.exit(1)
+    if not args.english and not args.francais:
+        print("Please specify either -f or -e for the language")
+        sys.exit(1)
+    if not os.path.exists(args.scratch_file):
+        os.system("touch " + args.scratch_file)
+    return args
+
+def is_email_already_in_scratch(email, scratch_file):
+    with open(scratch_file) as f:
+        for l in f:
+            if email == l.strip():
+                return True
+    return False
+
+def trim_already_sent(contacts, scratch_file):
+    filtered = []
+    for c in contacts:
+        if not is_email_already_in_scratch(c.email, scratch_file):
+            filtered.append(c)
+    return filtered
+
+def get_relevant_contacts(args):
+    contacts = []
+    with open(os.path.join(HOME, "bus", "reference", "contacts.txt")) as f:
+        for l in f:
+            if l.startswith("Last|First") or not l.strip():
+                continue
+            parts = l.split("|")
+            display_name = parts[1] + " " + parts[0]
+            display_name = display_name.strip()
+            email_field = parts[3]
+            primary_email = email_field
+            if not email_field.strip():
+                continue
+            if "," in email_field:
+                emails = email_field.split(",")
+                primary_email = emails[0]
+            else:
+                emails = [primary_email]
+            if not display_name.strip():
+                display_name = primary_email.split("@")[0]
+            lang = parts[9]
+            if lang == "x":
+                continue
+            if not args.francais and lang == "f":
+                continue
+            if not args.english and lang == "e":
+                continue
+            for email in emails:
+                contacts.append(Contact(email, display_name))
+        f.close()
+    return contacts
+
+def reduce(contacts, current_batch_contacts, args):
+    first = contacts.pop()
+    if not TESTING or "m@ma.nu" in first.email:
+        current_batch_contacts.append(first)
+        print("Scheduling send to " + first.format())
+
+    if len(current_batch_contacts) > 0 and \
+       (len(current_batch_contacts) >= BATCH_SIZE or len(contacts) == 0):
+        print("Sending to " + str(current_batch_contacts) + "...\n")
+        batch_bcc(args.subject, contents, current_batch_contacts, args.scratch_file)
+        current_batch_contacts.clear()
+        print("Sleeping now for " + str(SECONDS_BETWEEN_BATCHES) + "s. It is safe to Ctrl-C.")
+        time.sleep(SECONDS_BETWEEN_BATCHES)
+
+if __name__ == "__main__":
+    ARGS = process_args()
+    with open(ARGS.contents_file) as F:
+        contents = F.read()
+        F.close()
+
+    CONTACTS = get_relevant_contacts(ARGS)
+    CONTACTS = trim_already_sent(CONTACTS, ARGS.scratch_file)
+    if TESTING:
+        print("Filtered " + str(len(CONTACTS)) + " contacts: " + str(CONTACTS))
+
+    CURRENT_BATCH_CONTACTS = []
+    while len(CONTACTS) > 0:
+        reduce(CONTACTS, CURRENT_BATCH_CONTACTS, ARGS)
+    if len(CURRENT_BATCH_CONTACTS):
+        print("WARNING, this is unexpected, is there a bug?")
