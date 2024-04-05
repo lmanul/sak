@@ -9,6 +9,8 @@ def main():
             cmd_prefix="org.freedesktop.DBus.Properties", msg_payload="string:Metadata " * 2)
     except subprocess.CalledProcessError:
         return
+    if not raw:
+        return
     title = "?"
     album = "?"
     author = "?"
