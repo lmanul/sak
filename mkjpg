@@ -26,6 +26,11 @@ def main():
         os.system("rm " + ppm)
     elif i.lower().endswith(".heic"):
         os.system("heif-convert " + i + " " + jpg)
+    elif i.lower().endswith(".xcf"):
+        png = util.change_extension(i, "png")
+        os.system("xcf2png " + i)
+        os.system("mkjpg " + png)
+        os.system("rm " + png)
     else:
         os.system("convert " + args + " " + i + " " + jpg)
 
