@@ -19,17 +19,27 @@ def infer_duration(raw):
                 duration = duration.split(".", 1)[0]
     return duration
 
-def main(filename):
+def main(filenames):
     raw = ""
-    try:
-        process = subprocess.Popen(
-            shlex.split("ffmpeg -i " + filename),
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = process.communicate()
-    except subprocess.CalledProcessError:
-        # ffmpeg wants an output file, but we just want info
-        pass
-    print(filename + ":\t" + infer_duration(err.decode().strip()))
+    total_seconds = 0
+    for f in filenames:
+        try:
+            process = subprocess.Popen(
+                shlex.split("ffmpeg -i " + f),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, err = process.communicate()
+        except subprocess.CalledProcessError:
+            # ffmpeg wants an output file, but we just want info
+            pass
+        duration = infer_duration(err.decode().strip())
+        hms = [int(p) for p in duration.split(":")]
+        total_seconds += hms[2] + 60 * hms[1] + 3600 * hms[0]
+        print(f + ":\t" + duration)
+    if len(filenames) > 1:
+        h, r = divmod(total_seconds, 3600)
+        m, s = divmod(r, 60)
+        print("-" * len("Total:  00:00:00"))
+        print("Total:\t" + ":".join([str(p).zfill(2) for p in [h, m, s]]))
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1:])
