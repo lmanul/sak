@@ -1,0 +1,35 @@
+#!/usr/bin/python
+
+import shlex
+import subprocess
+import sys
+
+def infer_duration(raw):
+    lines = raw.split("\n")
+    duration = "Unknown"
+    for line in lines:
+        line = line.strip()
+        if "Duration:" in line:
+            pieces = line.split(" ")
+            duration = pieces[1]
+            if duration.endswith(","):
+                duration = duration[:-1]
+            if "." in duration:
+                # Don't really care about units smaller than seconds
+                duration = duration.split(".", 1)[0]
+    return duration
+
+def main(filename):
+    raw = ""
+    try:
+        process = subprocess.Popen(
+            shlex.split("ffmpeg -i " + filename),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = process.communicate()
+    except subprocess.CalledProcessError:
+        # ffmpeg wants an output file, but we just want info
+        pass
+    print(filename + ":\t" + infer_duration(err.decode().strip()))
+
+if __name__ == "__main__":
+    main(sys.argv[1])
