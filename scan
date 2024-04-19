@@ -1,24 +1,29 @@
 #!/usr/bin/python
 "This is mostly just a place to hold some recipes for cmd line scanning"
 
+import random
 import shlex
+import string
 import subprocess
 
 RESOLUTION = 600
 MODE = "Gray"
 SCANNER = "airscan:e0:CanonLiDE 400 (USB)"
-OUTPUT = "scanned_image.png"
+
+def random_id():
+    return ''.join(random.choices(string.ascii_lowercase, k=5))
 
 def main():
     print("Scanning. You may need to 'sudo apt remove ippusbxd'")
     print("If I have the wrong scanner, list them with 'scanimage -L'")
+    output = "scanned_image_" + random_id() + ".png"
     cmd = (
         "scanimage "
         "--format png "
         "--resolution " + str(RESOLUTION) + " "
         "--mode " + MODE + " "
         "-d \"" + SCANNER + "\" "
-        "-o " + OUTPUT + ""
+        "-o " + output + ""
     )
     subprocess.check_output(shlex.split(cmd))
 
