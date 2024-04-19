@@ -1,20 +1,26 @@
 #!/usr/bin/python3
+"""
+Uses jpegtran to reduce the size of a JPG image.
+"""
 
 import os
 import sys
 
-for imageName in sys.argv[1:]:
-    optimizedTemp = imageName + ".opti"
-    # print "Optimizing " + imageName
-    os.system(
-        "jpegtran -copy none -optimize "
-        + imageName
-        + " > "
-        + optimizedTemp
-        + " && rm -f "
-        + imageName
-        + " && mv "
-        + optimizedTemp
-        + " "
-        + imageName
-    )
+def main(args):
+    for image_name in args:
+        optimized_temp = image_name + ".opti"
+        os.system("".join([
+            "jpegtran -copy none -optimize ",
+            image_name,
+            " > ",
+            optimized_temp,
+            " && rm -f ",
+            image_name,
+            " && mv ",
+            optimized_temp,
+            " ",
+            image_name,
+        ]))
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
