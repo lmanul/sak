@@ -1,0 +1,19 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+def main(video):
+    bup = video + ".bup"
+    thumb = video + ".thumb.jpg"
+    os.system("ffmpeg -i " + video + " -ss 00:00:50.000 -vframes 1 " + thumb)
+    os.system("mv " + video + " " + bup)
+    os.system(
+        "ffmpeg -i " + bup + " -i " + thumb + " "
+        "-map 1 -map 0 -c copy -disposition:0 attached_pic "
+        "" + video)
+    os.system("rm " + bup)
+    # os.system("rm " + thumb)
+
+if __name__ == "__main__":
+    main(sys.argv[1])
