@@ -13,6 +13,9 @@ command = ""
 for file in args:
     basename = os.path.splitext(file)[0]
     png = basename + ".png"
+    if os.path.exists(png):
+        print(png + " already exists, not overwriting")
+        sys.exit(0)
     if file.endswith("xcf"):
         command = "xcf2png " + file + " > " + png
     elif file.endswith(".pdf"):
