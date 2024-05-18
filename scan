@@ -5,22 +5,23 @@ import random
 import shlex
 import string
 import subprocess
+import sys
 
-RESOLUTION = 600
-MODE = "Gray"
+DEFAULT_RESOLUTION = 600
+MODE = "Color"
 SCANNER = "airscan:e0:CanonLiDE 400 (USB)"
 
 def random_id():
     return ''.join(random.choices(string.ascii_lowercase, k=5))
 
-def main():
+def main(resolution):
     print("Scanning. You may need to 'sudo apt remove ippusbxd'")
     print("If I have the wrong scanner, list them with 'scanimage -L'")
     output = "scanned_image_" + random_id() + ".png"
     cmd = (
         "scanimage "
         "--format png "
-        "--resolution " + str(RESOLUTION) + " "
+        "--resolution " + str(resolution) + " "
         "--mode " + MODE + " "
         "-d \"" + SCANNER + "\" "
         "-o " + output + ""
@@ -28,4 +29,5 @@ def main():
     subprocess.check_output(shlex.split(cmd))
 
 if __name__ == "__main__":
-    main()
+    resolution = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_RESOLUTION
+    main(resolution)
