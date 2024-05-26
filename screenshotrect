@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import datetime
+import os
+
+def main():
+    out_file = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S") + ".png"
+    os.system("maim -s " + out_file)
+    os.system("optipng " + out_file)
+
+if __name__ == "__main__":
+    main()
