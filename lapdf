@@ -8,8 +8,6 @@ import sys
 
 from optparse import OptionParser
 
-import colorama
-
 import util
 
 
@@ -60,7 +58,7 @@ if __name__ == "__main__":
     unavailable_fonts = False
     compile_errors = False
 
-    page_number_regex = re.compile("\[(\d+)")
+    page_number_regex = re.compile(r"\[(\d+)")
     current_page_number = 0
 
     while not latex.poll():
@@ -80,7 +78,7 @@ if __name__ == "__main__":
                 os.system("rm -f *.aux")
                 break
             if "in paragraph at lines" in l:
-                matches = re.match(".*graph at lines (\d+..\d+)", l)
+                matches = re.match(r".*graph at lines (\d+..\d+)", l)
                 if matches:
                     maybe_problematic_lines = str(matches.group(1))
             if not maybe_problematic_lines:
@@ -99,7 +97,7 @@ if __name__ == "__main__":
             if "font shapes were not available" in l:
                 unavailable_fonts = True
             if l.startswith("Output written on"):
-                matches = re.match(".*\((\d+).*\spages?", l)
+                matches = re.match(r".*\((\d+).*\spages?", l)
                 if matches:
                     n_pages = int(matches.group(1))
         else:
