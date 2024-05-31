@@ -1,5 +1,14 @@
+import sqlite3
+
 from Cryptodome.Cipher import AES
 from Cryptodome.Protocol.KDF import PBKDF2
+
+def export_all_chrome_linux_cookies(path_to_db):
+    connection = sqlite3.connect(path_to_db)
+    cursor = connection.cursor()
+    result = cursor.execute("SELECT * from cookies")
+    data = result.fetchall()
+    return data
 
 def decrypt_chrome_linux_cookie(encrypted_value):
     # Trim off the 'v10' that Chrome/ium prepends
