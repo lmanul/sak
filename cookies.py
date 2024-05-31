@@ -8,7 +8,21 @@ def export_all_chrome_linux_cookies(path_to_db):
     cursor = connection.cursor()
     result = cursor.execute("SELECT * from cookies")
     data = result.fetchall()
-    return data
+    data_as_dicts = []
+    for row in data:
+        # TODO: Does sqlite3's Python bindings have a way to do this directly?
+        data_as_dicts.append({
+            'creation_utc': row[0],
+            'host_key': row[1],
+            'top_frame_site_key': row[2],
+            'name': row[3],
+            'value': decrypt_chrome_linux_cookie(row[5]) if row[5] else "",
+            'path': row[6],
+            'expires_utc': row[7],
+            'last_access_utc': row[10],
+            'last_update_utc': row[17],
+        })
+    return data_as_dicts
 
 def decrypt_chrome_linux_cookie(encrypted_value):
     # Trim off the 'v10' that Chrome/ium prepends
