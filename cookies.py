@@ -16,11 +16,22 @@ def export_all_chrome_linux_cookies(path_to_db):
             'host_key': row[1],
             'top_frame_site_key': row[2],
             'name': row[3],
+            'unencrypted_value': row[4],
             'value': decrypt_chrome_linux_cookie(row[5]) if row[5] else "",
             'path': row[6],
             'expires_utc': row[7],
+            'is_secure': row[8],
+            'is_httponly': row[9],
             'last_access_utc': row[10],
+            'has_expires': row[11],
+            'is_persistent': row[12],
+            'priority': row[13],
+            'samesite': row[14],
+            'source_scheme': row[15],
+            'source_port': row[16],
             'last_update_utc': row[17],
+            'source_type': row[18],
+            'has_cross_site_ancestor': row[19],
         })
     return data_as_dicts
 
