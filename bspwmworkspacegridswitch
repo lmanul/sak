@@ -4,7 +4,6 @@ import os
 import shlex
 import subprocess
 import sys
-import util
 
 N_ROWS = 3
 N_COLS = 3
@@ -74,4 +73,6 @@ if __name__ == "__main__":
         shlex.split("bspc query -D -d focused --names")).decode().strip()
     if CURRENT in ROMAN_NUMERALS:
         CURRENT = ROMAN_NUMERALS.index(CURRENT) + 1
+    if CURRENT in CHINESE_NUMERALS:
+        CURRENT = CHINESE_NUMERALS.index(CURRENT) + 1
     switch(int(CURRENT), DIRECTION)
