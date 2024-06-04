@@ -28,7 +28,7 @@ def get_list_of_syncing_files_internal(queue, output):
         output.append(cur)
         #print(cur, end="", flush=True)
         return get_list_of_syncing_files_internal(queue, output)
-    cmd = "dropbox filestatus " + " ".join(["'" + cur + "/" + c + "'" for c in contents])
+    cmd = "dropbox filestatus " + " ".join(["\"" + cur + "/" + c + "\"" for c in contents])
     try:
         lines = subprocess.check_output(shlex.split(cmd)).decode().split("\n")
     except subprocess.CalledProcessError as e:
