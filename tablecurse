@@ -102,6 +102,13 @@ class TableCurse:
         screen.addstr(self.draw_r, self.draw_c, self.data[row][col])
         self.draw_c += cell_width
 
+    def cap_cursor(self, width, height):
+        self.cursor_x = max(0, self.cursor_x)
+        self.cursor_x = min(width - 1, self.cursor_x)
+
+        self.cursor_y = max(0, self.cursor_y)
+        self.cursor_y = min(height - 1, self.cursor_y)
+
     def update_current_cell(self):
         "Potentially update the current cell depending on cursor location"
         if self.cursor_y % 2 == 0:
@@ -179,17 +186,13 @@ def draw_menu(screen):
         elif k:
             table_curse.input_char(chr(k))
 
-        table_curse.cursor_x = max(0, table_curse.cursor_x)
-        table_curse.cursor_x = min(width-1, table_curse.cursor_x)
-
-        table_curse.cursor_y = max(0, table_curse.cursor_y)
-        table_curse.cursor_y = min(height-1, table_curse.cursor_y)
+        table_curse.cap_cursor(width, height)
 
         table_curse.update_current_cell()
 
-        statusbarstr = "'Alt-q' to exit | Row {}/{} Col {}/{} | Last key: {}".format(
+        statusbarstr = "'Alt-q' to exit   + Add row  | Add col   Row {}/{} Col {}/{}".format(
             table_curse.current_row + 1, len(table_curse.data),
-            table_curse.current_col + 1, len(table_curse.data[0]), k)
+            table_curse.current_col + 1, len(table_curse.data[0]))
 
         table_curse.draw(screen)
 
