@@ -10,6 +10,23 @@ class TableCurse:
         self.cursor_y = 0
         self.data = [["Type here"]]
 
+    def add_col(self):
+        for i in range(len(self.data)):
+            self.data[i].append("")
+        self.current_col = len(self.data[0]) - 1
+        self.position_cursor_at_end_of_cell(
+            self.current_row, self.current_col)
+
+    def add_row(self):
+        new_row = []
+        for i in range(len(self.data[0])):
+            new_row.append("")
+        self.data.append(new_row)
+        self.current_row += 1
+        self.current_col = 0
+        self.position_cursor_at_end_of_cell(
+            self.current_row, self.current_col)
+
     def get_max_width(self):
         w = 0
         for row in self.data:
@@ -43,9 +60,7 @@ def draw_menu(screen):
     global table_curse
     quit = False
     k = 0
-    current_row = 0
-    current_col = 0
-    table_curse.position_cursor_at_end_of_cell(current_row, current_col)
+    table_curse.position_cursor_at_end_of_cell(table_curse.current_row, table_curse.current_col)
 
     # Clear and refresh the screen for a blank canvas
     screen.clear()
@@ -69,24 +84,12 @@ def draw_menu(screen):
             break
         if k == ord('|'):
             table_curse.add_col()
-            for i in range(len(data)):
-                data[i].append("")
-            current_col = len(data[0]) - 1
-            table_curse.position_cursor_at_end_of_cell(
-                current_row, current_col)
         elif k == ord('+'):
-            new_row = []
-            for i in range(len(table_curse.data[0])):
-                new_row.append("")
-            table_curse.data.append(new_row)
-            current_row += 1
-            current_col = 0
-            table_curse.position_cursor_at_end_of_cell(
-                current_row, current_col)
+            table_curse.add_row()
         elif k == 263:
             # Backspace
-            if len(table_curse.data[current_row][current_col]) > 0:
-                table_curse.data[current_row][current_col] = table_curse.data[current_row][current_col][:-1]
+            if len(table_curse.data[table_curse.current_row][table_curse.current_col]) > 0:
+                table_curse.data[table_curse.current_row][table_curse.current_col] = table_curse.data[table_curse.current_row][table_curse.current_col][:-1]
                 table_curse.cursor_x -= 1
         elif k == curses.KEY_DOWN:
             table_curse.cursor_y += 1
@@ -97,7 +100,7 @@ def draw_menu(screen):
         elif k == curses.KEY_LEFT:
             table_curse.cursor_x -= 1
         elif k:
-            table_curse.data[current_row][current_col] += chr(k)
+            table_curse.data[table_curse.current_row][table_curse.current_col] += chr(k)
             table_curse.cursor_x += 1
 
         table_curse.cursor_x = max(0, table_curse.cursor_x)
