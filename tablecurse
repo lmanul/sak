@@ -1,0 +1,139 @@
+#!/usr/bin/python
+
+import curses
+
+def get_width_for_row(arr):
+    w = 0
+    for cell in arr:
+        w += len(cell) + 2 # Spaces
+    w += len(arr) + 1 # Separators
+    return w
+
+def get_max_width(data):
+    w = 0
+    for row in data:
+        w = max(w, get_width_for_row(row))
+    return w
+
+def position_cursor_at_end_of_cell(row, col, data):
+    y = 1 + 2 * row
+    x = 0
+    for c in range(col):
+        x += len(data[row][c]) + 2 # Spaces
+    x += col + 1 # Separators
+    x += len(data[row][col])
+    x += 1 # Just after last letter
+    return (x, y)
+
+def draw_horizontal_separator(screen, r, c, data):
+    screen.addstr(r, c, "-" * get_max_width(data))
+
+def draw_menu(screen):
+    quit = False
+    k = 0
+    current_row = 0
+    current_col = 0
+    data = [["Type here"]]
+    (cursor_x, cursor_y) = position_cursor_at_end_of_cell(current_row, current_col, data)
+
+    # Clear and refresh the screen for a blank canvas
+    screen.clear()
+    screen.refresh()
+
+    # Start colors in curses
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_BLACK, curses.COLOR_WHITE)
+
+    while not quit:
+
+        # Initialization
+        screen.clear()
+        height, width = screen.getmaxyx()
+
+        # Left alt + q
+        if k == 113:
+            quit = True
+            break
+        if k == ord('|'):
+            for i in range(len(data)):
+                data[i].append("")
+            current_col = len(data[0]) - 1
+            (cursor_x, cursor_y) = position_cursor_at_end_of_cell(current_row, current_col, data)
+        elif k == ord('+'):
+            new_row = []
+            for i in range(len(data[0])):
+                new_row.append("")
+            data.append(new_row)
+            current_row += 1
+            current_col = 0
+            (cursor_x, cursor_y) = position_cursor_at_end_of_cell(current_row, current_col, data)
+        elif k == 263:
+            # Backspace
+            if len(data[current_row][current_col]) > 0:
+                data[current_row][current_col] = data[current_row][current_col][:-1]
+                cursor_x -= 1
+        elif k == curses.KEY_DOWN:
+            cursor_y += 1
+        elif k == curses.KEY_UP:
+            cursor_y = cursor_y - 1
+        elif k == curses.KEY_RIGHT:
+            cursor_x = cursor_x + 1
+        elif k == curses.KEY_LEFT:
+            cursor_x = cursor_x - 1
+        elif k:
+            data[current_row][current_col] += chr(k)
+            cursor_x += 1
+
+        cursor_x = max(0, cursor_x)
+        cursor_x = min(width-1, cursor_x)
+
+        cursor_y = max(0, cursor_y)
+        cursor_y = min(height-1, cursor_y)
+
+        statusbarstr = "'Alt-q' to exit | Pos: {}, {} | Last key: {}".format(
+            cursor_x, cursor_y, k)
+        if k == 0:
+            keystr = "No key press detected..."[:width-1]
+
+        c = 0
+        r = 0
+        draw_horizontal_separator(screen, r, c, data)
+        r += 1
+        c = 0
+
+        for row in range(len(data)):
+            screen.addstr(r, c, "|")
+            c += 1
+            for col in range(len(data[row])):
+                screen.addstr(r, c, " ")
+                c += 1
+                screen.addstr(r, c, data[row][col])
+                c += len(data[row][col])
+                screen.addstr(r, c, " |")
+            r += 1
+            c = 0
+            draw_horizontal_separator(screen, r, c, data)
+            r += 1
+            c = 0
+
+        # Render status bar
+        screen.attron(curses.color_pair(3))
+        screen.addstr(height-1, 0, statusbarstr)
+        screen.addstr(height-1, len(statusbarstr), " " * (width - len(statusbarstr) - 1))
+        screen.attroff(curses.color_pair(3))
+
+        screen.move(cursor_y, cursor_x)
+
+        # Refresh the screen
+        screen.refresh()
+
+        # Wait for next input
+        k = screen.getch()
+
+def main():
+    curses.wrapper(draw_menu)
+
+if __name__ == "__main__":
+    main()
