@@ -2,6 +2,14 @@
 
 import curses
 
+class TableCurse:
+    def __init__(self):
+        self.current_row = 0
+        self.current_col = 0
+        self.data = [["Type here"]]
+
+table_curse = TableCurse()
+
 def get_width_for_row(arr):
     w = 0
     for cell in arr:
@@ -29,12 +37,13 @@ def draw_horizontal_separator(screen, r, c, data):
     screen.addstr(r, c, "-" * get_max_width(data))
 
 def draw_menu(screen):
+    global table_curse
     quit = False
     k = 0
     current_row = 0
     current_col = 0
-    data = [["Type here"]]
-    (cursor_x, cursor_y) = position_cursor_at_end_of_cell(current_row, current_col, data)
+    (cursor_x, cursor_y) = position_cursor_at_end_of_cell(
+        current_row, current_col, table_curse.data)
 
     # Clear and refresh the screen for a blank canvas
     screen.clear()
@@ -57,22 +66,25 @@ def draw_menu(screen):
             quit = True
             break
         if k == ord('|'):
+            table_curse.add_col()
             for i in range(len(data)):
                 data[i].append("")
             current_col = len(data[0]) - 1
-            (cursor_x, cursor_y) = position_cursor_at_end_of_cell(current_row, current_col, data)
+            (cursor_x, cursor_y) = position_cursor_at_end_of_cell(
+                current_row, current_col, table_curse.data)
         elif k == ord('+'):
             new_row = []
-            for i in range(len(data[0])):
+            for i in range(len(table_curse.data[0])):
                 new_row.append("")
-            data.append(new_row)
+            table_curse.data.append(new_row)
             current_row += 1
             current_col = 0
-            (cursor_x, cursor_y) = position_cursor_at_end_of_cell(current_row, current_col, data)
+            (cursor_x, cursor_y) = position_cursor_at_end_of_cell(
+                current_row, current_col, table_curse.data)
         elif k == 263:
             # Backspace
-            if len(data[current_row][current_col]) > 0:
-                data[current_row][current_col] = data[current_row][current_col][:-1]
+            if len(table_curse.data[current_row][current_col]) > 0:
+                table_curse.data[current_row][current_col] = table_curse.data[current_row][current_col][:-1]
                 cursor_x -= 1
         elif k == curses.KEY_DOWN:
             cursor_y += 1
@@ -83,7 +95,7 @@ def draw_menu(screen):
         elif k == curses.KEY_LEFT:
             cursor_x = cursor_x - 1
         elif k:
-            data[current_row][current_col] += chr(k)
+            table_curse.data[current_row][current_col] += chr(k)
             cursor_x += 1
 
         cursor_x = max(0, cursor_x)
@@ -99,22 +111,22 @@ def draw_menu(screen):
 
         c = 0
         r = 0
-        draw_horizontal_separator(screen, r, c, data)
+        draw_horizontal_separator(screen, r, c, table_curse.data)
         r += 1
         c = 0
 
-        for row in range(len(data)):
+        for row in range(len(table_curse.data)):
             screen.addstr(r, c, "|")
             c += 1
-            for col in range(len(data[row])):
+            for col in range(len(table_curse.data[row])):
                 screen.addstr(r, c, " ")
                 c += 1
-                screen.addstr(r, c, data[row][col])
-                c += len(data[row][col])
+                screen.addstr(r, c, table_curse.data[row][col])
+                c += len(table_curse.data[row][col])
                 screen.addstr(r, c, " |")
             r += 1
             c = 0
-            draw_horizontal_separator(screen, r, c, data)
+            draw_horizontal_separator(screen, r, c, table_curse.data)
             r += 1
             c = 0
 
