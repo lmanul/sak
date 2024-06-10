@@ -52,8 +52,10 @@ class TableCurse:
             w = max(w, self.get_width_for_row(row))
         return w
 
-    def draw_horizontal_separator(self, screen, r, c):
-        screen.addstr(r, c, "-" * self.get_max_width())
+    def draw_horizontal_separator(self, screen):
+        screen.addstr(self.draw_r, self.draw_c, "-" * self.get_max_width())
+        self.draw_r += 1
+        self.draw_c = 0
 
     def position_cursor_at_end_of_cell(self, row, col):
         y = 1 + 2 * row
@@ -69,9 +71,7 @@ class TableCurse:
     def draw(self, screen):
         self.draw_c = 0
         self.draw_r = 0
-        self.draw_horizontal_separator(screen, self.draw_r, self.draw_c)
-        self.draw_r += 1
-        self.draw_c = 0
+        self.draw_horizontal_separator(screen)
 
         for row in range(len(self.data)):
             screen.addstr(self.draw_r, self.draw_c, "|")
@@ -84,9 +84,7 @@ class TableCurse:
                 screen.addstr(self.draw_r, self.draw_c, " |")
             self.draw_r += 1
             self.draw_c = 0
-            self.draw_horizontal_separator(screen, self.draw_r, self.draw_c)
-            self.draw_r += 1
-            self.draw_c = 0
+            self.draw_horizontal_separator(screen)
 
 table_curse = TableCurse()
 
