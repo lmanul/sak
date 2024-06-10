@@ -27,6 +27,11 @@ class TableCurse:
         self.position_cursor_at_end_of_cell(
             self.current_row, self.current_col)
 
+    def backspace(self):
+        if len(self.data[self.current_row][self.current_col]) > 0:
+            self.data[self.current_row][self.current_col] = self.data[self.current_row][self.current_col][:-1]
+            self.cursor_x -= 1
+
     def get_max_width(self):
         w = 0
         for row in self.data:
@@ -87,10 +92,7 @@ def draw_menu(screen):
         elif k == ord('+'):
             table_curse.add_row()
         elif k == 263:
-            # Backspace
-            if len(table_curse.data[table_curse.current_row][table_curse.current_col]) > 0:
-                table_curse.data[table_curse.current_row][table_curse.current_col] = table_curse.data[table_curse.current_row][table_curse.current_col][:-1]
-                table_curse.cursor_x -= 1
+            table_curse.backspace()
         elif k == curses.KEY_DOWN:
             table_curse.cursor_y += 1
         elif k == curses.KEY_UP:
