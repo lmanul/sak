@@ -14,6 +14,7 @@ class TableCurse:
         self.position_cursor_at_end_of_cell(self.current_row, self.current_col)
 
     def add_col(self):
+        "Append a column"
         for i in range(len(self.data)):
             self.data[i].append("")
         self.current_col = len(self.data[0]) - 1
@@ -21,6 +22,7 @@ class TableCurse:
             self.current_row, self.current_col)
 
     def add_row(self):
+        "Append a row"
         new_row = []
         for i in range(len(self.data[0])):
             new_row.append("")
@@ -31,15 +33,18 @@ class TableCurse:
             self.current_row, self.current_col)
 
     def backspace(self):
+        "Backspace in the current cell"
         if len(self.data[self.current_row][self.current_col]) > 0:
             self.data[self.current_row][self.current_col] = self.data[self.current_row][self.current_col][:-1]
             self.cursor_x -= 1
 
     def input_char(self, char):
+        "Input a character in the current cell"
         self.data[self.current_row][self.current_col] += char
         self.cursor_x += 1
 
     def get_width_for_row(self, arr):
+        "Get the char width of the given row"
         w = 0
         for cell in arr:
             w += len(cell) + 2 # Spaces
@@ -47,17 +52,20 @@ class TableCurse:
         return w
 
     def get_max_width(self):
+        "Get the max char width across all rows"
         w = 0
         for row in self.data:
             w = max(w, self.get_width_for_row(row))
         return w
 
     def draw_horizontal_separator(self, screen):
+        "Adds a horizontal line as separator between rows"
         screen.addstr(self.draw_r, self.draw_c, "-" * self.get_max_width())
         self.draw_r += 1
         self.draw_c = 0
 
     def position_cursor_at_end_of_cell(self, row, col):
+        "Places the cursor at the end of the text in this cell"
         y = 1 + 2 * row
         x = 0
         for c in range(col):
@@ -69,6 +77,7 @@ class TableCurse:
         self.cursor_y = y
 
     def draw(self, screen):
+        "Renders the table"
         self.draw_c = 0
         self.draw_r = 0
         self.draw_horizontal_separator(screen)
@@ -87,7 +96,6 @@ class TableCurse:
             self.draw_horizontal_separator(screen)
 
 table_curse = TableCurse()
-
 
 def draw_menu(screen):
     global table_curse
