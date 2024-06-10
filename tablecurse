@@ -76,6 +76,17 @@ class TableCurse:
         self.cursor_x = x
         self.cursor_y = y
 
+    def get_col_width(self, col):
+        w = 0
+        for row in range(len(self.data)):
+            w = max(w, len(self.data[row][col]))
+        return w
+
+    def draw_cell(self, screen, row, col):
+        cell_width = self.get_col_width(col)
+        screen.addstr(self.draw_r, self.draw_c, self.data[row][col])
+        self.draw_c += cell_width
+
     def draw(self, screen):
         "Renders the table"
         self.draw_c = 0
@@ -88,9 +99,9 @@ class TableCurse:
             for col in range(len(self.data[row])):
                 screen.addstr(self.draw_r, self.draw_c, " ")
                 self.draw_c += 1
-                screen.addstr(self.draw_r, self.draw_c, self.data[row][col])
-                self.draw_c += len(self.data[row][col])
+                self.draw_cell(screen, row, col)
                 screen.addstr(self.draw_r, self.draw_c, " |")
+                self.draw_c += 2
             self.draw_r += 1
             self.draw_c = 0
             self.draw_horizontal_separator(screen)
@@ -145,8 +156,9 @@ def draw_menu(screen):
         table_curse.cursor_y = max(0, table_curse.cursor_y)
         table_curse.cursor_y = min(height-1, table_curse.cursor_y)
 
-        statusbarstr = "'Alt-q' to exit | Pos: {}, {} | Last key: {}".format(
-            table_curse.cursor_x, table_curse.cursor_y, k)
+        statusbarstr = "'Alt-q' to exit | Row {}/{} Col {}/{} | Last key: {}".format(
+            table_curse.current_row + 1, len(table_curse.data),
+            table_curse.current_col + 1, len(table_curse.data[0]), k)
 
         table_curse.draw(screen)
 
