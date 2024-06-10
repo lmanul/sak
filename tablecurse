@@ -9,6 +9,7 @@ class TableCurse:
         self.cursor_x = 0
         self.cursor_y = 0
         self.data = [["Type here"]]
+        self.position_cursor_at_end_of_cell(self.current_row, self.current_col)
 
     def add_col(self):
         for i in range(len(self.data)):
@@ -31,6 +32,10 @@ class TableCurse:
         if len(self.data[self.current_row][self.current_col]) > 0:
             self.data[self.current_row][self.current_col] = self.data[self.current_row][self.current_col][:-1]
             self.cursor_x -= 1
+
+    def input_char(self, char):
+        self.data[self.current_row][self.current_col] += char
+        self.cursor_x += 1
 
     def get_max_width(self):
         w = 0
@@ -65,7 +70,6 @@ def draw_menu(screen):
     global table_curse
     quit = False
     k = 0
-    table_curse.position_cursor_at_end_of_cell(table_curse.current_row, table_curse.current_col)
 
     # Clear and refresh the screen for a blank canvas
     screen.clear()
@@ -102,8 +106,7 @@ def draw_menu(screen):
         elif k == curses.KEY_LEFT:
             table_curse.cursor_x -= 1
         elif k:
-            table_curse.data[table_curse.current_row][table_curse.current_col] += chr(k)
-            table_curse.cursor_x += 1
+            table_curse.input_char(chr(k))
 
         table_curse.cursor_x = max(0, table_curse.cursor_x)
         table_curse.cursor_x = min(width-1, table_curse.cursor_x)
