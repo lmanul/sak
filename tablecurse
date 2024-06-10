@@ -72,7 +72,8 @@ class TableCurse:
 
     def draw_horizontal_separator(self, screen):
         "Adds a horizontal line as separator between rows"
-        screen.addstr(self.draw_r, self.draw_c, "-" * self.get_total_width())
+        screen.addstr(self.draw_r, self.draw_c,
+            "+" + ("-" * (self.get_total_width() - 2)) + "+")
         self.draw_r += 1
         self.draw_c = 0
 
