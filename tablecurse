@@ -32,10 +32,19 @@ class TableCurse:
         self.position_cursor_at_end_of_cell(
             self.current_row, self.current_col)
 
+    def get_position_within_current_cell(self):
+        pos = self.cursor_x
+        for col in range(self.current_col):
+            pos -= self.get_col_width(col) + 2 # Space
+        pos -= self.current_col + 1 # Separators
+        return pos - 1
+
     def backspace(self):
         "Backspace in the current cell"
-        if len(self.data[self.current_row][self.current_col]) > 0:
-            self.data[self.current_row][self.current_col] = self.data[self.current_row][self.current_col][:-1]
+        value = self.data[self.current_row][self.current_col]
+        pos = self.get_position_within_current_cell()
+        if len(value) > 0:
+            self.data[self.current_row][self.current_col] = value[:pos - 1] + value[pos:]
             self.cursor_x -= 1
 
     def input_char(self, char):
@@ -69,7 +78,7 @@ class TableCurse:
         y = 1 + 2 * row
         x = 0
         for c in range(col):
-            x += len(self.data[row][c]) + 2 # Spaces
+            x += self.get_col_width(c) + 2 # Spaces
         x += col + 1 # Separators
         x += len(self.data[row][col])
         x += 1 # Just after last letter
@@ -86,6 +95,13 @@ class TableCurse:
         cell_width = self.get_col_width(col)
         screen.addstr(self.draw_r, self.draw_c, self.data[row][col])
         self.draw_c += cell_width
+
+    def update_current_cell(self):
+        "Potentially update the current cell depending on cursor location"
+        if self.cursor_y % 2 == 0:
+            # We're on a divider
+            return
+        self.current_row = int((self.cursor_y -1 ) / 2)
 
     def draw(self, screen):
         "Renders the table"
@@ -155,6 +171,8 @@ def draw_menu(screen):
 
         table_curse.cursor_y = max(0, table_curse.cursor_y)
         table_curse.cursor_y = min(height-1, table_curse.cursor_y)
+
+        table_curse.update_current_cell()
 
         statusbarstr = "'Alt-q' to exit | Row {}/{} Col {}/{} | Last key: {}".format(
             table_curse.current_row + 1, len(table_curse.data),
