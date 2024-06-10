@@ -49,7 +49,9 @@ class TableCurse:
 
     def input_char(self, char):
         "Input a character in the current cell"
-        self.data[self.current_row][self.current_col] += char
+        curr = self.data[self.current_row][self.current_col]
+        pos = self.get_position_within_current_cell()
+        self.data[self.current_row][self.current_col] = curr[:pos] + char + curr[pos:]
         self.cursor_x += 1
 
     def get_width_for_row(self, arr):
