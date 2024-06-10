@@ -60,16 +60,19 @@ class TableCurse:
         w += len(arr) + 1 # Separators
         return w
 
-    def get_max_width(self):
-        "Get the max char width across all rows"
+    def get_total_width(self):
+        "Get the width of the whole table, including separator"
         w = 0
-        for row in self.data:
-            w = max(w, self.get_width_for_row(row))
+        n_cols = len(self.data[0])
+        for col in range(n_cols):
+            w += self.get_col_width(col)
+        w += n_cols + 1 # Separators
+        w += 2 * n_cols # Spaces
         return w
 
     def draw_horizontal_separator(self, screen):
         "Adds a horizontal line as separator between rows"
-        screen.addstr(self.draw_r, self.draw_c, "-" * self.get_max_width())
+        screen.addstr(self.draw_r, self.draw_c, "-" * self.get_total_width())
         self.draw_r += 1
         self.draw_c = 0
 
@@ -102,6 +105,13 @@ class TableCurse:
             # We're on a divider
             return
         self.current_row = int((self.cursor_y -1 ) / 2)
+
+        x = 2
+        col = 0
+        while x <= self.cursor_x:
+            x += self.get_col_width(col) + 3 # Spaces + separator
+            col += 1
+        self.current_col = col - 1
 
     def draw(self, screen):
         "Renders the table"
