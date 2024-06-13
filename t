@@ -32,13 +32,16 @@ parser.add_argument('-n', '--nocolor', action='store_true')
 def get_label(tz, args):
     return tz[3 if args.icons else 2 if args.short else 1]
 
+def print_horizontal_line(width):
+    print("+" + "-" * (len("| ") + width + len("00:00") + len(" |") - 2) + "+")
+
 if __name__ == "__main__":
     args = parser.parse_args()
     max_width = 2 + max([len(get_label(tz, args)) for tz in TZ])
     last_row_index = len([tz for tz in TZ if not args.mini or tz[4]]) - 1
     row = 0
     if not args.inline:
-        print("-" * (len("| ") + max_width + len("00:00") + len(" |")))
+        print_horizontal_line(max_width)
     for i in range(len(TZ)):
         tz = TZ[i]
         if args.mini and not tz[4]:
@@ -91,4 +94,4 @@ if __name__ == "__main__":
             print()
         row += 1
     if not args.inline:
-        print("-" * (len("| ") + max_width + len("00:00") + len(" |")))
+        print_horizontal_line(max_width)
