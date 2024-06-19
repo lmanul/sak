@@ -25,7 +25,7 @@ class Mode:
 class MultiRunnerProcess:
     "If no 'ready pattern' is passed, we assume instant readiness"
     def __init__(self, command, name, working_dir, ready_pattern=None,
-            spam_filter=None, tokens_to_filter_out=[]):
+            spam_filter=None, tokens_to_filter_out=[], env={}):
         self.command = command
         self.name = name
         self.working_dir = working_dir
@@ -33,14 +33,18 @@ class MultiRunnerProcess:
         self.ready_pattern = ready_pattern
         self.spam_filter = spam_filter
         self.tokens_to_filter_out = tokens_to_filter_out
+        self.env = env
         self.status = Status.PREPARING
         self.output = []
 
     def start(self):
-        app_env = {}
+        my_env = os.environ.copy()
+        for k in self.env:
+            my_env[k] = self.env[k]
         self.inner_process = subprocess.Popen(
             shlex.split(self.command),
             cwd=self.working_dir,
+            env=my_env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         # Make reading from stdout/stderr non-blocking
@@ -136,9 +140,9 @@ class MultiRunner:
         return total
 
     def add(self, command, name, working_dir=None, ready_pattern=None,
-            spam_filter=None, tokens_to_filter_out=[]):
+            spam_filter=None, tokens_to_filter_out=[], env={}):
         self.processes.append(MultiRunnerProcess(command, name, working_dir,
-            ready_pattern, spam_filter, tokens_to_filter_out))
+            ready_pattern, spam_filter, tokens_to_filter_out, env))
 
     def on_input(self, key):
         if key == ord("q"):
