@@ -101,10 +101,10 @@ class MultiRunnerProcess:
         print("Quitting '" + self.name + "' (" + str(self.inner_process.pid) + ") ...")
         tries = 0
         while self.is_alive():
-            if tries < 3:
+            if tries < 2:
                 print("Sending interrupt signal to '" + self.name + "'...")
                 self.inner_process.send_signal(signal.SIGINT)
-            elif tries < 6:
+            elif tries < 4:
                 print("Sending kill signal to '" + self.name + "'...")
                 self.inner_process.send_signal(signal.SIGKILL)
             else:
@@ -128,6 +128,7 @@ class MultiRunner:
         # flickering when there is nothing new.
         self.last_output_size = 0
         self.force_next_refresh = False
+        self.cleanup_steps = []
 
     def update_dimensions(self):
         self.height, self.width = self.screen.getmaxyx()
@@ -144,6 +145,9 @@ class MultiRunner:
         self.processes.append(MultiRunnerProcess(command, name, working_dir,
             ready_pattern, spam_filter, tokens_to_filter_out, env))
 
+    def add_cleanup_step(self, fn):
+        self.cleanup_steps.append(fn)
+
     def on_input(self, key):
         if key == ord("q"):
             self.running = False
@@ -159,6 +163,8 @@ class MultiRunner:
     def quit(self):
         for process in self.processes:
             process.quit()
+        for cleanup_step in self.cleanup_steps:
+            cleanup_step()
 
     def draw_title(self, screen, index):
         n_processes = len(self.processes)
