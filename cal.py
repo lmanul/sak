@@ -396,8 +396,9 @@ def process_calcurse(raw):
                                   hour=start_h, minute=start_m, second=0)
             end = now_utc
             end = end.replace(year=2000 + year, month=month,
-                              day=day + 1 if ends_next_day else day,
-                              hour=end_h, minute=end_m, second=0)
+                              day=day, hour=end_h, minute=end_m, second=0)
+            if ends_next_day:
+                end += datetime.timedelta(days=1)
             i += 1
             continue
         desc_matches = DESCRIPTION_REGEXP.match(l)
