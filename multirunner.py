@@ -112,7 +112,7 @@ class MultiRunnerProcess:
                 os.system("kill -9 " + str(self.inner_process.pid))
             self.print_raw_logs()
             tries += 1
-            time.sleep(2)
+            time.sleep(1)
         print(self.name + " has ended.")
 
 class MultiRunner:
