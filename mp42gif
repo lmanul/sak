@@ -16,7 +16,7 @@ if os.path.exists("frames"):
 
 os.mkdir("frames")
 
-os.system("ffmpeg -i " + video + "  -r " + str(fps) + " 'frames/frame-%03d.jpg'")
+os.system("ffmpeg -i " + video + " -q:4  -r " + str(fps) + " 'frames/frame-%03d.jpg'")
 
 os.chdir("frames")
 

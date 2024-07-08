@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+mpga = sys.argv[1]
+mp3 = mpga.replace("mpga", "mp3")
+wav = mpga.replace("mpga", "wav")
+mp3 = mp3.replace("WAV", "mp3")
+
+os.system("ffmpeg -i " + mpga + " " + wav)
+os.system("lame -h -b 64 " + wav + " " + mp3)
