@@ -4,6 +4,7 @@ import os
 
 def main():
     os.system("docker stop $(docker ps -a -q)")
+    os.system("docker rm $(docker ps -a -q)")
 
 if __name__ == "__main__":
     main()
