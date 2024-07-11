@@ -94,7 +94,8 @@ class TableCurse:
     def get_col_width(self, col):
         w = 0
         for row in range(len(self.data)):
-            w = max(w, len(self.data[row][col]))
+            if col < len(self.data[row]):
+                w = max(w, len(self.data[row][col]))
         return w
 
     def draw_cell(self, screen, row, col):
@@ -121,7 +122,7 @@ class TableCurse:
         while x <= self.cursor_x:
             x += self.get_col_width(col) + 3 # Spaces + separator
             col += 1
-        self.current_col = col - 1
+        self.current_col = min(col - 1, len(self.data[0]) - 1)
 
     def draw(self, screen):
         "Renders the table"
