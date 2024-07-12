@@ -56,7 +56,7 @@ if __name__ == "__main__":
     n_pages = 0
     undef_ref = False
     unavailable_fonts = False
-    compile_errors = False
+    compile_errors = []
 
     page_number_regex = re.compile(r"\[(\d+)")
     current_page_number = 0
@@ -74,7 +74,7 @@ if __name__ == "__main__":
                 sys.stdout.flush()
             maybe_problematic_lines = None
             if l.startswith("!"):
-                compile_errors = True
+                compile_errors.append(l)
                 os.system("rm -f *.aux")
                 break
             if "in paragraph at lines" in l:
@@ -124,8 +124,9 @@ if __name__ == "__main__":
         "" + util.color(n_pages, "cyan") + " page(s)\n"
     )
 
-    if compile_errors:
+    if len(compile_errors) > 0:
         print("!!! There were compilation errors !!!\n")
+        print("\n\t".join(compile_errors))
     if undef_ref:
         print("Warning: undefined references.\n")
     if unavailable_fonts:
