@@ -1,9 +1,8 @@
 #!/usr/bin/python
 
+import datetime
 import os
 import time
-
-from datetime import datetime
 
 newest_file = None
 newest_mtime = 0
@@ -24,5 +23,5 @@ for path, _, filenames in os.walk(os.getcwd()):
 
 print(
     "Newest file: " + newest_file + " which was modified last on "
-    "" + datetime.utcfromtimestamp(newest_mtime).strftime("%Y-%m-%d %H:%M:%S") + " UTC"
+    "" + datetime.datetime.fromtimestamp(newest_mtime, datetime.UTC).strftime("%Y-%m-%d %H:%M:%S") + " UTC"
 )
