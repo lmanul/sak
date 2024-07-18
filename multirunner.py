@@ -1,4 +1,5 @@
 import curses
+import math
 import os
 import re
 import shlex
@@ -12,6 +13,15 @@ ANSI_ESCAPE = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 def sanitize_string(s):
     return ANSI_ESCAPE.sub('',
         str(s.encode('utf-8').decode('ascii', 'ignore')).replace("\x00", ''))
+
+def split_string_in_equal_parts(s, chunk):
+    l = []
+    if chunk <= len(s):
+        l.extend([s[:chunk]])
+        l.extend(split_string_in_equal_parts(s[chunk:], chunk))
+    elif s:
+        l.extend([s])
+    return l
 
 class Status:
     STOPPED = 0
@@ -216,20 +226,27 @@ class MultiRunner:
                 row -= 1
             else:
                 buffer_to_print = process.output[-row_from_bottom - 1]
-                while len(buffer_to_print) > 0:
-                    if len(buffer_to_print) <= one_process_width:
-                        screen.addstr(row, first_col, buffer_to_print)
-                        buffer_to_print = ""
-                    else:
-                        screen.addstr(row, first_col, buffer_to_print[:one_process_width])
-                        buffer_to_print = buffer_to_print[-one_process_width:]
-                    row_from_bottom += 1
+                row_from_bottom += 1
+                lines_to_print = split_string_in_equal_parts(buffer_to_print, one_process_width )
+
+                for line in reversed(lines_to_print):
+                    try:
+                        screen.addstr(row, first_col, line)
+                    except curses.error:
+                        pass
                     row -= 1
+                    if row <= first_row + 1:
+                        # That's all we have space for
+                        break
+
         if self.mode == Mode.COLUMNS and index < n_processes - 1:
             # Draw a separator column
             row = last_row
             while row >= first_row:
-                screen.addstr(row, first_col + one_process_width, "|")
+                try:
+                    screen.addstr(row, first_col + one_process_width, "|")
+                except curses.error:
+                    pass
                 row -= 1
 
     def refresh(self):
