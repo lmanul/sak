@@ -65,6 +65,8 @@ class MultiRunnerProcess:
         if len(self.tokens_to_filter_out) > 0:
             for token in self.tokens_to_filter_out:
                 l = l.replace(token, "")
+        # Collapse white space again
+        l = ' '.join(l.split())
         return l
 
     def ingest_log_buffer(self, stream):
@@ -208,11 +210,21 @@ class MultiRunner:
         row = last_row
         row_from_bottom = 0
         while row >= first_row:
-            if len(process.output) > row_from_bottom:
-                screen.addstr(row, first_col,
-                    process.output[-row_from_bottom - 1][0:one_process_width - 1])
-            row_from_bottom += 1
-            row -= 1
+            if len(process.output) <= row_from_bottom:
+                # Nothing to print here, keep going up
+                row_from_bottom += 1
+                row -= 1
+            else:
+                buffer_to_print = process.output[-row_from_bottom - 1]
+                while len(buffer_to_print) > 0:
+                    if len(buffer_to_print) <= one_process_width:
+                        screen.addstr(row, first_col, buffer_to_print)
+                        buffer_to_print = ""
+                    else:
+                        screen.addstr(row, first_col, buffer_to_print[:one_process_width])
+                        buffer_to_print = buffer_to_print[-one_process_width:]
+                    row_from_bottom += 1
+                    row -= 1
         if self.mode == Mode.COLUMNS and index < n_processes - 1:
             # Draw a separator column
             row = last_row
