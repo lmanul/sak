@@ -1,0 +1,14 @@
+#!/usr/bin/python
+
+import os
+
+FILE_NAME = "google-chrome-stable_current_amd64.deb"
+
+def main():
+    if not os.path.exists("/usr/bin/google-chrome"):
+        os.system("wget https://dl.google.com/linux/direct/" + FILE_NAME)
+        os.system("sudo dpkg -i " + FILE_NAME)
+        os.system("rm " + FILE_NAME)
+
+if __name__ == "__main__":
+    main()
