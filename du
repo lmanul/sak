@@ -9,6 +9,8 @@ THRESHOLD = 1024 * 1024
 cmd_with_options = "/usr/bin/du -hs -t " + str(THRESHOLD)
 if util.is_mac():
     cmd_with_options = "/usr/bin/du -hs "
+if util.is_android():
+    cmd_with_options = "/data/data/com.termux/files/usr/bin/du -hs -t " + str(THRESHOLD)
 
 if len([f for f in os.listdir(os.getcwd()) if f.startswith(".")]) > 0:
     os.system(cmd_with_options + " .[!.]* * | sort -hr")
