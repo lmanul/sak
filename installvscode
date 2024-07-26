@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+import os
+
+FILE = "vscode.deb"
+
+def main():
+    # if not os.path.exists("/usr/bin/code"):
+    # Install even if already installed, to update.
+    os.system("wget 'https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64' -O " + FILE)
+    os.system("sudo dpkg -i " + FILE)
+    os.system("rm " + FILE)
+
+if __name__ == "__main__":
+    main()
