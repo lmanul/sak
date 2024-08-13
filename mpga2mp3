@@ -10,3 +10,4 @@ mp3 = mp3.replace("WAV", "mp3")
 
 os.system("ffmpeg -i " + mpga + " " + wav)
 os.system("lame -h -b 64 " + wav + " " + mp3)
+os.system("rm " + wav)
