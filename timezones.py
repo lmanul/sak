@@ -4,6 +4,7 @@ TIMEZONES = {
     "CST": "America/Chicago",
     "EET": "Europe/Tallinn",
     "EST": "America/New_York",
+    "HST": "Pacific/Honolulu",
     "ICT": "Asia/Bangkok",
     "MST": "America/Boise",
     "JST": "Asia/Tokyo",
@@ -18,6 +19,7 @@ for t in TIMEZONES:
 SHORTS = {
     "C": "CET",
     "E": "EST",
+    "H": "HST",
     "J": "JST",
     "P": "PST",
     "S": "CNT",
