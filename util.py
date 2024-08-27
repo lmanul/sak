@@ -483,9 +483,9 @@ def silent(command):
     return os.system(command + " > /dev/null 2>&1")
 
 
-# Convert back and forth from date object to YYYY.MM.DD
+# Convert back and forth from date object to YYYY-MM-DD
 def string_to_date(date_string):
-    return date(*([int(c) for c in date_string.split(".")]))
+    return date(*([int(c) for c in date_string.split("-")]))
 
 
 def date_to_string(d):
