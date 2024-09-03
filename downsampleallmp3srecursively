@@ -38,7 +38,7 @@ for root, dirs, files in os.walk("."):
                 ["file", os.path.join(root, file)]
             ).decode()
             if "kbps" in file_output:
-                groups = re.search("(\d+) kbps,", file_output)
+                groups = re.search(r"(\d+) kbps,", file_output)
                 if groups is not None:
                     rate = int(groups.group(1))
                     if rate > target:
