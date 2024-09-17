@@ -35,7 +35,7 @@ running = subprocess.check_output(shlex.split("ps aux")).decode()
 proc_to_kill = []
 proc_cant_kill = []
 for l in running.split("\n"):
-    if pattern in l:
+    if pattern.lower() in l.lower():
         if l.startswith(getpass.getuser()[:4]):
             # Don't kill ourselves
             if sys.argv[0] not in l:
