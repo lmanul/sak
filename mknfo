@@ -1,0 +1,22 @@
+#!/bin/bash
+output="directory_info.nfo"
+dir=$1
+
+if [ -z "$dir" ]; then
+  echo "Usage: ./generate_nfo.sh <directory>"
+  exit 1
+fi
+
+echo "Generating .nfo for directory: $dir" > "$output"
+echo "------------------------------------" >> "$output"
+
+# Recursively find all files in the directory and its subdirectories
+find "$dir" -type f | while read file; do
+  filename=$(basename "$file")
+  filesize=$(stat -c%s "$file")
+  filedir=$(dirname "$file")
+  echo "File: $filename, Size: $filesize bytes, Path: $filedir" >> "$output"
+done
+
+echo ".nfo file generated: $output"
+
