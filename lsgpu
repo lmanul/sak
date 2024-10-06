@@ -1,5 +1,29 @@
 #!/usr/bin/python3
 
 import os
+import shlex
+import subprocess
 
-os.system(r"lspci -vnnn | perl -lne 'print if /^\d+\:.+(\[\S+\:\S+\])/' | grep VGA")
+def main():
+    cmd = "lspci -vnnn"
+    raw = subprocess.run(shlex.split(cmd), capture_output=True).stdout.decode().split("\n")
+    for line in raw:
+        if "VGA" in line:
+            (key, value) = line.split(": ", 1)
+            print(value)
+            if "NVIDIA" in line.upper():
+                cmd = "nvidia-smi --query-gpu=memory.total,memory.used,memory.free --format=csv"
+                usage = subprocess.run(shlex.split(cmd), capture_output=True).stdout.decode().split("\n")
+                (total, used, free) = usage[1].split(", ")
+                total = float(total.split(" ")[0])
+                used =  float(used.split( " ")[0])
+                percent_used = int(100 * used / total)
+                if total > 1024:
+                    total = str(int(total / 1024)) + " GB"
+                else:
+                    total = str(int(total)) + " MB"
+                print(str(percent_used) + "% used of " + total)
+
+if __name__ == "__main__":
+    main()
+
