@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+import os
+import wifi
+
+def main():
+    current = wifi.get_current_wifi()
+    if current != "":
+        print("Disconnecting from '" + current + "'...")
+        os.system("nmcli connection down '" + current + "'")
+    else:
+        print("Not connected, aborting.")
+
+if __name__ == "__main__":
+    main()

@@ -45,6 +45,18 @@ def get_available_ssids():
             break
     return sorted(list(available_ssids))
 
+def get_current_wifi():
+    lines = subprocess.check_output(shlex.split("nmcli con")).decode().split("\n")
+    current = lines[1].split("  ")[0].strip()
+    if current == "lo":
+        return ""
+    return current
+
+def connect_to_wifi_with_ssid(ssid, debug=False):
+    print("Connecting to '" + ssid + "'...")
+    cmd = 'nmcli device wifi connect "' + ssid + '"'
+    os.system(cmd)
+
 def connect_to_wifi(path_to_known_networks_list, debug=False):
     "Connects to known wifi points"
     online = util.is_online()
