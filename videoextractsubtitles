@@ -1,11 +1,50 @@
 #!/usr/bin/python3
 
 import os
+import re
+import subprocess
 import sys
 import util
 
-v = sys.argv[1]
-output = util.change_extension(v, "srt")
+def extract_subtitles(input_file):
+    # Step 1: Get the list of subtitle streams and their language codes
+    ffmpeg_command = ["ffmpeg", "-i", input_file]
+    input_file_no_extension = input_file.replace(".mkv", "")
+    result = subprocess.run(ffmpeg_command, stderr=subprocess.PIPE, text=True)
+    output = result.stderr
 
-# Use 0:s:1 for the second subtitle track, and so on.
-os.system("ffmpeg -i " + v + " -map 0:s:0 " + output)
+    # Step 2: Parse subtitle streams and extract indexes and language codes
+    subtitle_streams = []
+    for line in output.splitlines():
+        # Updated regex to capture both index and language code more reliably
+        match = re.search(r'Stream #0:(\d+)\((\w{3})\).*Subtitle:.*', line)
+        if match:
+            index = int(match.group(1)) - 1
+            lang_code = match.group(2) if match.group(2) else f"unknown_{index}"
+            subtitle_streams.append((index, lang_code))
+
+    print(subtitle_streams)
+    i = 0
+    # Step 3: Extract each subtitle track to a separate .srt file
+    for index, lang_code in subtitle_streams:
+        output_file = f"{input_file_no_extension}.{lang_code}.srt"
+        extract_command = [
+            # Even though subtitles may start at stream number 3, when
+            # extracting them they are still 0-based.
+            "ffmpeg", "-i", input_file, "-map", f"0:s:{i}", "-c:s", "srt",
+            # "-sub_charenc", "UTF-8",
+            output_file
+        ]
+        print(" ".join(extract_command))
+        subprocess.run(extract_command)
+        print(f"Extracted subtitle {i} as {output_file}")
+        i += 1
+
+def main(v):
+    if not v.endswith(".mkv"):
+        print("Oops, not an mkv file. Please extend the script.")
+        return
+    extract_subtitles(v)
+
+if __name__ == "__main__":
+    main(sys.argv[1])
