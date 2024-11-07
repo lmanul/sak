@@ -1,0 +1,20 @@
+#!/usr/bin/python3
+
+import os
+
+import gnome
+
+def run(proj):
+    if proj == "gtk":
+        os.system("./_build/demos/gtk-demo/gtk4-demo")
+    else:
+        os.system(os.path.join(gnome.JHBUILD_INSTALL_DIR, "bin", proj))
+
+def main():
+    d = os.getcwd()
+    parts = d.split("/")
+    proj = parts[-1]
+    run(proj)
+
+if __name__ == "__main__":
+    main()

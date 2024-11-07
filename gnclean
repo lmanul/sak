@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+
+import os
+
+BUILD_DIR = "_build"
+
+def main():
+    os.system("rm -rf " + BUILD_DIR)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+
+import os
+
+import gnome
+
+def build_gtk():
+    # Also needed: libgstreamer-plugins-bad1.0-dev
+    os.system("meson setup " + gnome.BUILD_DIR + " .")
+    os.chdir(gnome.BUILD_DIR)
+    os.system("ninja")
+
+def build(proj, setup_flags):
+    print("Building " + proj + "...")
+    os.system(
+        "meson setup " + gnome.BUILD_DIR + " --prefix=" + gnome.JHBUILD_INSTALL_DIR + " "
+        "" + " ".join(setup_flags) + ""
+        )
+    os.system("ninja -C " + gnome.BUILD_DIR)
+    os.system("ninja -C " + gnome.BUILD_DIR + " install")
+
+def main():
+    if not os.path.exists(gnome.JHBUILD_INSTALL_DIR):
+        os.system("mkdir -p " + gnome.JHBUILD_INSTALL_DIR)
+    d = os.getcwd()
+    parts = d.split("/")
+    proj = parts[-1]
+    setup_flags = [
+        "--prefix=" + gnome.JHBUILD_INSTALL_DIR
+    ]
+
+    # Tweak setup flags
+    if proj == "babl" or proj == "gegl":
+        setup_flags += [
+            "--buildtype=release",
+            "-Db_lto=true"
+        ]
+    elif proj == "gimp":
+        setup_flags += [
+            "--buildtype=release",
+            # "-Dpython=enabled"
+        ]
+    elif proj == "gnome-terminal":
+        setup_flags.append("-Dsearch_provider=false")
+
+    # Actual build
+
+    if proj == "gtk":
+        build_gtk()
+    else:
+        build(proj, setup_flags)
+
+if __name__ == "__main__":
+    main()
