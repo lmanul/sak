@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    # Grmpf
+    os.system("sudo chmod u+s /usr/bin/bwrap")
+    os.system("/usr/bin/steam")
+
+if __name__ == "__main__":
+    main()
