@@ -6,15 +6,26 @@ import sys
 import util
 
 home = os.path.expanduser("~")
-gimp_config_dir = os.path.join(
-    os.path.expanduser("~"), "bus", "config", "config", "GIMP", "2.10"
-)
+
+def config_dir_for_version(version):
+    return os.path.join(
+        os.path.expanduser("~"), "bus", "config", "config", "GIMP", version
+    )
 
 # gimp_config_dir = os.path.join(os.path.expanduser("~"), "bus", "config",
 #    "gimp-2.8")
 
-os.chdir(gimp_config_dir)
-os.system("git checkout gimprc")
-os.system("git checkout sessionrc menurc colorrc contextrc devicerc toolrc")
-os.system(r"git checkout tool-options/\*")
-util.run_bin_cmd("regularcleanup")
+if __name__ == "__main__":
+    for version in ["2.10", "3.0"]:
+        print("Version " + version + "...")
+        gimp_config_dir = config_dir_for_version(version)
+        os.chdir(gimp_config_dir)
+        os.system("git checkout gimprc")
+        if version != "3.0":
+            os.system("git checkout menurc")
+        os.system("git checkout "
+                  "sessionrc colorrc contextrc devicerc toolrc"
+        )
+        os.system(r"git checkout tool-options/\*")
+
+    util.run_bin_cmd("regularcleanup")

@@ -4,19 +4,28 @@ import os
 import sys
 import util
 
-arguments = []
-if len(sys.argv) > 1:
-    arguments = sys.argv[1:]
+USE_EXPERIMENTAL = True
 
-orig_dir = os.getcwd()
-full_arguments = []
-for a in arguments:
-    full_arguments.append(os.path.join(orig_dir, a))
+def main(argv):
+    arguments = []
+    if len(argv) > 1:
+        arguments = sys.argv[1:]
 
-util.run_bin_cmd("gimpsetup", args="draw")
-if util.is_mac():
-    os.system("open /Applications/GIMP.app")
-else:
-    # os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
-    os.system("/usr/bin/gimp-2.10 " + " ".join(full_arguments))
-util.run_bin_cmd("gimpteardown")
+    orig_dir = os.getcwd()
+    full_arguments = []
+    for a in arguments:
+        full_arguments.append(os.path.join(orig_dir, a))
+
+    util.run_bin_cmd("gimpsetup", args="draw")
+    if util.is_mac():
+        os.system("open /Applications/GIMP.app")
+    else:
+        # os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
+        cmd = "/usr/bin/gimp-2.10"
+        if USE_EXPERIMENTAL:
+            cmd = os.path.expanduser("~/jhbuild/install/bin/gimp")
+        os.system(cmd + " " + " ".join(full_arguments))
+    util.run_bin_cmd("gimpteardown")
+
+if __name__ == "__main__":
+    main(sys.argv)
