@@ -26,7 +26,12 @@ parser.add_option(
 if options.dryrun:
     print("Dry run, printing detecting landscape pages")
 
-all_images = sorted([f for f in os.listdir(".") if not os.path.isdir(f)])
+if len(args) == 0:
+    all_images = sorted([f for f in os.listdir(".") if not os.path.isdir(f)])
+else:
+    all_images = args
+print(all_images)
+
 for i in all_images:
     (width, height) = util.get_image_dimensions(i)
     # print(i + " has dims " + str(width) + ", " + str(height))
