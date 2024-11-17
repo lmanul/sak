@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+import os
+
+BUILD_GRADLE = "app/build.gradle.kts"
+BUILD_GRADLE_DEPR = "app/build.gradle"
+
+def main():
+    if os.path.exists(BUILD_GRADLE):
+        with open(BUILD_GRADLE) as f:
+            lines = f.readlines()
+            for l in lines:
+                l = l.strip()
+                if l.startswith("applicationId"):
+                    parts = l.split('"')
+                    return parts[1]
+
+    if os.path.exists(BUILD_GRADLE_DEPR):
+        with open(BUILD_GRADLE_DEPR) as f:
+            lines = f.readlines()
+            for l in lines:
+                l = l.strip()
+                if l.startswith("applicationId"):
+                    parts = l.split('"')
+                    return parts[1]
+
+    return "unknown"
+
+if __name__ == "__main__":
+    print(main())
