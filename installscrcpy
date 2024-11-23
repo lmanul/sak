@@ -1,0 +1,19 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    os.system("sudo apt install ffmpeg libsdl2-2.0-0 adb wget "
+              "gcc git pkg-config meson ninja-build libsdl2-dev "
+              "libavcodec-dev libavdevice-dev libavformat-dev libavutil-dev "
+              "libswresample-dev libusb-1.0-0 libusb-1.0-0-dev"
+    )
+    os.chdir(os.path.expanduser("~/repos"))
+    os.system("git clone https://github.com/Genymobile/scrcpy")
+    os.chdir("scrcpy")
+    os.system("./install_release.sh")
+    os.chdir("..")
+    os.system("rm -rf scrcpy")
+
+if __name__ == "__main__":
+    main()
