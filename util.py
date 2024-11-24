@@ -482,6 +482,14 @@ def is_online():
 def silent(command):
     return os.system(command + " > /dev/null 2>&1")
 
+def is_kernel_module_loaded(name):
+    if not is_linux():
+        return False
+    loaded = subprocess.check_output(["lsmod"]).decode()
+    for l in loaded.split("\n"):
+        if l.startswith(name + " "):
+            return True
+    return False
 
 # Convert back and forth from date object to YYYY-MM-DD
 def string_to_date(date_string):
