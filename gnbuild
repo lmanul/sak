@@ -36,6 +36,7 @@ def main():
             "-Db_lto=true"
         ]
     elif proj == "gimp":
+        os.system("git submodule update --init")
         setup_flags += [
             "--buildtype=release",
             # "-Dpython=enabled"
