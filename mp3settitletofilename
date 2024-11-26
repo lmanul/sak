@@ -1,0 +1,17 @@
+#!/usr/bin/python
+
+import os
+import sys
+import util
+
+def main(filename):
+    without_ext = util.remove_extension(filename)
+    without_ext = without_ext.replace("_", " ")
+    os.system(
+        "eyeD3 "
+        "--title '" + without_ext + "' "
+        "" + filename + ""
+    )
+
+if __name__ == "__main__":
+    main(sys.argv[1])
