@@ -1,5 +1,5 @@
 #!/usr/bin/python3
 
-import os
+import wifi
 
-os.system("iwgetid -r")
+print(wifi.get_current_wifi())
