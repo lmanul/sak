@@ -5,19 +5,14 @@ import shlex
 import subprocess
 import sys
 
+from virtualdesktops import ARABIC, ROMAN, CHINESE
+
 N_ROWS = 3
 N_COLS = 3
 
-ARABIC_NUMERALS = [
-    "1", "2", "3", "4", "5", "6", "7", "8", "9",
-]
-
-ROMAN_NUMERALS = [
-    "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX",
-]
-CHINESE_NUMERALS = [
-    "一", "二", "三", "四", "五", "六", "七", "八", "九",
-]
+ARABIC_NUMERALS = ARABIC.split(" ")
+ROMAN_NUMERALS = ROMAN.split(" ")
+CHINESE_NUMERALS = CHINESE.split(" ")
 
 ALL_NUMERALS = [
     ARABIC_NUMERALS, ROMAN_NUMERALS, CHINESE_NUMERALS,
