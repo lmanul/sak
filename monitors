@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+import monitors
+
+def main():
+    all_monitors = monitors.get_monitors()
+    print("\nConnected:")
+    for m in [m for m in all_monitors if m.connected]:
+        print(m)
+    print("\nDisconnected:")
+    for m in [m for m in all_monitors if not m.connected]:
+        print(m)
+
+if __name__ == "__main__":
+    main()

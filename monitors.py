@@ -1,39 +1,71 @@
+import os
+import re
+import shlex
+import subprocess
+
+MODE_LINE_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+.*$')
+
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
-    def __init__(self, input_id, rotation="normal", scale=1, resolution=None,
-                 primary=False, connected=True):
+    def __init__(self, input_id, rotation="normal", scale=1, resolution=(0, 0),
+                 max_resolution=(0, 0), primary=False, connected=True):
         self.input_id = input_id
         self.rotation = rotation
         self.scale = scale
         self.resolution = resolution
+        self.max_resolution = max_resolution
         self.primary = primary
         self.connected = connected
 
+    def get_resolution_str(self):
+        return str(self.resolution[0]) + "x" + str(self.resolution[1])
+
+    def get_max_resolution_str(self):
+        return str(self.max_resolution[0]) + "x" + str(self.max_resolution[1])
+
     def __str__(self):
-        return "'" + self.input_id + " -- " + ("" if self.connected else "dis") + "connected"
+        return (f"[Monitor {self.input_id}, "
+                f"max {self.max_resolution[0]}x{self.max_resolution[1]} "
+                f"{"" if self.connected else "dis"}connected]"
+               )
 
 def get_monitors_x11():
-    connected_monitors = []
-    disconnected_monitors = []
+    current_monitor = None
+    current_max_surface = 0
+    monitors = []
     try:
         xrandr_output = subprocess.check_output(shlex.split("xrandr")).decode()
         for line in xrandr_output.split("\n"):
             if line.strip() == "":
                 continue
+            if "connected" in line:
+                tokens = line.split(" ")
+                monitor_id = tokens[0]
+                connected = "disconnected" not in line
+                primary = "primary" in line
+                if current_monitor:
+                    monitors.append(current_monitor)
+                current_monitor = Monitor(monitor_id, connected=connected, primary=primary)
+                current_max_surface = 0
+                continue
+
+            resolution_matches = MODE_LINE_PATTERN.match(line)
+            if resolution_matches:
+                w = int(resolution_matches.group(1))
+                h = int(resolution_matches.group(2))
+                surface = w * h
+                if surface > current_max_surface:
+                    current_monitor.max_resolution = (w, h)
+                    current_max_surface = surface
             if line.startswith("Screen"):
                 continue
-            if line.startswith("   "):
-                continue
-            tokens = line.split(" ")
-            id = tokens[0]
-            status = tokens[1]
-            if status == "connected":
-                connected_monitors.append(id)
-            elif status == "disconnected":
-                disconnected_monitors.append(id)
+
+        # Don't forget the last monitor
+        if current_monitor:
+            monitors.append(current_monitor)
     except subprocess.CalledProcessError:
         print("Headless mode, not using xrandr")
-    return [connected_monitors, disconnected_monitors]
+    return monitors
 
 def get_monitors_wayland():
     connected_monitors = []
