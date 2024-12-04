@@ -73,7 +73,7 @@ def tap_on_view(view):
 
 # f is a function taking a value as argument and returning true or false.
 def recursively_find_dict_with_key_and_value_predicate(d, k, f):
-    if k in d and f(d[k]):
+    if "@" + k in d and f(d["@" + k]):
         return d
     for local_key in d:
         if isinstance(d[local_key], dict):
