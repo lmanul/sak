@@ -2,6 +2,7 @@ import os
 import re
 import shlex
 import subprocess
+import time
 import xmltodict
 
 BOUNDS_PATTERN = re.compile(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]')
@@ -18,6 +19,7 @@ def get_view_hierarchy_as_dict():
 
 def swipe(x1, y1, x2, y2):
     os.system(f"adb shell input swipe {x1} {y1} {x2} {y2}")
+    time.sleep(0.2)
 
 def swipe_up():
     (w, h) = get_screen_size()
@@ -46,6 +48,14 @@ def swipe_right():
     x1 = int(1 / 3 * w)
     x2 = int(2 / 3 * w)
     swipe(x1, y, x2, y)
+
+def go_home():
+    os.system("adb shell input keyevent KEYCODE_HOME")
+    time.sleep(0.1)
+
+def go_back():
+    os.system("adb shell input keyevent KEYCODE_BACK")
+    time.sleep(0.1)
 
 def tap_on_view(view):
     key = "@bounds"
