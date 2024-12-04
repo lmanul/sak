@@ -71,18 +71,19 @@ def tap_on_view(view):
     center_y = int((top + bottom) / 2)
     os.system(f"adb shell input tap {center_x} {center_y}")
 
-def recursively_find_dict_with_key_and_value_prefix(d, k, v):
-    if k in d and d[k].startswith(v):
+# f is a function taking a value as argument and returning true or false.
+def recursively_find_dict_with_key_and_value_predicate(d, k, f):
+    if k in d and f(d[k]):
         return d
     for local_key in d:
         if isinstance(d[local_key], dict):
-            found = recursively_find_dict_with_key_and_value_prefix(d[local_key], k, v)
+            found = recursively_find_dict_with_key_and_value_predicate(d[local_key], k, f)
             if found is not None:
                 return found
         if isinstance(d[local_key], list):
             for el in d[local_key]:
                 if isinstance(el, dict):
-                    found = recursively_find_dict_with_key_and_value_prefix(el, k, v)
+                    found = recursively_find_dict_with_key_and_value_predicate(el, k, f)
                     if found is not None:
                         return found
     return None
