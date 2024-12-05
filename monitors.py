@@ -42,6 +42,9 @@ def get_monitors_x11():
                 tokens = line.split(" ")
                 monitor_id = tokens[0]
                 connected = "disconnected" not in line
+                # xrandr sees virtual monitors as disconnected, let's tweak that
+                if monitor_id.startswith("DVI-I-"):
+                    connected = True
                 primary = "primary" in line
                 if current_monitor:
                     monitors.append(current_monitor)
