@@ -42,9 +42,6 @@ def get_monitors_x11():
                 tokens = line.split(" ")
                 monitor_id = tokens[0]
                 connected = "disconnected" not in line
-                # xrandr sees virtual monitors as disconnected, let's tweak that
-                if monitor_id.startswith("DVI-I-"):
-                    connected = True
                 primary = "primary" in line
                 if current_monitor:
                     monitors.append(current_monitor)
@@ -56,6 +53,9 @@ def get_monitors_x11():
             if resolution_matches:
                 w = int(resolution_matches.group(1))
                 h = int(resolution_matches.group(2))
+                # xrandr sees virtual monitors as disconnected, let's tweak that
+                if current_monitor.input_id.startswith("DVI-I-"):
+                    current_monitor.connected = True
                 surface = w * h
                 if surface > current_max_surface:
                     current_monitor.max_resolution = (w, h)
