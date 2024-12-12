@@ -29,7 +29,7 @@ def switch(current, direction):
         for monitor_id in monitor_ids:
             target_numeral = ALL_NUMERALS[i % 3][target - 1]
             windowmanager.focus_monitor_with_id(monitor_id)
-            os.system("bspc desktop -f " + str(target_numeral))
+            windowmanager.focus_workspace_with_name(target_numeral)
             i += 1
 
         # Restore focused monitor
@@ -47,8 +47,7 @@ def switch(current, direction):
 
 if __name__ == "__main__":
     DIRECTION = sys.argv[1]
-    CURRENT = subprocess.check_output(
-        shlex.split("bspc query -D -d focused --names")).decode().strip()
+    CURRENT = windowmanager.get_focused_workspace_name()
     if CURRENT in ROMAN_NUMERALS:
         CURRENT = ROMAN_NUMERALS.index(CURRENT) + 1
     if CURRENT in CHINESE_NUMERALS:

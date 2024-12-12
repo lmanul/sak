@@ -25,6 +25,14 @@ def focus_monitor_with_id(monitor_id):
     if is_bspwm():
         os.system("bspc monitor -f " + monitor_id)
 
+def get_focused_workspace_name():
+    if is_bspwm():
+        return subprocess.check_output(shlex.split(
+            "bspc query -D -d focused --names")).decode().strip()
+
+def focus_workspace_with_name(name):
+    os.system("bspc desktop -f " + str(name))
+
 def select_target_workspace(n_rows, n_cols, current, direction):
     target = current
     if direction == "l":
