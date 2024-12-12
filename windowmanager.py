@@ -16,6 +16,14 @@ def get_focused_monitor():
     if is_bspwm():
         return subprocess.check_output(shlex.split(
             "bspc query -M -d focused --names")).decode().strip()
+    if is_hyprland():
+        raw =  subprocess.check_output(shlex.split(
+            "hyprctl activewindow")).decode().strip()
+        for line in raw.split("\n"):
+            line = line.strip()
+            if "monitor" in line:
+                # TODO: may need to look up the actual ID from the index.
+                return line.split(":")[1].strip()
 
 def get_monitor_ids():
     if is_bspwm():
