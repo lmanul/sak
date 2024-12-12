@@ -8,6 +8,10 @@ def is_bspwm():
     session = os.getenv("XDG_SESSION_DESKTOP")
     return session == "bspwm"
 
+def is_hyprland():
+    session = os.getenv("XDG_SESSION_DESKTOP")
+    return session == "hyprland"
+
 def get_focused_monitor():
     if is_bspwm():
         return subprocess.check_output(shlex.split(
@@ -29,9 +33,27 @@ def get_focused_workspace_name():
     if is_bspwm():
         return subprocess.check_output(shlex.split(
             "bspc query -D -d focused --names")).decode().strip()
+    return "1"
 
 def focus_workspace_with_name(name):
-    os.system("bspc desktop -f " + str(name))
+    print("Focus on workspace " + name)
+    if is_bspwm():
+        os.system("bspc desktop -f " + str(name))
+    elif is_hyprland():
+        os.system("hyprctl dispatch workspace " + name)
+
+def notify(text, icon_path=None):
+    print("Notifying " + text)
+    time_ms = 500
+    if is_bspwm():
+        icon_option = "" if icon_path is None else "--icon " + icon_path
+        os.system(f"notify-send --urgency=low --expire-time={time_ms} '{text}' " + icon_option)
+    elif is_hyprland():
+        # No custom icons?
+        icon_option = "-1"
+        # icon_option = "-1" if not icon_path else '--icon "' + icon_path + '"'
+        # print(f'hyprctl notify {icon_option} {time_ms} "rgb(ff1ea3)" "{text} + Hello everyone!"')
+        os.system(f'hyprctl notify {icon_option} {time_ms} "rgb(ff1ea3)" "{text} + Hello everyone!"')
 
 def select_target_workspace(n_rows, n_cols, current, direction):
     target = current

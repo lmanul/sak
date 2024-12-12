@@ -3,7 +3,8 @@ import re
 import shlex
 import subprocess
 
-MODE_LINE_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+.*$')
+MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+.*$')
+MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s.*$')
 
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
@@ -49,7 +50,7 @@ def get_monitors_x11():
                 current_max_surface = 0
                 continue
 
-            resolution_matches = MODE_LINE_PATTERN.match(line)
+            resolution_matches = MODE_LINE_X11_PATTERN.match(line)
             if resolution_matches:
                 w = int(resolution_matches.group(1))
                 h = int(resolution_matches.group(2))
@@ -71,31 +72,38 @@ def get_monitors_x11():
     return monitors
 
 def get_monitors_wayland():
-    connected_monitors = []
-    disconnected_monitors = []
+    monitors = []
     randr_output = subprocess.check_output(shlex.split("wlr-randr")).decode()
     current_output = ""
+    current_monitor = None
+    current_max_surface = 0
     current_is_disabled = False
     for line in randr_output.split("\n"):
-        if line == "":
+        if line.strip() == "":
             continue
         if "Enabled" in line:
             current_is_disabled = ("no" in line)
+            current_monitor.connected = not current_is_disabled
+        resolution_matches = MODE_LINE_WAYLAND_PATTERN.match(line)
+        if resolution_matches:
+            w = int(resolution_matches.group(1))
+            h = int(resolution_matches.group(2))
+            surface = w * h
+            if surface > current_max_surface:
+                current_monitor.max_resolution = (w, h)
+                current_max_surface = surface
+
         if not line.startswith("  "):
             parts = line.split(" ")
-            if current_output != "":
-                if current_is_disabled:
-                    disconnected_monitors.append(current_output)
-                else:
-                    connected_monitors.append(current_output)
             current_output = parts[0]
+            if current_monitor:
+                monitors.append(current_monitor)
+            current_monitor = Monitor(current_output)
             current_is_disabled = False
 
-    if current_is_disabled:
-        disconnected_monitors.append(current_output)
-    else:
-        connected_monitors.append(current_output)
-    return [connected_monitors, disconnected_monitors]
+    if current_monitor:
+        monitors.append(current_monitor)
+    return monitors
 
 # Returns an array of arrays: the first array is connected monitor ids,
 # the second is disconnected monitor ids.

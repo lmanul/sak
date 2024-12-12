@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
 import os
-import shlex
-import subprocess
 import sys
 
 import windowmanager
@@ -43,7 +41,7 @@ def switch(current, direction):
         )
         icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
             icon_filename)
-        os.system("notify-send --urgency=low --expire-time=500 ' ' --icon " + icon_path)
+        windowmanager.notify(" ", icon_path)
 
 if __name__ == "__main__":
     DIRECTION = sys.argv[1]
