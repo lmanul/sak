@@ -5,7 +5,10 @@ import os
 
 def main():
     out_file = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".png"
-    os.system("maim -s " + out_file)
+    if os.getenv("XDG_SESSION_TYPE") == "wayland":
+        os.system("slurp | grim -g - " + out_file)
+    else:
+        os.system("maim -s " + out_file)
     os.system("optipng " + out_file)
 
 if __name__ == "__main__":
