@@ -21,36 +21,19 @@ ALL_NUMERALS = [
 ]
 
 def switch(current, direction):
-    target = current
-    if direction == "l":
-        is_leftmost = (current % N_COLS == 1)
-        if not is_leftmost:
-            target = current - 1
-    if direction == "r":
-        is_rightmost = (current % N_COLS == 0)
-        if not is_rightmost:
-            target = current + 1
-    if direction == "u":
-        is_topmost = (current <= N_COLS)
-        if not is_topmost:
-            target = current - N_COLS
-    if direction == "d":
-        is_bottommost = (current > (N_ROWS - 1) * N_COLS)
-        if not is_bottommost:
-            target = current + N_COLS
+    target = windowmanager.select_target_workspace(N_ROWS, N_COLS, current, direction)
     if target != current:
         focused_monitor = windowmanager.get_focused_monitor()
-        monitor_ids = subprocess.check_output(shlex.split(
-            "bspc query -M --names")).decode().strip().split("\n")
+        monitor_ids = windowmanager.get_monitor_ids()
         i = 0
         for monitor_id in monitor_ids:
             target_numeral = ALL_NUMERALS[i % 3][target - 1]
-            os.system("bspc monitor -f " + monitor_id)
+            windowmanager.focus_monitor_with_id(monitor_id)
             os.system("bspc desktop -f " + str(target_numeral))
             i += 1
 
         # Restore focused monitor
-        os.system("bspc monitor -f " + focused_monitor)
+        windowmanager.focus_monitor_with_id(focused_monitor)
         icon_filename = (
             "workspace_"
             "" + str(N_ROWS) + "x"
