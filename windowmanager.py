@@ -33,17 +33,19 @@ def get_focused_workspace_name():
     if is_bspwm():
         return subprocess.check_output(shlex.split(
             "bspc query -D -d focused --names")).decode().strip()
+    if is_hyprland():
+        raw = subprocess.check_output(shlex.split(
+            "hyprctl activeworkspace")).decode().strip()
+        return raw.split("\n")[0].split(" ")[2]
     return "1"
 
 def focus_workspace_with_name(name):
-    print("Focus on workspace " + name)
     if is_bspwm():
         os.system("bspc desktop -f " + str(name))
     elif is_hyprland():
         os.system("hyprctl dispatch workspace " + name)
 
 def notify(text, icon_path=None):
-    print("Notifying " + text)
     time_ms = 500
     if is_bspwm():
         icon_option = "" if icon_path is None else "--icon " + icon_path
@@ -51,9 +53,10 @@ def notify(text, icon_path=None):
     elif is_hyprland():
         # No custom icons?
         icon_option = "-1"
+        color = "888888"
         # icon_option = "-1" if not icon_path else '--icon "' + icon_path + '"'
         # print(f'hyprctl notify {icon_option} {time_ms} "rgb(ff1ea3)" "{text} + Hello everyone!"')
-        os.system(f'hyprctl notify {icon_option} {time_ms} "rgb(ff1ea3)" "{text} + Hello everyone!"')
+        os.system(f'hyprctl notify {icon_option} {time_ms} "rgb({color})" "{text}"')
 
 def select_target_workspace(n_rows, n_cols, current, direction):
     target = current

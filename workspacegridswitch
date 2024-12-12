@@ -41,7 +41,7 @@ def switch(current, direction):
         )
         icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
             icon_filename)
-        windowmanager.notify(" ", icon_path)
+        windowmanager.notify(str(target), icon_path)
 
 if __name__ == "__main__":
     DIRECTION = sys.argv[1]
