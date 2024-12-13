@@ -51,7 +51,7 @@ def focus_workspace_with_name(name):
     if is_bspwm():
         os.system("bspc desktop -f " + str(name))
     elif is_hyprland():
-        os.system("hyprctl dispatch workspace " + name)
+        os.system("hyprctl dispatch workspace " + str(name))
 
 def notify(text, icon_path=None):
     time_ms = 500

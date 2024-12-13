@@ -19,15 +19,18 @@ ALL_NUMERALS = [
 ]
 
 def switch(current, direction):
-    # Always synchronize monitors
+    # Always synchronize monitors, but remember which one was active originally
+    principal = 0
     square = N_COLS * N_ROWS
     while current > square:
         current -= square
+        principal += 1
     target = windowmanager.select_target_workspace(N_ROWS, N_COLS, current, direction)
     while target > square:
         target -= square
 
     if target != current:
+        workspace_to_refocus_at_the_end = target + principal * square
         focused_monitor = windowmanager.get_focused_monitor()
         monitor_ids = windowmanager.get_monitor_ids()
         i = 0
@@ -41,6 +44,7 @@ def switch(current, direction):
             windowmanager.focus_monitor_with_id(monitor_id)
             windowmanager.focus_workspace_with_name(target_ws_id)
             i += 1
+        windowmanager.focus_workspace_with_name(workspace_to_refocus_at_the_end)
 
         # Restore focused monitor
         windowmanager.focus_monitor_with_id(focused_monitor)
