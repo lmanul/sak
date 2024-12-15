@@ -57,6 +57,8 @@ def notify(text, icon_path=None):
     time_ms = 500
     if is_bspwm():
         icon_option = "" if icon_path is None else "--icon " + icon_path
+        # In BSPWM, the icon is enough, no need for text for now.
+        text = " "
         os.system(f"notify-send --urgency=low --expire-time={time_ms} '{text}' " + icon_option)
     elif is_hyprland():
         # No custom icons?
