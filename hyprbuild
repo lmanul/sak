@@ -1,0 +1,58 @@
+#!/usr/bin/python
+
+import os
+
+from pathlib import Path
+
+COMMON_BUILD_CMD_ONE = (
+        "cmake --no-warn-unused-cli "
+        "-DCMAKE_BUILD_TYPE:STRING=Release "
+        "-DCMAKE_INSTALL_PREFIX:PATH=/usr "
+        "-S . -B ./build"
+)
+
+COMMON_BUILD_CMD_TWO = (
+        "cmake --build ./build --config Release "
+        "--target COMPONENT -j`nproc "
+        "2>/dev/null || getconf _NPROCESSORS_CONF`")
+
+COMMON_INSTALL_CMD = "sudo cmake --install build"
+
+def build_common(component):
+    os.system(COMMON_BUILD_CMD_ONE)
+    os.system(COMMON_BUILD_CMD_TWO.replace("COMPONENT", component))
+    os.system(COMMON_INSTALL_CMD)
+
+def build_hyprwayland_scanner():
+    os.system("cmake -DCMAKE_INSTALL_PREFIX=/usr -B build")
+    os.system("cmake --build build -j `nproc`")
+    os.system(COMMON_INSTALL_CMD)
+
+def build_component(component):
+    if component in ["hyprlang", "hyprutils"]:
+        build_common(component)
+    if component in ["hyprcursor", "hyprgraphics"]:
+        build_common("all")
+    if component == "hyprwayland-scanner":
+        build_hyprwayland_scanner()
+
+def build_component_and_come_back(component):
+    initial = Path.cwd().name
+    os.chdir("../" + component)
+    os.system("git pull")
+    build_component(component)
+    os.chdir("../" + initial)
+
+def build_hyprland():
+    for component in ["lang", "utils", "cursor", "graphics", "wayland-scanner"]:
+        build_component_and_come_back("hypr" + component)
+
+def main():
+    dirname = Path.cwd().name
+    if dirname == "Hyprland":
+        build_hyprland()
+    if dirname.startswith("hypr"):
+        build_component(dirname)
+
+if __name__ == "__main__":
+    main()

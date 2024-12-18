@@ -1,0 +1,31 @@
+#!/usr/bin/python
+
+import os
+
+from pathlib import Path
+
+GNOME_PROJECTS = [
+    "babl",
+    "gegl",
+    "gimp",
+    "gnome-terminal",
+]
+
+HYPR_PROJECTS = [
+    "Hyprland",
+    "hyprlang",
+    "hyprcursor",
+    "hyprutils",
+    "hyprgraphics",
+    "hyprwayland-scanner",
+]
+
+def main():
+    dirname = Path.cwd().name
+    if dirname in GNOME_PROJECTS:
+        os.system("gnbuild")
+    if dirname in HYPR_PROJECTS:
+        os.system("hyprbuild")
+
+if __name__ == "__main__":
+    main()
