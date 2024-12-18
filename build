@@ -13,6 +13,7 @@ GNOME_PROJECTS = [
 
 HYPR_PROJECTS = [
     "Hyprland",
+    "aquamarine",
     "hyprlang",
     "hyprcursor",
     "hyprutils",

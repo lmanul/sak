@@ -141,6 +141,14 @@ def save_image_with_modified_exif(file_path, modified_exif):
         with open(file_path, "wb") as ofile:
                 ofile.write(img.get_file())
 
+def title(text, character):
+    s = ""
+    half = character * int((80 - len(text) - 2) / 2)
+    s += character * 80 + "\n"
+    s += half + " " + text + " " + half + "\n"
+    s += character * 80 + "\n"
+    return s
+
 def get_pdf_pages(pdf_path):
     "Returns the number of pages in the given PDF file"
     output = subprocess.check_output(["pdfinfo", pdf_path]).decode()

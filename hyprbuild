@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import util
 
 from pathlib import Path
 
@@ -31,12 +32,13 @@ def build_hyprwayland_scanner():
 def build_component(component):
     if component in ["hyprlang", "hyprutils"]:
         build_common(component)
-    if component in ["hyprcursor", "hyprgraphics"]:
+    if component in ["hyprcursor", "hyprgraphics", "aquamarine"]:
         build_common("all")
     if component == "hyprwayland-scanner":
         build_hyprwayland_scanner()
 
 def build_component_and_come_back(component):
+    print("\n" + util.title(component, "#"))
     initial = Path.cwd().name
     os.chdir("../" + component)
     os.system("git pull")
@@ -46,12 +48,15 @@ def build_component_and_come_back(component):
 def build_hyprland():
     for component in ["lang", "utils", "cursor", "graphics", "wayland-scanner"]:
         build_component_and_come_back("hypr" + component)
+    build_component_and_come_back("aquamarine")
+    os.system("meson setup build -Dbuildtype=debug")
+    os.system("ninja -C build")
 
 def main():
     dirname = Path.cwd().name
     if dirname == "Hyprland":
         build_hyprland()
-    if dirname.startswith("hypr"):
+    if dirname.startswith("hypr") or dirname == "aquamarine":
         build_component(dirname)
 
 if __name__ == "__main__":
