@@ -30,12 +30,20 @@ def build_hyprwayland_scanner():
     os.system(COMMON_INSTALL_CMD)
 
 def build_component(component):
-    if component in ["hyprlang", "hyprutils"]:
+    install_dependencies(component)
+    if component in ["hyprlang", "hyprutils", "hyprland-qtutils"]:
         build_common(component)
     if component in ["hyprcursor", "hyprgraphics", "aquamarine"]:
         build_common("all")
     if component == "hyprwayland-scanner":
         build_hyprwayland_scanner()
+
+def install_dependencies(component):
+    deps = []
+    if component == "hyprland-qtutils":
+        deps.append("qt6-base-dev")
+        deps.append("qt6-declarative-dev")
+    os.system("sudo apt install " + " ".join(deps))
 
 def build_component_and_come_back(component):
     print("\n" + util.title(component, "#"))
@@ -46,7 +54,7 @@ def build_component_and_come_back(component):
     os.chdir("../" + initial)
 
 def build_hyprland():
-    for component in ["lang", "utils", "cursor", "graphics", "wayland-scanner"]:
+    for component in ["lang", "utils", "cursor", "graphics", "wayland-scanner", "land-qtutils"]:
         build_component_and_come_back("hypr" + component)
     build_component_and_come_back("aquamarine")
     os.system("meson setup build -Dbuildtype=debug")
