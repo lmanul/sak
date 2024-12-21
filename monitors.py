@@ -30,6 +30,9 @@ class Monitor:
                 f"{"" if self.connected else "dis"}connected]"
                )
 
+    def __repr__(self):
+        return self.__str__()
+
 def get_monitors_x11():
     current_monitor = None
     current_max_surface = 0
