@@ -100,6 +100,7 @@ def get_monitors_wayland():
                 monitors.append(current_monitor)
             current_monitor = Monitor(current_output)
             current_is_disabled = False
+            current_max_surface = 0
 
     if current_monitor:
         monitors.append(current_monitor)
