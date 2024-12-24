@@ -55,18 +55,19 @@ def focus_workspace_with_name(name):
 
 def notify(text, icon_path=None):
     time_ms = 500
-    if is_bspwm():
+    if is_bspwm() or is_hyprland():
+        # Should work for both as long as "dunst" is running.
         icon_option = "" if icon_path is None else "--icon " + icon_path
         # In BSPWM, the icon is enough, no need for text for now.
         text = " "
         os.system(f"notify-send --urgency=low --expire-time={time_ms} '{text}' " + icon_option)
-    elif is_hyprland():
-        # No custom icons?
-        icon_option = "-1"
-        color = "888888"
-        # icon_option = "-1" if not icon_path else '--icon "' + icon_path + '"'
-        # print(f'hyprctl notify {icon_option} {time_ms} "rgb(ff1ea3)" "{text} + Hello everyone!"')
-        os.system(f'hyprctl notify {icon_option} {time_ms} "rgb({color})" "{text}"')
+    # elif is_hyprland():
+    #     # No custom icons?
+    #     icon_option = "-1"
+    #     color = "888888"
+    #     # icon_option = "-1" if not icon_path else '--icon "' + icon_path + '"'
+    #     # print(f'hyprctl notify {icon_option} {time_ms} "rgb(ff1ea3)" "{text} + Hello everyone!"')
+    #     os.system(f'hyprctl notify {icon_option} {time_ms} "rgb({color})" "{text}"')
 
 def select_target_workspace(n_rows, n_cols, current, direction):
     target = current
