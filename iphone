@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    os.system("sudo apt install ifuse usbmuxd libimobiledevice6 libimobiledevice-utils")
+    os.chdir("/home/manucornet")
+    os.system("mkdir iPhone")
+    os.system("ifuse ~/iPhone")
+
+if __name__ == "__main__":
+    main()
