@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    if os.environ["XDG_SESSION_TYPE"] == "wayland":
+        os.system("xhost +SI:localuser:root")
+
+    os.system("/usr/sbin/gparted")
+
+if __name__ == "__main__":
+    main()
