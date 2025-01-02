@@ -211,13 +211,16 @@ def sanitize_for_filename_one_pass(input):
         output = output[:-1]
     if len(output) > 0 and output[0] in ["_"]:
         output = output[1:]
-    # Standard image extensions
+    # Standard image extensions. TODO: lower case all extensions.
     if output.endswith(".jpeg"):
         output = output.replace(".jpeg", ".jpg")
     if output.endswith(".JPG"):
         output = output.replace(".JPG", ".jpg")
     if output.endswith(".PNG"):
         output = output.replace(".PNG", ".png")
+    if output.endswith(".PDF"):
+        output = output.replace(".PDF", ".pdf")
+
     output = output.replace("._", "_")
     output = output.replace("_.", ".")
     output = output.replace("_-", "_")
