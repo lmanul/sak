@@ -4,9 +4,10 @@ import os
 
 def main():
     if os.environ["XDG_SESSION_TYPE"] == "wayland":
+        print("Wayland detected")
         os.system("xhost +SI:localuser:root")
 
-    os.system("/usr/sbin/gparted")
+    os.system("sudo /usr/sbin/gparted")
 
 if __name__ == "__main__":
     main()
