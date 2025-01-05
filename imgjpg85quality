@@ -6,6 +6,7 @@ significant size reduction, leave the image unchanged.
 
 import os
 import sys
+import util
 
 def main(file):
     file = sys.argv[1]
@@ -22,7 +23,12 @@ def main(file):
     saved_percent = round(
         (float(orig_size - new_size) / float(orig_size)) * 100, 1)
 
-    print("(" + str(saved_percent) + ")", end=" ")
+    if saved_percent > 5:
+        color = "green"
+    else:
+        color = "cyan"
+
+    print("(" + util.color(str(saved_percent), color) + ")", end=" ")
 
     # Keep the original image if we didn't save much.
     if saved_percent > 5:
