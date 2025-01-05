@@ -20,8 +20,12 @@ def main():
     dirname = Path.cwd().name
     if dirname in GNOME_PROJECTS:
         os.system("gnbuild")
-    if dirname.startswith("hypr") or dirname in HYPR_PROJECTS:
+    elif dirname.startswith("hypr") or dirname in HYPR_PROJECTS:
         os.system("hyprbuild")
+    elif dirname == "pwvucontrol":
+        os.system("pwvucontrolbuild")
+    else:
+        print("Sorry, I don't know how to build this project")
 
 if __name__ == "__main__":
     main()
