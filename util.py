@@ -47,13 +47,17 @@ def is_screen_session():
     env_var = os.getenv("STY")
     return env_var != None and env_var.strip() != ""
 
-def instances_of_process_running(binary_name, apart_from=None):
+def instances_of_process_running(query, only_match_full_name=True, apart_from=None):
     s = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
     instances = []
     for x in s.stdout:
         line = x.decode().strip()
         p = Process.parse_ps_aux_line(line)
-        if p.matches_binary(binary_name):
+        if only_match_full_name and p.matches_binary(query):
+            if p.pid == str(apart_from):
+                continue
+            instances.append(line)
+        elif not only_match_full_name and p.matches_query(query):
             if p.pid == str(apart_from):
                 continue
             instances.append(line)
