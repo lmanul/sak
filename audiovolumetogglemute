@@ -5,4 +5,4 @@ import os
 home = os.path.expanduser("~")
 
 os.system("pactl set-sink-mute @DEFAULT_SINK@ toggle")
-os.system("play -q " + home + "/bus/reference/water_droplet.mp3")
+os.system("play " + home + "/bus/reference/sounds/water_droplet.mp3")

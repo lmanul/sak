@@ -6,4 +6,4 @@ import os
 HOME = os.path.expanduser("~")
 
 os.system("pactl -- set-sink-volume @DEFAULT_SINK@ -5%")
-os.system("/usr/bin/play -q " + HOME + "/bus/reference/sounds/water_droplet.mp3")
+os.system("/usr/bin/play " + HOME + "/bus/reference/sounds/water_droplet.mp3")
