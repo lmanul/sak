@@ -3,7 +3,7 @@
 import os
 
 def main():
-    os.system("python3 -m http.server 9000")
+    os.system("python3 -m http.server 8888")
 
 if __name__ == "__main__":
     main()
