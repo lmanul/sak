@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    os.system("curl -fsSL https://tailscale.com/install.sh | sh")
+    os.system("sudo chmod o+r /usr/share/keyrings/tailscale-archive-keyring.gpg")
+    os.system("curl -fsSL https://tailscale.com/install.sh | sh")
+
+if __name__ == "__main__":
+    main()
