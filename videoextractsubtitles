@@ -35,8 +35,11 @@ def extract_subtitles(input_file):
     i = 0
     # Step 3: Extract each subtitle track to a separate .srt file
     for index in subtitle_streams:
-        (lang_code, lang_title) = subtitle_streams[index]
-        output_file = f"{input_file_no_extension}.{lang_code}_{lang_title}.srt"
+        lang_suffix = subtitle_streams[index][0]
+        if len(subtitle_streams[index]) > 1:
+            (lang_code, lang_title) = subtitle_streams[index]
+            lang_suffix = lang_code + "_" + lang_title
+        output_file = f"{input_file_no_extension}.{lang_suffix}.srt"
         extract_command = [
             # Even though subtitles may start at stream number 3, when
             # extracting them they are still 0-based.
