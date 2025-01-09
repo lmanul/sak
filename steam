@@ -5,7 +5,10 @@ import os
 def main():
     # Grmpf
     os.system("sudo chmod u+s /usr/bin/bwrap")
-    os.system("/usr/games/steam")
+    if os.path.exists("/usr/games/steam"):
+        os.system("/usr/games/steam")
+    elif os.path.exists("/usr/bin/steam"):
+        os.system("/usr/bin/steam")
 
 if __name__ == "__main__":
     main()
