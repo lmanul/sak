@@ -2,6 +2,7 @@ import os
 import re
 import shlex
 import subprocess
+import util
 
 MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+.*$')
 MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s.*$')
@@ -112,7 +113,7 @@ def get_monitors_wayland():
 # Returns an array of arrays: the first array is connected monitor ids,
 # the second is disconnected monitor ids.
 def get_monitors():
-    if os.environ["XDG_SESSION_TYPE"] == "wayland":
+    if util.is_wayland():
         return get_monitors_wayland()
     else:
         return get_monitors_x11()

@@ -406,6 +406,9 @@ def string_to_date(date_string):
 def date_to_string(d):
     return ".".join([str(d.year), str(d.month).zfill(2), str(d.day).zfill(2)])
 
+def is_wayland():
+    return os.environ["XDG_SESSION_TYPE"] == "wayland" and os.environ["XDG_SESSION_DESKTOP"] != "ubuntu"
+
 def color(text, color_name):
     if not has_colorama:
         return str(text)
