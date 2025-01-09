@@ -23,6 +23,8 @@ def main():
                 else:
                     total = str(int(total)) + " MB"
                 print(str(percent_used) + "% used of " + total)
+    print("GPU acceleration: ", end="")
+    os.system("glxinfo | grep 'direct rendering'")
 
 if __name__ == "__main__":
     main()
