@@ -302,6 +302,12 @@ def set_busy(flag):
         if is_busy():
             os.system("rm " + p)
 
+def run_and_exit_if_status_code_not_zero(cmd):
+    proc = subprocess.run(shlex.split(cmd), check=True)
+    if proc.returncode != 0:
+        print(f"Status code of {cmd} is non-zero, exiting.")
+        sys.exit(proc.returncode)
+
 def run_bin_cmd(cmd, args=None, detach=False):
     locations = [
         os.path.join(os.getcwd()),
@@ -408,6 +414,11 @@ def date_to_string(d):
 
 def is_wayland():
     return os.environ["XDG_SESSION_TYPE"] == "wayland" and os.environ["XDG_SESSION_DESKTOP"] != "ubuntu"
+
+def ensure_installed(packages):
+    # TODO
+    if is_linux():
+        os.system("sudo apt install " + " ".join(packages))
 
 def color(text, color_name):
     if not has_colorama:

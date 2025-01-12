@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import subprocess
 import util
 
 from pathlib import Path
@@ -9,58 +10,100 @@ COMMON_BUILD_CMD_ONE = (
         "cmake --no-warn-unused-cli "
         "-DCMAKE_BUILD_TYPE:STRING=Release "
         "-DCMAKE_INSTALL_PREFIX:PATH=/usr "
+        "-DINSTALL_QML_PREFIX=/lib/qt6/qml "
         "-S . -B ./build"
 )
 
 COMMON_BUILD_CMD_TWO = (
         "cmake --build ./build --config Release "
-        "--target COMPONENT -j`nproc "
-        "2>/dev/null || getconf _NPROCESSORS_CONF`")
+        "--target COMPONENT -jN_PROC")
 
 COMMON_INSTALL_CMD = "sudo cmake --install build"
 
 def build_common(component):
-    os.system(COMMON_BUILD_CMD_ONE)
-    os.system(COMMON_BUILD_CMD_TWO.replace("COMPONENT", component))
-    os.system(COMMON_INSTALL_CMD)
+    nproc = int(subprocess.check_output("nproc").decode())
+    util.run_and_exit_if_status_code_not_zero(COMMON_BUILD_CMD_ONE)
+    util.run_and_exit_if_status_code_not_zero(
+        COMMON_BUILD_CMD_TWO.replace(
+            "COMPONENT", component).replace("N_PROC", str(nproc)))
+    util.run_and_exit_if_status_code_not_zero(COMMON_INSTALL_CMD)
 
 def build_hyprwayland_scanner():
-    os.system("cmake -DCMAKE_INSTALL_PREFIX=/usr -B build")
-    os.system("cmake --build build -j `nproc`")
-    os.system(COMMON_INSTALL_CMD)
+    nproc = int(subprocess.check_output("nproc").decode())
+    util.run_and_exit_if_status_code_not_zero(
+        "cmake -DCMAKE_INSTALL_PREFIX=/usr -B build")
+    util.run_and_exit_if_status_code_not_zero(
+        "cmake --build build -j " + str(nproc))
+    util.run_and_exit_if_status_code_not_zero(COMMON_INSTALL_CMD)
+
+def build_aquamarine():
+    nproc = int(subprocess.check_output("nproc").decode())
+    util.run_and_exit_if_status_code_not_zero(
+        "cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -Dhyprwayland-scanner_DIR=../hyprwayland-scanner/build -DCMAKE_INSTALL_PREFIX:PATH=/usr -S . -B ./build")
+    util.run_and_exit_if_status_code_not_zero(
+        "cmake --build ./build --config Release --target all -j" + str(nproc))
 
 def build_component(component):
     install_dependencies(component)
-    if component in ["hyprlang", "hyprutils", "hyprland-qtutils"]:
-        build_common(component)
-    if component in ["hyprcursor", "hyprgraphics", "aquamarine"]:
+    if component in ["hyprcursor", "hyprgraphics", "aquamarine", "hyprland-qt-support", "hyprland-qtutils"]:
         build_common("all")
-    if component == "hyprwayland-scanner":
+    elif component == "hyprwayland-scanner":
         build_hyprwayland_scanner()
+    elif component == "aquamarine":
+        build_aquamarine()
+    else:
+        build_common(component)
 
 def install_dependencies(component):
     deps = []
     if component == "hyprland-qtutils":
         deps.append("qt6-base-dev")
         deps.append("qt6-declarative-dev")
-    os.system("sudo apt install " + " ".join(deps))
+    util.ensure_installed(deps)
 
 def build_component_and_come_back(component):
     print("\n" + util.title(component, "#"))
     initial = Path.cwd().name
-    os.chdir("../" + component)
+    os.chdir("..")
+    if not os.path.exists(component):
+        print(f"Cloning '{component}...'")
+        os.system(f"git clone 'https://github.com/hyprwm/{component}.git'")
+    os.chdir(component)
     os.system("git pull")
     build_component(component)
     os.chdir("../" + initial)
 
 def build_hyprland():
-    for component in ["lang", "utils", "cursor", "graphics", "wayland-scanner", "land-qtutils"]:
+    for component in [
+        "utils",
+        "lang",
+        "cursor",
+        "graphics",
+        "wayland-scanner",
+        "land-qt-support",
+        "land-qtutils",
+    ]:
         build_component_and_come_back("hypr" + component)
     build_component_and_come_back("aquamarine")
     os.system("meson setup build -Dbuildtype=debug")
     os.system("ninja -C build")
 
 def main():
+    util.ensure_installed([
+        "cmake",
+        "meson",
+        "libzip-dev",
+        "libpugixml-dev",
+        "libtomlplusplus-dev",
+        "librsvg2-dev",
+        "libmagic-dev",
+        "qt6-wayland-dev",
+        "qt6-wayland-private-dev",
+        "qt6-base-private-dev",
+        "libopengl-dev",
+        "libglfw3-dev",
+        "libgles2-mesa-dev",
+    ])
     dirname = Path.cwd().name
     if dirname == "Hyprland":
         build_hyprland()
