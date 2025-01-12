@@ -38,6 +38,8 @@ def get_monitor_ids():
 def focus_monitor_with_id(monitor_id):
     if is_bspwm():
         os.system("bspc monitor -f " + monitor_id)
+    elif is_hyprland():
+        os.system("hyprctl dispatch focusmonitor " + monitor_id)
 
 def get_focused_workspace_name():
     if is_bspwm():
@@ -53,7 +55,9 @@ def focus_workspace_with_name(name):
     if is_bspwm():
         os.system("bspc desktop -f " + str(name))
     elif is_hyprland():
-        os.system("hyprctl dispatch workspace " + str(name))
+        cmd = "hyprctl dispatch workspace " + str(name)
+        print(cmd)
+        os.system(cmd)
 
 def notify(text, icon_path=None):
     time_ms = 500
