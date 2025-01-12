@@ -4,13 +4,15 @@ import subprocess
 
 import monitors
 
+# Returns true if the XDG session desktop is as expected
+def check_desktop(expected):
+    return os.getenv("XDG_SESSION_DESKTOP") == expected
+
 def is_bspwm():
-    session = os.getenv("XDG_SESSION_DESKTOP")
-    return session == "bspwm"
+    return check_desktop("bspwm")
 
 def is_hyprland():
-    session = os.getenv("XDG_SESSION_DESKTOP")
-    return session == "hyprland"
+    return check_desktop("hyprland")
 
 def get_focused_monitor():
     if is_bspwm():
@@ -59,8 +61,9 @@ def notify(text, icon_path=None):
         # Should work for both as long as "dunst" is running.
         icon_option = "" if icon_path is None else "--icon " + icon_path
         # In BSPWM, the icon is enough, no need for text for now.
-        text = " "
-        os.system(f"notify-send --urgency=low --expire-time={time_ms} '{text}' " + icon_option)
+        cmd = f"notify-send --urgency=low --expire-time={time_ms} '{text}' " + icon_option
+        print(cmd)
+        os.system(cmd)
     # elif is_hyprland():
     #     # No custom icons?
     #     icon_option = "-1"
@@ -72,19 +75,19 @@ def notify(text, icon_path=None):
 def select_target_workspace(n_rows, n_cols, current, direction):
     target = current
     if direction == "l":
-        is_leftmost = (current % n_cols == 1)
+        is_leftmost = current % n_cols == 1
         if not is_leftmost:
             target = current - 1
     if direction == "r":
-        is_rightmost = (current % n_cols == 0)
+        is_rightmost = current % n_cols == 0
         if not is_rightmost:
             target = current + 1
     if direction == "u":
-        is_topmost = (current <= n_cols)
+        is_topmost = current <= n_cols
         if not is_topmost:
             target = current - n_cols
     if direction == "d":
-        is_bottommost = (current > (n_rows - 1) * n_cols)
+        is_bottommost = current > (n_rows - 1) * n_cols
         if not is_bottommost:
             target = current + n_cols
 

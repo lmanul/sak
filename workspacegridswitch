@@ -43,6 +43,7 @@ def switch(current, direction):
                 target_ws_id = str(target)
             windowmanager.focus_monitor_with_id(monitor_id)
             windowmanager.focus_workspace_with_name(target_ws_id)
+            #windowmanager.notify("Switching to workspace " + str(target_ws_id))
             i += 1
         windowmanager.focus_workspace_with_name(workspace_to_refocus_at_the_end)
 
@@ -57,7 +58,7 @@ def switch(current, direction):
         )
         icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
             icon_filename)
-        windowmanager.notify(str(target), icon_path)
+        windowmanager.notify(" ", icon_path)
 
 if __name__ == "__main__":
     DIRECTION = sys.argv[1]
