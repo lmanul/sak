@@ -19,13 +19,14 @@ def get_focused_monitor():
         return subprocess.check_output(shlex.split(
             "bspc query -M -d focused --names")).decode().strip()
     if is_hyprland():
-        raw =  subprocess.check_output(shlex.split(
-            "hyprctl activewindow")).decode().strip()
+        raw =  subprocess.check_output(shlex.split("hyprctl monitors")).decode().strip()
+        current_monitor_id = None
         for line in raw.split("\n"):
+            if line.startswith("Monitor "):
+                current_monitor_id = line.split(" ")[1]
             line = line.strip()
-            if "monitor" in line:
-                # TODO: may need to look up the actual ID from the index.
-                return line.split(":")[1].strip()
+            if "focused" in line and "yes" in line:
+                return current_monitor_id
 
 def get_monitor_ids():
     if is_bspwm():
@@ -39,7 +40,8 @@ def focus_monitor_with_id(monitor_id):
     if is_bspwm():
         os.system("bspc monitor -f " + monitor_id)
     elif is_hyprland():
-        os.system("hyprctl dispatch focusmonitor " + monitor_id)
+        cmd = "hyprctl dispatch focusmonitor " + monitor_id
+        os.system(cmd)
 
 def get_focused_workspace_name():
     if is_bspwm():
