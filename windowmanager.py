@@ -61,10 +61,10 @@ def focus_workspace_with_name(name):
         os.system("bspc desktop -f " + str(name))
     elif is_hyprland():
         # The workspace may not exist yet, ensure it lives
-        ensure_workspace(name, 3, 3) # TODO: configure
         cmd = "hyprctl dispatch workspace " + str(name)
         print(cmd)
         os.system(cmd)
+        ensure_workspace(name, 3, 3) # TODO: configure
 
 def ensure_workspace(index, n_rows, n_cols):
     # index is 1-based
@@ -78,6 +78,9 @@ def ensure_workspace(index, n_rows, n_cols):
         print(cmd)
         os.system(cmd)
         cmd = f"hyprctl dispatch renameworkspace {index} {name}"
+        print(cmd)
+        os.system(cmd)
+        cmd = "hyprctl dispatch workspaceopt persistent"
         print(cmd)
         os.system(cmd)
 

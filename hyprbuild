@@ -45,14 +45,18 @@ def build_aquamarine():
 
 def build_component(component):
     install_dependencies(component)
-    if component in ["hyprcursor", "hyprgraphics", "aquamarine", "hyprland-qt-support", "hyprland-qtutils"]:
-        build_common("all")
-    elif component == "hyprwayland-scanner":
-        build_hyprwayland_scanner()
-    elif component == "aquamarine":
-        build_aquamarine()
-    else:
-        build_common(component)
+    try:
+        if component in ["hyprcursor", "hyprgraphics", "aquamarine", "hyprland-qt-support", "hyprland-qtutils"]:
+            build_common("all")
+        elif component == "hyprwayland-scanner":
+            build_hyprwayland_scanner()
+        elif component == "aquamarine":
+            build_aquamarine()
+        else:
+            build_common(component)
+    except subprocess.CalledProcessError:
+        print("Oops!")
+        pass
 
 def install_dependencies(component):
     deps = []
