@@ -7,8 +7,11 @@ import windowmanager
 
 from virtualdesktops import ARABIC, ROMAN, CHINESE
 
+DEBUG = True
+
 N_ROWS = 3
 N_COLS = 3
+SQUARE = N_COLS * N_ROWS
 
 ARABIC_NUMERALS = ARABIC.split(" ")
 ROMAN_NUMERALS = ROMAN.split(" ")
@@ -18,53 +21,84 @@ ALL_NUMERALS = [
     ARABIC_NUMERALS, ROMAN_NUMERALS, CHINESE_NUMERALS,
 ]
 
-def switch(current, direction):
-    # Always synchronize monitors, but remember which one was active originally
-    principal = 0
-    square = N_COLS * N_ROWS
-    while current > square:
-        current -= square
-        principal += 1
-    target = windowmanager.select_target_workspace(N_ROWS, N_COLS, current, direction)
-    while target > square:
-        target -= square
+def debug(msg):
+    if DEBUG:
+        print(msg)
 
-    if target != current:
-        workspace_to_refocus_at_the_end = target + principal * square
-        focused_monitor = windowmanager.get_focused_monitor()
-        monitor_ids = windowmanager.get_monitor_ids()
-        i = 0
-        for monitor_id in monitor_ids:
-            if windowmanager.is_bspwm():
-                target_ws_id = ALL_NUMERALS[i % 3][target - 1]
-            elif windowmanager.is_hyprland():
-                target_ws_id = str(target + N_COLS * N_ROWS * i)
-            else:
-                target_ws_id = str(target)
+def switch(current, target):
+    principal = 0
+    while current > SQUARE:
+        current -= SQUARE
+        principal += 1
+    workspace_to_refocus_at_the_end = target + principal * SQUARE
+    focused_monitor = windowmanager.get_focused_monitor()
+    debug("Initial focused monitor " + str(focused_monitor))
+    monitor_ids = windowmanager.get_monitor_ids()
+    i = 0
+    for monitor_id in monitor_ids:
+        debug("Monitor " + monitor_id)
+        if windowmanager.is_bspwm():
+            target_ws_id = ALL_NUMERALS[i % 3][target - 1]
+        elif windowmanager.is_hyprland():
+            target_ws_id = str(target + N_COLS * N_ROWS * i)
+        else:
+            target_ws_id = str(target)
+        debug("\tFocusing workspace " + str(target_ws_id))
+        if not windowmanager.is_hyprland():
+            # On Hyprland, a workspace is attached to a monitor, no need to
+            # explicitly focus the monitor.
             windowmanager.focus_monitor_with_id(monitor_id)
-            windowmanager.focus_workspace_with_name(target_ws_id)
-            #windowmanager.notify("Switching to workspace " + str(target_ws_id))
-            i += 1
+        windowmanager.focus_workspace_with_name(target_ws_id)
+        last_requested_ws = target_ws_id
+        i += 1
+    if last_requested_ws != workspace_to_refocus_at_the_end:
+        debug("Refocusing workspace " + str(workspace_to_refocus_at_the_end))
         windowmanager.focus_workspace_with_name(workspace_to_refocus_at_the_end)
 
-        # Restore focused monitor
-        windowmanager.focus_monitor_with_id(focused_monitor)
-        icon_filename = (
-            "workspace_"
-            "" + str(N_ROWS) + "x"
-            "" + str(N_COLS) + "_"
-            "" + str(target) + ""
-            ".svg"
-        )
-        icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
-            icon_filename)
-        windowmanager.notify(" ", icon_path)
+    # Restore focused monitor
+    debug("Refocusing monitor " + str(focused_monitor))
+    windowmanager.focus_monitor_with_id(focused_monitor)
+    icon_filename = (
+        "workspace_"
+        "" + str(N_ROWS) + "x"
+        "" + str(N_COLS) + "_"
+        "" + str(target) + ""
+        ".svg"
+    )
+    icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
+        icon_filename)
+    windowmanager.notify(" ", icon_path)
+
+def switch_with_direction(current, direction):
+    last_requested_ws = current
+    debug("Current workspace " + str(current) + ", going in direction " + direction)
+    # Always synchronize monitors, but remember which one was active originally
+    principal = 0
+    while current > SQUARE:
+        current -= SQUARE
+        principal += 1
+    target = windowmanager.select_target_workspace(N_ROWS, N_COLS, current, direction)
+    while target > SQUARE:
+        target -= SQUARE
+    debug("Target is " + str(target))
+    debug("Principal " + str(principal) + ", square " + str(SQUARE))
+    switch(current, target)
+
+def switch_to_primary_target(current, primary_target):
+    # We are 1-based
+    assert primary_target <= SQUARE
+    switch(current, primary_target)
+
+#    if target != current:
 
 if __name__ == "__main__":
-    DIRECTION = sys.argv[1]
     CURRENT = windowmanager.get_focused_workspace_name()
     if CURRENT in ROMAN_NUMERALS:
         CURRENT = ROMAN_NUMERALS.index(CURRENT) + 1
     if CURRENT in CHINESE_NUMERALS:
         CURRENT = CHINESE_NUMERALS.index(CURRENT) + 1
-    switch(int(CURRENT), DIRECTION)
+    current = int(CURRENT)
+    if sys.argv[1] in ["l", "r", "u", "d"]:
+        switch_with_direction(current, sys.argv[1])
+    else:
+        switch_to_primary_target(current, int(sys.argv[1]))

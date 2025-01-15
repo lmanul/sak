@@ -3,6 +3,7 @@ import shlex
 import subprocess
 
 import monitors
+import virtualdesktops
 
 # Returns true if the XDG session desktop is as expected
 def check_desktop(expected):
@@ -54,10 +55,29 @@ def get_focused_workspace_name():
     return "1"
 
 def focus_workspace_with_name(name):
+    # Name is actually a 1-based index
+    name = int(name)
     if is_bspwm():
         os.system("bspc desktop -f " + str(name))
     elif is_hyprland():
+        # The workspace may not exist yet, ensure it lives
+        ensure_workspace(name, 3, 3) # TODO: configure
         cmd = "hyprctl dispatch workspace " + str(name)
+        print(cmd)
+        os.system(cmd)
+
+def ensure_workspace(index, n_rows, n_cols):
+    # index is 1-based
+    print("Ensure " + str(index))
+    square = n_rows * n_cols
+    name = virtualdesktops.name_from_index(index, n_rows, n_cols)
+    ms = monitors.get_monitors()
+    corresponding_monitor = ms[(index - 1) // square].input_id
+    if is_hyprland():
+        cmd = f"hyprctl dispatch moveworkspacetomonitor {index} {corresponding_monitor}"
+        print(cmd)
+        os.system(cmd)
+        cmd = f"hyprctl dispatch renameworkspace {index} {name}"
         print(cmd)
         os.system(cmd)
 
@@ -78,6 +98,7 @@ def notify(text, icon_path=None):
     #     # print(f'hyprctl notify {icon_option} {time_ms} "rgb(ff1ea3)" "{text} + Hello everyone!"')
     #     os.system(f'hyprctl notify {icon_option} {time_ms} "rgb({color})" "{text}"')
 
+# Returns a workspace index, 1-based
 def select_target_workspace(n_rows, n_cols, current, direction):
     target = current
     if direction == "l":
