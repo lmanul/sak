@@ -4,7 +4,7 @@ CHINESE = "一 二 三 四 五 六 七 八 九 十 十一 十二 十三 十四 �
 
 SETS = [ ARABIC, ROMAN, CHINESE ]
 
-ALL = [ARABIC.split(" "), ROMAN.split(" "), CHINESE.split(" ")]
+ALL = [ARABIC, ROMAN, CHINESE]
 
 # Takes a 1-based index
 def name_from_index(index, n_rows, n_cols):

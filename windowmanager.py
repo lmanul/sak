@@ -55,11 +55,11 @@ def get_focused_workspace_name():
     return "1"
 
 def focus_workspace_with_name(name):
-    # Name is actually a 1-based index
-    name = int(name)
     if is_bspwm():
         os.system("bspc desktop -f " + str(name))
     elif is_hyprland():
+        # Name is actually a 1-based index
+        name = int(name)
         # The workspace may not exist yet, ensure it lives
         cmd = "hyprctl dispatch workspace " + str(name)
         print(cmd)
