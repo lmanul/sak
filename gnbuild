@@ -3,6 +3,7 @@
 import os
 
 import gnome
+import util
 
 def build_gtk():
     # Also needed: libgstreamer-plugins-bad1.0-dev
@@ -19,6 +20,14 @@ def build(proj, setup_flags):
     os.system("ninja -C " + gnome.BUILD_DIR)
     os.system("ninja -C " + gnome.BUILD_DIR + " install")
 
+def build_babl_gegl(proj):
+    setup_flags = [
+        "--prefix=" + gnome.JHBUILD_INSTALL_DIR,
+        "--buildtype=release",
+        "-Db_lto=true"
+    ]
+    build(proj, setup_flags)
+
 def main():
     if not os.path.exists(gnome.JHBUILD_INSTALL_DIR):
         os.system("mkdir -p " + gnome.JHBUILD_INSTALL_DIR)
@@ -33,10 +42,27 @@ def main():
     if proj == "babl" or proj == "gegl":
         setup_flags += [
             "--buildtype=release",
-            "-Db_lto=true"
+            "-Db_lto=true",
         ]
     elif proj == "gimp":
         os.system("git submodule update --init")
+        os.chdir("../babl")
+        build_babl_gegl("babl")
+        os.chdir(d)
+        os.chdir("../gegl")
+        build_babl_gegl("gegl")
+        os.chdir(d)
+        util.ensure_installed([
+            "libghc-gi-atk-dev",
+            "libgexiv2-dev",
+            "libgtk-3-dev",
+            "libmypaint-dev",
+            "mypaint-brushes",
+            "libappstream-glib-dev",
+            "libxmu-dev",
+            "libpoppler-glib-dev",
+            "xsltproc",
+        ])
         setup_flags += [
             "--buildtype=release",
             # "-Dpython=enabled"
