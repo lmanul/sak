@@ -8,7 +8,7 @@ import time
 TESTING = False
 HOME = os.path.expanduser("~")
 BATCH_SIZE = 20
-SECONDS_BETWEEN_BATCHES = 5 if TESTING else 300
+SECONDS_BETWEEN_BATCHES = 2 if TESTING else 300
 
 class Contact:
     "Represents a single contact, with name and email."
@@ -51,7 +51,10 @@ def batch_bcc(subject, content, contacts, scratch_file):
         f.close()
     cmd = "msmtp -t -a 'persofastmail' --remove-bcc-headers=on < tmp.txt"
     print(cmd)
-    os.system(cmd)
+    if TESTING:
+        print("Testing, not actually sending")
+    else:
+        os.system(cmd)
     add_emails_to_scratch([c.email for c in contacts], scratch_file)
     os.system("rm tmp.txt")
 
