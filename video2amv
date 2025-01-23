@@ -1,0 +1,25 @@
+#!/usr/bin/python3
+
+import os
+import sys
+import util
+
+input = sys.argv[1]
+output = util.change_extension(input, "amv")
+
+os.system(
+    "ffmpeg -i " + input + " "
+    "-block_size 882 "
+    # Mono
+    "-ac 1 "
+    # Well supported pixel format
+    "-pix_fmt yuvj420p "
+    # Video frame rate
+    "-r 25 "
+    # Audio bitrate
+    "-ar 22050 "
+    # video format
+    "-vf \"scale=320:240\" "
+    # Audio codec
+    "-c:a adpcm_ima_amv "
+    "" + output)
