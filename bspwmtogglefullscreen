@@ -1,18 +1,6 @@
 #!/usr/bin/python
 
-import os
-import shlex
-import subprocess
-
-def main():
-    cmd = "bspc query -N -n 'focused.fullscreen'"
-    is_fullscreen = False
-    try:
-        fullscreen_node = subprocess.check_output(shlex.split(cmd)).decode().strip()
-        is_fullscreen = fullscreen_node != ""
-    except subprocess.CalledProcessError as e:
-        pass
-    os.system("bspc node -t " + ("tiled" if is_fullscreen else "fullscreen"))
+import windowmanager
 
 if __name__ == "__main__":
-    main()
+    windowmanager.toggle_fullscreen()

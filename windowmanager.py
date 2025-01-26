@@ -54,6 +54,19 @@ def get_focused_workspace_name():
         return raw.split("\n")[0].split(" ")[2]
     return "1"
 
+def toggle_fullscreen():
+    if is_bspwm():
+        cmd = "bspc query -N -n 'focused.fullscreen'"
+        is_fullscreen = False
+        try:
+            fullscreen_node = subprocess.check_output(shlex.split(cmd)).decode().strip()
+            is_fullscreen = fullscreen_node != ""
+        except subprocess.CalledProcessError as e:
+            pass
+        os.system("bspc node -t " + ("tiled" if is_fullscreen else "fullscreen"))
+    elif is_hyprland():
+        os.system("hyprctl dispatch fullscreen")
+
 def focus_workspace_with_name(name):
     if is_bspwm():
         os.system("bspc desktop -f " + str(name))
