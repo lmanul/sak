@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    os.system('wget -O dropbox.tar.gz "https://www.dropbox.com/download?plat=lnx.x86_64"')
+    os.system("tar xvzf dropbox.tar.gz")
+    os.system("rm dropbox.tar.gz")
+
+if __name__ == "__main__":
+    main()

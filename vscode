@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    # Sigh
+    os.system("sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0")
+    os.system("/usr/bin/code")
+
+if __name__ == "__main__":
+    main()
