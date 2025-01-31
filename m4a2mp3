@@ -1,16 +1,38 @@
 #!/usr/bin/python3
 
+import json
 import os
+import shlex
+import subprocess
 import sys
 
 m4a = sys.argv[1]
 mp3 = m4a.replace("m4a", "mp3")
+base = m4a.replace(".m4a", "")
 
-os.system(
-    "ffmpeg -i " + m4a + " "
-    "-c:v copy "
-    "-c:a libmp3lame "
-    # Change this between 0 and 9 (compression)
-    "-q:a 6 "
-    "" + mp3
+# First, split into chapters
+segments = subprocess.check_output(shlex.split(
+    "ffprobe -i " + m4a + " "
+     "-show_chapters "
+     "-of json "
+     ),
+     stderr=subprocess.DEVNULL
+).decode()
+
+segments_obj = json.loads(segments)
+
+start_times = [c['start_time'] for c in segments_obj['chapters'][1:]]
+
+cmd = (
+  "ffmpeg -i " + m4a + " "
+  "-codec copy "
+  "-reset_timestamps 1 "
+  "-f segment "
+  "-segment_times " + (",".join(start_times)) + " "
+  "\"" + base + "_%03d.m4a\""
 )
+os.system(cmd)
+
+# TODO: Set track numbers as needed
+os.system("map m4a2mp3nochapters " + base + "_*.m4a")
+os.system("rm " + base + "_*.m4a")
