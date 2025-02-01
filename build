@@ -25,7 +25,7 @@ def main():
     elif dirname == "pwvucontrol":
         os.system("pwvucontrolbuild")
     elif dirname == "RetroArch":
-        os.system("./fetch-submodules.sh && ./configure && make")
+        os.system("./fetch-submodules.sh && ./configure && make -j`nproc`")
     else:
         print("Sorry, I don't know how to build this project")
 
