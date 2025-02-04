@@ -48,7 +48,7 @@ class Monitor:
             "--output " + self.input_id,
             "--mode " + self.get_max_resolution_str(),
             "--scale " + str(self.scale) + "x" + str(self.scale),
-            "--transform " + self.rotation.to_xrandr(),
+            "--rotate " + self.rotation.to_xrandr(),
             "--primary" if self.primary else "",
         ])
 
