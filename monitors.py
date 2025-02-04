@@ -4,12 +4,30 @@ import shlex
 import subprocess
 import util
 
+from enum import IntEnum
+
 MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+.*$')
 MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s.*$')
 
+class MonitorRotation(IntEnum):
+    DEFAULT = 0
+    LEFT = 90
+    RIGHT = 270
+    UPSIDE_DOWN = 180
+
+    def to_xrandr(self):
+        if self == MonitorRotation.DEFAULT:
+            return "normal"
+        if self == MonitorRotation.RIGHT:
+            return "right"
+        if self == MonitorRotation.LEFT:
+            return "left"
+        if self == MonitorRotation.UPSIDE_DOWN:
+            return "TODO"
+
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
-    def __init__(self, input_id, rotation="normal", scale=1, resolution=(0, 0),
+    def __init__(self, input_id, rotation=MonitorRotation.DEFAULT, scale=1, resolution=(0, 0),
                  max_resolution=(0, 0), primary=False, connected=True):
         self.input_id = input_id
         self.rotation = rotation
@@ -24,6 +42,24 @@ class Monitor:
 
     def get_max_resolution_str(self):
         return str(self.max_resolution[0]) + "x" + str(self.max_resolution[1])
+
+    def to_xrandr_arg(self):
+        return " ".join([
+            "--output " + self.input_id,
+            "--mode " + self.get_max_resolution_str(),
+            "--scale " + str(self.scale) + "x" + str(self.scale),
+            "--transform " + self.rotation.to_xrandr(),
+            "--primary" if self.primary else "",
+        ])
+
+    def to_wlrrandr_arg(self):
+        return " ".join([
+            "--output " + self.input_id,
+            "--mode " + self.get_max_resolution_str(),
+            "--scale " + str(self.scale),
+            "--transform " + str(self.rotation) if self.rotation != 0 else "",
+            # TODO: what is the equivalent of "primary"?
+        ])
 
     def __str__(self):
         return (f"[Monitor {self.input_id}, "
