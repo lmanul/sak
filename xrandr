@@ -7,7 +7,7 @@ def main():
     if util.is_wayland():
         os.system("wlr-randr")
     else:
-        os.system("xrandr")
+        os.system("/usr/bin/xrandr")
 
 if __name__ == "__main__":
     main()
