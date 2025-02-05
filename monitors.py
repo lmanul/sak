@@ -75,6 +75,12 @@ class Monitor:
 def get_monitors_x11():
     current_monitor = None
     current_max_surface = 0
+    # Why TF doesn't xrandr include descriptions?
+    monitor_descriptions = [
+        m.strip() for m in \
+        subprocess.check_output(shlex.split("hwinfo --monitor --short")).decode().split("\n")[1:] \
+        if m.strip() != ""
+    ]
     monitors = []
     try:
         xrandr_output = subprocess.check_output(shlex.split("xrandr")).decode()
@@ -89,6 +95,8 @@ def get_monitors_x11():
                 if current_monitor:
                     monitors.append(current_monitor)
                 current_monitor = Monitor(monitor_id, connected=connected, primary=primary)
+                if connected:
+                    current_monitor.description = monitor_descriptions.pop(0)
                 current_max_surface = 0
                 continue
 
