@@ -27,13 +27,15 @@ class MonitorRotation(IntEnum):
 
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
-    def __init__(self, input_id, rotation=MonitorRotation.DEFAULT, scale=1, resolution=(0, 0),
-                 max_resolution=(0, 0), primary=False, connected=True):
+    def __init__(self, input_id, rotation=MonitorRotation.DEFAULT, scale=1,
+                 resolution=(0, 0), max_resolution=(0, 0),
+                 description="Generic Monitor", primary=False, connected=True):
         self.input_id = input_id
         self.rotation = rotation
         self.scale = scale
         self.resolution = resolution
         self.max_resolution = max_resolution
+        self.description = description
         self.primary = primary
         self.connected = connected
 
@@ -62,7 +64,7 @@ class Monitor:
         ])
 
     def __str__(self):
-        return (f"[Monitor {self.input_id}, "
+        return (f"[Monitor {self.input_id} \"{self.description}\", "
                 f"max {self.max_resolution[0]}x{self.max_resolution[1]} "
                 f"{"" if self.connected else "dis"}connected]"
                )
@@ -117,23 +119,15 @@ def get_monitors_wayland():
     current_output = ""
     current_monitor = None
     current_max_surface = 0
+    current_make = "Generic"
+    current_model = "Monitor"
     current_is_disabled = False
     for line in randr_output.split("\n"):
+        resolution_matches = MODE_LINE_WAYLAND_PATTERN.match(line)
+
         if line.strip() == "":
             continue
-        if "Enabled" in line:
-            current_is_disabled = ("no" in line)
-            current_monitor.connected = not current_is_disabled
-        resolution_matches = MODE_LINE_WAYLAND_PATTERN.match(line)
-        if resolution_matches:
-            w = int(resolution_matches.group(1))
-            h = int(resolution_matches.group(2))
-            surface = w * h
-            if surface > current_max_surface:
-                current_monitor.max_resolution = (w, h)
-                current_max_surface = surface
-
-        if not line.startswith("  "):
+        elif not line.startswith("  "):
             parts = line.split(" ")
             current_output = parts[0]
             if current_monitor:
@@ -141,6 +135,25 @@ def get_monitors_wayland():
             current_monitor = Monitor(current_output)
             current_is_disabled = False
             current_max_surface = 0
+
+        elif "Enabled" in line:
+            current_is_disabled = ("no" in line)
+            current_monitor.connected = not current_is_disabled
+
+        elif resolution_matches:
+            w = int(resolution_matches.group(1))
+            h = int(resolution_matches.group(2))
+            surface = w * h
+            if surface > current_max_surface:
+                current_monitor.max_resolution = (w, h)
+                current_max_surface = surface
+
+        elif line.strip().startswith("Make:"):
+            current_make = line.split(": ")[1]
+
+        elif line.strip().startswith("Model:"):
+            current_model = line.split(": ")[1]
+            current_monitor.description = current_make + " " + current_model
 
     if current_monitor:
         monitors.append(current_monitor)
