@@ -5,7 +5,7 @@ import sys
 
 import windowmanager
 
-from virtualdesktops import ARABIC, ROMAN, CHINESE
+from virtualdesktops import ARABIC, ROMAN, CHINESE, DEVANAGARI
 
 DEBUG = True
 
@@ -16,9 +16,11 @@ SQUARE = N_COLS * N_ROWS
 ARABIC_NUMERALS = ARABIC.split(" ")
 ROMAN_NUMERALS = ROMAN.split(" ")
 CHINESE_NUMERALS = CHINESE.split(" ")
+DEVANAGARI_NUMERALS = DEVANAGARI.split(" ")
+
 
 ALL_NUMERALS = [
-    ARABIC_NUMERALS, ROMAN_NUMERALS, CHINESE_NUMERALS,
+    ARABIC_NUMERALS, ROMAN_NUMERALS, CHINESE_NUMERALS, DEVANAGARI_NUMERALS
 ]
 
 def debug(msg):
@@ -38,7 +40,7 @@ def switch(current, target):
     for monitor_id in monitor_ids:
         debug("Monitor " + monitor_id)
         if windowmanager.is_bspwm():
-            target_ws_id = ALL_NUMERALS[i % 3][target - 1]
+            target_ws_id = ALL_NUMERALS[i % len(ALL_NUMERALS)][target - 1]
         elif windowmanager.is_hyprland():
             target_ws_id = str(target + N_COLS * N_ROWS * i)
         else:
