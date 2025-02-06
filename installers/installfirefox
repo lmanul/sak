@@ -3,9 +3,9 @@
 import os
 
 def main():
-    os.system("wget -O firefox.tar.bz2 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US'")
+    os.system("wget -O firefox.tar.xz 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US'")
     print("Extracting...")
-    os.system("bzip2 -d firefox.tar.bz2")
+    os.system("xz -d firefox.tar.xz")
     os.system("tar xvf firefox.tar")
     os.system("rm -rf ~/bus/bin/firefox")
     os.system("mv firefox ~/bus/bin/")
