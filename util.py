@@ -416,9 +416,12 @@ def is_wayland():
     return os.environ["XDG_SESSION_TYPE"] == "wayland" and os.environ["XDG_SESSION_DESKTOP"] != "ubuntu"
 
 def ensure_installed(packages):
-    # TODO
     if is_linux():
-        os.system("sudo apt install " + " ".join(packages))
+        import apt
+        cache = apt.cache.Cache()
+        to_install = [pkg for pkg in packages if (pkg not in cache or not cache[pkg].installed)]
+        if len(to_install) > 0:
+            os.system("sudo apt install " + " ".join(to_install))
 
 def color(text, color_name):
     if not has_colorama:
