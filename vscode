@@ -4,7 +4,8 @@ import os
 
 def main():
     # Sigh
-    os.system("sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0")
+    # Removing for now, relying on apparmor having been uninstalled
+    # os.system("sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0")
     os.system("/usr/bin/code")
 
 if __name__ == "__main__":
