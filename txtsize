@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+import json
+import os
+import sys
+
+home = os.path.expanduser("~")
+
+def adjust_vscode(up):
+    os.chdir(home)
+    settings = "bus/config/config/Code/User/settings.json"
+    o = None
+    with open(settings) as f:
+        o = json.load(f)
+
+    current_zoom = o["window.zoomLevel"]
+    print(current_zoom)
+    new_zoom = current_zoom + (0.5 if up else -0.5)
+    o["window.zoomLevel"] = new_zoom
+
+    with open(settings, "w") as f:
+        f.write(json.dumps(o, indent=2))
+
+def main(up):
+    print("Adjusting text size " + ("up" if up else "down"))
+    adjust_vscode(up)
+
+if __name__ == "__main__":
+    up = sys.argv[1] in ["u", "+"]
+    main(up)
