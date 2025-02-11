@@ -45,7 +45,7 @@ def process(the_file):
     global n_complete
     global n_args
     global n_printed_progress_chars
-    os.system(command + " " + the_file)
+    os.system(command + " \"" + the_file + "\"")
     n_complete += 1
     n_progress_chars = int(float(n_complete) / float(n_args) * cols)
     sys.stdout.write("#" * (n_progress_chars - n_printed_progress_chars))
