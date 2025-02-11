@@ -6,4 +6,4 @@ import sys
 pdf = sys.argv[1]
 jpg = pdf.replace(".pdf", ".jpg")
 
-os.system("convert -density 600 " + pdf + "[0] " + jpg)
+os.system("convert -density 300 " + pdf + "[0] " + jpg)
