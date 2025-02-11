@@ -2,6 +2,8 @@
 
 import json
 import os
+import shlex
+import subprocess
 import sys
 
 home = os.path.expanduser("~")
@@ -14,16 +16,31 @@ def adjust_vscode(up):
         o = json.load(f)
 
     current_zoom = o["window.zoomLevel"]
-    print(current_zoom)
     new_zoom = current_zoom + (0.5 if up else -0.5)
     o["window.zoomLevel"] = new_zoom
 
     with open(settings, "w") as f:
         f.write(json.dumps(o, indent=2))
 
+def adjust_gedit(up):
+    pref_name = "org.gnome.gedit.preferences.editor editor-font"
+    current = subprocess.check_output(shlex.split(
+        "gsettings get " + pref_name
+    )).decode().strip()
+
+    if current.startswith("'"):
+        current = current[1:]
+    if current.endswith("'"):
+        current = current[:-1]
+    font = " ".join(current.split(" ")[:-1])
+    current_size = int(current.split(" ")[-1])
+    new_size = current_size + (2 if up else -2)
+    os.system("gsettings set " + pref_name + " \"" + font + " " + str(new_size) + "\"")
+
 def main(up):
-    print("Adjusting text size " + ("up" if up else "down"))
+    # print("Adjusting text size " + ("up" if up else "down"))
     adjust_vscode(up)
+    adjust_gedit(up)
 
 if __name__ == "__main__":
     up = sys.argv[1] in ["u", "+"]
