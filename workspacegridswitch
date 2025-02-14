@@ -8,7 +8,7 @@ import windowmanager
 
 from virtualdesktops import ARABIC, ROMAN, CHINESE, DEVANAGARI, THAI
 
-DEBUG = False
+DEBUG = True
 
 N_ROWS = 3
 N_COLS = 3
@@ -95,6 +95,7 @@ def switch_to_primary_target(current, primary_target):
 #    if target != current:
 
 if __name__ == "__main__":
+    start = util.current_time_milliseconds()
     CURRENT = windowmanager.get_focused_workspace_name()
     if CURRENT in ROMAN_NUMERALS:
         CURRENT = ROMAN_NUMERALS.index(CURRENT) + 1
@@ -105,3 +106,6 @@ if __name__ == "__main__":
         switch_with_direction(current, sys.argv[1])
     else:
         switch_to_primary_target(current, int(sys.argv[1]))
+    end = util.current_time_milliseconds()
+    if DEBUG:
+        print("Done in " + str((end - start) / 1000) + " seconds")
