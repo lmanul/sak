@@ -11,7 +11,5 @@ ALL = SETS
 def name_from_index(index, n_rows, n_cols):
     zero_based_index = index - 1
     selected_set = (zero_based_index // (n_rows * n_cols)) % len(SETS)
-    print("Selected " + str(selected_set))
     index_in_set = zero_based_index % (n_rows * n_cols)
-    print("Index in set " + str(index_in_set))
     return ALL[selected_set][index_in_set]

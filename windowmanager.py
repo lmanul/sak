@@ -75,7 +75,6 @@ def focus_workspace_with_name(name):
         name = int(name)
         # The workspace may not exist yet, ensure it lives
         cmd = "hyprctl dispatch workspace " + str(name)
-        print(cmd)
         os.system(cmd)
         ensure_workspace(name, 3, 3) # TODO: configure
 

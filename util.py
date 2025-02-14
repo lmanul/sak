@@ -7,6 +7,7 @@ import shlex
 
 import subprocess
 import sys
+import time
 
 from datetime import date
 from datetime import datetime
@@ -42,6 +43,9 @@ def get_platform():
     if is_linux():
         return "linux"
     return "unknown"
+
+def current_time_milliseconds():
+    return round(time.time() * 1000)
 
 def is_screen_session():
     env_var = os.getenv("STY")
