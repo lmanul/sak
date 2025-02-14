@@ -6,6 +6,8 @@ import re
 import subprocess
 import util
 
+DEBUG = True
+
 HOME = os.path.expanduser("~")
 
 PODCASTS_DIR = os.path.join("sync", "s", "podcasts")
@@ -97,9 +99,27 @@ def get_title(e):
             return candidate
     return "unknown"
 
+def harvest_date_from_tag(t):
+    if not t:
+        return None
+    t = t.strip()
+    if "20" in t and t.count("-") == 2:
+        if " " not in t and len(t) == len("YYYY-MM-DD"):
+            return t
+        if " " in t:
+            return harvest_date_from_tag(t.split(" ")[0])
+    return None
+
 def get_date(e):
     y = get_tag(e, "TYER")
     d = get_tag(e, "TDAT")
+    d2 = get_tag(e, "TRDA")
+    candidate = harvest_date_from_tag(d2)
+    if candidate:
+        return candidate
+    candidate = harvest_date_from_tag(d)
+    if candidate:
+        return candidate
     if y and d and len(y) == 4 and len(d) == 4:
         m = d[2:]
         d = d[:2]
@@ -133,12 +153,10 @@ def get_duration(e):
     return "m".join(duration)
 
 def process_one_episode(e):
+    if DEBUG:
+        print("Processing " + e + "....")
     override_date = OVERRIDE_DATES_CURRENTLY_IN_FILENAME
     date_prefix = util.get_date_prefix()
-    # If the file already has a date prefix, we assume it has already been
-    # processed, and we skip it.
-    if re.match(DATE_PATTERN, e) is not None:
-        return ""
     if override_date:
         date = get_date(e)
         if date:
@@ -171,7 +189,8 @@ def process_one_episode(e):
     return "unused_result"
 
 def keep_only_latest_episode_in_folder_matching_name(name):
-    print("Keeping only one in '" + name + "'")
+    if DEBUG:
+        print("Keeping only one in '" + name + "'")
     for f in FOLDERS:
         if name.lower() in f.lower():
             os.chdir(f)
@@ -236,7 +255,7 @@ if __name__ == "__main__":
         os.chdir("..")
 
     if not SINGLE_FOLDER:
-        # Call 'keep_only_latest_episode_in_folder_matching_name' here is needed
+        # Call 'keep_only_latest_episode_in_folder_matching_name' here if needed
         pass
 
     remove_empty_folders()
