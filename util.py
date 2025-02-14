@@ -47,6 +47,10 @@ def get_platform():
 def current_time_milliseconds():
     return round(time.time() * 1000)
 
+def log_time(start, message="Time measurement"):
+    now = current_time_milliseconds()
+    print(message + ": " + str((now - start) / 1000) + " seconds")
+
 def is_screen_session():
     env_var = os.getenv("STY")
     return env_var != None and env_var.strip() != ""

@@ -28,15 +28,22 @@ def debug(msg):
     if DEBUG:
         print(msg)
 
+def log_time(start, message="Time"):
+    if DEBUG:
+        util.log_time(start, message)
+
 def switch(current, target):
+    start = util.current_time_milliseconds()
     principal = 0
     while current > SQUARE:
         current -= SQUARE
         principal += 1
     workspace_to_refocus_at_the_end = target + principal * SQUARE
     focused_monitor = windowmanager.get_focused_monitor()
+    log_time(start, "Got focused monitor")
     debug("Initial focused monitor " + str(focused_monitor))
     monitor_ids = windowmanager.get_monitor_ids()
+    log_time(start, "Got monitor IDs")
     i = 0
     for monitor_id in monitor_ids:
         debug("Monitor " + monitor_id)
@@ -57,6 +64,7 @@ def switch(current, target):
     if last_requested_ws != workspace_to_refocus_at_the_end:
         debug("Refocusing workspace " + str(workspace_to_refocus_at_the_end))
         windowmanager.focus_workspace_with_name(workspace_to_refocus_at_the_end)
+        log_time(start, "Focused ws with name")
 
     # Restore focused monitor
     debug("Refocusing monitor " + str(focused_monitor))
@@ -73,6 +81,7 @@ def switch(current, target):
     windowmanager.notify(" ", icon_path)
 
 def switch_with_direction(current, direction):
+    start = util.current_time_milliseconds()
     last_requested_ws = current
     debug("Current workspace " + str(current) + ", going in direction " + direction)
     # Always synchronize monitors, but remember which one was active originally
@@ -81,11 +90,13 @@ def switch_with_direction(current, direction):
         current -= SQUARE
         principal += 1
     target = windowmanager.select_target_workspace(N_ROWS, N_COLS, current, direction)
+    log_time(start, "Selected target ws")
     while target > SQUARE:
         target -= SQUARE
     debug("Target is " + str(target))
     debug("Principal " + str(principal) + ", square " + str(SQUARE))
     switch(current, target)
+    log_time(start, "Switched")
 
 def switch_to_primary_target(current, primary_target):
     # We are 1-based
@@ -97,6 +108,7 @@ def switch_to_primary_target(current, primary_target):
 if __name__ == "__main__":
     start = util.current_time_milliseconds()
     CURRENT = windowmanager.get_focused_workspace_name()
+    log_time(start, "Got focused ws name")
     if CURRENT in ROMAN_NUMERALS:
         CURRENT = ROMAN_NUMERALS.index(CURRENT) + 1
     if CURRENT in CHINESE_NUMERALS:
@@ -104,8 +116,9 @@ if __name__ == "__main__":
     current = int(CURRENT)
     if sys.argv[1] in ["l", "r", "u", "d"]:
         switch_with_direction(current, sys.argv[1])
+        log_time(start, "Switched with direction")
     else:
         switch_to_primary_target(current, int(sys.argv[1]))
+        log_time(start, "Switched to primary target")
     end = util.current_time_milliseconds()
-    if DEBUG:
-        print("Done in " + str((end - start) / 1000) + " seconds")
+    log_time(start, "Done")

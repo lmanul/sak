@@ -3,6 +3,7 @@ import shlex
 import subprocess
 
 import monitors
+import util
 import virtualdesktops
 
 # Returns true if the XDG session desktop is as expected
@@ -68,6 +69,7 @@ def toggle_fullscreen():
         os.system("hyprctl dispatch fullscreen")
 
 def focus_workspace_with_name(name):
+    start = util.current_time_milliseconds()
     if is_bspwm():
         os.system("bspc desktop -f " + str(name))
     elif is_hyprland():
@@ -76,7 +78,9 @@ def focus_workspace_with_name(name):
         # The workspace may not exist yet, ensure it lives
         cmd = "hyprctl dispatch workspace " + str(name)
         os.system(cmd)
+        util.log_time(start, "Dispatched ws " + str(name))
         ensure_workspace(name, 3, 3) # TODO: configure
+        util.log_time(start, "Ensured ws " + str(name))
 
 def ensure_workspace(index, n_rows, n_cols):
     # index is 1-based
