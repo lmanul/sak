@@ -81,20 +81,16 @@ def focus_workspace_with_name(name):
 
 def ensure_workspace(index, n_rows, n_cols):
     # index is 1-based
-    print("Ensure " + str(index))
     square = n_rows * n_cols
     name = virtualdesktops.name_from_index(index, n_rows, n_cols)
     ms = monitors.get_monitors()
     corresponding_monitor = ms[(index - 1) // square].input_id
     if is_hyprland():
         cmd = f"hyprctl dispatch moveworkspacetomonitor {index} {corresponding_monitor}"
-        print(cmd)
         os.system(cmd)
         cmd = f"hyprctl dispatch renameworkspace {index} {name}"
-        print(cmd)
         os.system(cmd)
         cmd = "hyprctl dispatch workspaceopt persistent"
-        print(cmd)
         os.system(cmd)
 
 def notify(text, icon_path=None):
@@ -104,15 +100,7 @@ def notify(text, icon_path=None):
         icon_option = "" if icon_path is None else "--icon " + icon_path
         # In BSPWM, the icon is enough, no need for text for now.
         cmd = f"notify-send --urgency=low --expire-time={time_ms} '{text}' " + icon_option
-        print(cmd)
         os.system(cmd)
-    # elif is_hyprland():
-    #     # No custom icons?
-    #     icon_option = "-1"
-    #     color = "888888"
-    #     # icon_option = "-1" if not icon_path else '--icon "' + icon_path + '"'
-    #     # print(f'hyprctl notify {icon_option} {time_ms} "rgb(ff1ea3)" "{text} + Hello everyone!"')
-    #     os.system(f'hyprctl notify {icon_option} {time_ms} "rgb({color})" "{text}"')
 
 # Returns a workspace index, 1-based
 def select_target_workspace(n_rows, n_cols, current, direction):
