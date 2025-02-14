@@ -17,6 +17,8 @@ def adjust_vscode(up):
 
     current_zoom = o["window.zoomLevel"]
     new_zoom = current_zoom + (0.5 if up else -0.5)
+    new_zoom = max(0.2, new_zoom)
+    new_zoom = min(10, new_zoom)
     o["window.zoomLevel"] = new_zoom
 
     with open(settings, "w") as f:
@@ -35,6 +37,8 @@ def adjust_gedit(up):
     font = " ".join(current.split(" ")[:-1])
     current_size = int(current.split(" ")[-1])
     new_size = current_size + (2 if up else -2)
+    new_size = max(6, new_size)
+    new_size = min(50, new_size)
     os.system("gsettings set " + pref_name + " \"" + font + " " + str(new_size) + "\"")
 
 def main(up):
