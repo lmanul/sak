@@ -64,9 +64,10 @@ class Monitor:
         ])
 
     def __str__(self):
+        connected = "connected" if self.connected else "disconnected"
         return (f"[Monitor {self.input_id} \"{self.description}\", "
                 f"max {self.max_resolution[0]}x{self.max_resolution[1]} "
-                f"{"" if self.connected else "dis"}connected]"
+                "" + connected + "]"
                )
 
     def __repr__(self):
@@ -95,7 +96,7 @@ def get_monitors_x11():
                 if current_monitor:
                     monitors.append(current_monitor)
                 current_monitor = Monitor(monitor_id, connected=connected, primary=primary)
-                if connected:
+                if connected and len(monitor_descriptions) > 0:
                     current_monitor.description = monitor_descriptions.pop(0)
                 current_max_surface = 0
                 continue
