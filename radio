@@ -26,7 +26,9 @@ streams = [
     ["kcsm", "http://ice5.securenetsystems.net/KCSM"],
     #  ["msnbc", "http://wrau.streamguys1.com/msnbc-free"],
     ["npr", "https://fm939.wnyc.org/wnycfm-web"],
+    ["radioclassique", "http://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3"],
     ["rireetchansons", "http://cdn.nrjaudio.fm/audio1/fr/30401/mp3_128.mp3"],
+    ["rtl", "http://streaming.radio.rtl.fr/rtl-1-44-128?listen=webCwsBCggNCQgLDQUGBAcGBg"],
     ["tsfjazz", "http://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3"],
     ["wbgo", "https://wbgo.streamguys1.com/wbgo128"],
 ]
