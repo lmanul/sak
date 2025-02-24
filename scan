@@ -2,6 +2,7 @@
 "This is mostly just a place to hold some recipes for cmd line scanning"
 
 import random
+import re
 import shlex
 import string
 import subprocess
@@ -9,12 +10,23 @@ import sys
 
 DEFAULT_RESOLUTION = 600
 MODE = "Color"
-SCANNER = "airscan:e0:CanonLiDE 400 (USB)"
+DEBUG = False
 
 def random_id():
     return ''.join(random.choices(string.ascii_lowercase, k=5))
 
-def main(resolution):
+def get_scanner_airscan_id():
+    raw = subprocess.check_output(["scanimage", "-L"]).decode()
+    for l in raw.split("\n"):
+        l = l.strip()
+        if "airscan:" in l:
+            m = re.search(".*`(.*)'.*", l)
+            if m:
+                return m.group(1)
+
+def main(resolution, scanner_id):
+    if DEBUG:
+        print(scanner_id)
     print("Scanning. You may need to 'sudo apt remove ippusbxd'")
     print("If I have the wrong scanner, list them with 'scanimage -L'")
     output = "scanned_image_" + random_id() + ".png"
@@ -23,11 +35,17 @@ def main(resolution):
         "--format png "
         "--resolution " + str(resolution) + " "
         "--mode " + MODE + " "
-        "-d \"" + SCANNER + "\" "
+        "-d \"" + scanner_id + "\" "
         "-o " + output + ""
     )
-    subprocess.check_output(shlex.split(cmd))
+    if DEBUG:
+        print(cmd)
+    try:
+        subprocess.check_output(shlex.split(cmd))
+    except subprocess.CalledProcessError as e:
+        print(e)
 
 if __name__ == "__main__":
     resolution = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_RESOLUTION
-    main(resolution)
+    scan_id = get_scanner_airscan_id()
+    main(resolution, scan_id)

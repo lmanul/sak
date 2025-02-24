@@ -1,10 +1,14 @@
 #!/usr/bin/python
 
 import os
+import shlex
+import subprocess
 
 def main():
-    os.system("docker stop $(docker ps -a -q)")
-    os.system("docker rm $(docker ps -a -q)")
+    processes = subprocess.check_output(shlex.split("docker ps -a -q")).decode().replace("\n", " ").strip()
+    if processes != "":
+        os.system("docker stop " + processes)
+        os.system("docker rm " + processes)
 
 if __name__ == "__main__":
     main()
