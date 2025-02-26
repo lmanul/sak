@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+def main(arg):
+    bup = arg + ".bup"
+    os.system("mv " + arg + " " + bup)
+    os.system("normalizejson " + bup + " > " + arg )
+
+if __name__ == "__main__":
+    main(sys.argv[1])

@@ -10,7 +10,7 @@ if "thumbnail" in file:
     print(file + " is already a thumbnail")
     sys.exit(1)
 
-out = file.replace(".", "_thumbnail.")
+out = file.replace(".jpg", "_thumbnail.jpg").replace(".png", "_thumbnail.png")
 
 os.system("convert -size x" + size + " " + file + " -resize x" + size + " " + out)
 
