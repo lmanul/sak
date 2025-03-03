@@ -57,7 +57,7 @@ def go_back():
     os.system("adb shell input keyevent KEYCODE_BACK")
     time.sleep(0.1)
 
-def tap_on_view(view):
+def tap_on_view(view, longtap=False):
     key = "@bounds"
     if key not in view:
         return
@@ -69,12 +69,22 @@ def tap_on_view(view):
     bottom = int(m.group(4))
     center_x = int((left + right) / 2)
     center_y = int((top + bottom) / 2)
-    os.system(f"adb shell input tap {center_x} {center_y}")
+    if longtap:
+        os.system(f"adb shell input swipe {center_x} {center_y} {center_x} {center_y} 2000")
+    else:
+        os.system(f"adb shell input tap {center_x} {center_y}")
+
+def long_tap_on_view(view):
+    tap_on_view(view, longtap=True)
 
 # f is a function taking a value as argument and returning true or false.
 def recursively_find_dict_with_key_and_value_predicate(d, k, f):
-    if "@" + k in d and f(d["@" + k]):
-        return d
+    if "@" + k in d:
+        value = d["@" + k]
+        if "." in value:
+            print(value)
+        if f(value):
+            return d
     for local_key in d:
         if isinstance(d[local_key], dict):
             found = recursively_find_dict_with_key_and_value_predicate(d[local_key], k, f)

@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+import androidautomation
+
+def main():
+    androidautomation.go_home()
+
+if __name__ == "__main__":
+    main()
