@@ -24,15 +24,15 @@ def swipe(x1, y1, x2, y2):
 def swipe_up():
     (w, h) = get_screen_size()
     x = int(w / 2)
-    y1 = int(2 / 3 * h)
-    y2 = int(1 / 3 * h)
+    y1 = int(3 / 5 * h)
+    y2 = int(2 / 5 * h)
     swipe(x, y1, x, y2)
 
 def swipe_down():
     (w, h) = get_screen_size()
     x = int(w / 2)
-    y1 = int(1 / 3 * h)
-    y2 = int(2 / 3 * h)
+    y1 = int(2 / 5 * h)
+    y2 = int(3 / 5 * h)
     swipe(x, y1, x, y2)
 
 def swipe_left():
