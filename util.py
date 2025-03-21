@@ -389,7 +389,7 @@ def is_online():
     except:
         import http.client as httplib
 
-        conn = httplib.HTTPConnection("www.google.com", timeout=5)
+        conn = httplib.HTTPConnection("1.1.1.1", timeout=5)
     try:
         conn.request("HEAD", "/")
         conn.close()
