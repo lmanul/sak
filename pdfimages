@@ -8,4 +8,6 @@ prefix = pdf.replace(".pdf", "")
 
 if not os.path.exists("extracted"):
     os.mkdir("extracted")
-os.system("/usr/bin/pdfimages -j " + pdf + " extracted/" + prefix)
+cmd = "/usr/bin/pdfimages -all " + pdf + " extracted/" + prefix
+print(cmd)
+os.system(cmd)
