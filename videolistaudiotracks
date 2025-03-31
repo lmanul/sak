@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+import pprint
+import video
+import sys
+
+def main():
+    if not sys.argv[1].endswith(".mkv"):
+        print("I only deal with MKV files for now, sorry.")
+        return
+    pp = pprint.PrettyPrinter(depth=4)
+    pp.pprint(video.get_mkv_audio_tracks(sys.argv[1]))
+
+if __name__ == "__main__":
+    main()
