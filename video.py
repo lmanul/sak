@@ -11,5 +11,6 @@ def get_mkv_audio_tracks(mkv):
             lang_id = track["properties"]["language"]
             retval[lang_id] = {}
             retval[lang_id]["number"] = track["properties"]["number"]
-            retval[lang_id]["name"] = track["properties"]["track_name"]
+            if "track_name" in track["properties"]:
+                retval[lang_id]["name"] = track["properties"]["track_name"]
     return retval
