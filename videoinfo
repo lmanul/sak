@@ -1,11 +1,61 @@
 #!/usr/bin/python3
 
 import os
+import subprocess
 import sys
 
-video = sys.argv[1]
+FFMPEG_PREFIXES_TO_FILTER_OUT = [
+  "ffmpeg version",
+  "built with gcc",
+  "configuration: --",
+  "At least one output file",
+  "libav",
+  "libsw",
+  "libpost",
+]
 
-if video.endswith(".mkv"):
-    os.system("mkvmerge -i " + video)
-else:
-    os.system("ffmpeg -i " + video)
+def process_ffmpeg_info(raw):
+    filtered = []
+
+    for line in raw.split("\n"):
+        keep = True
+        for prefix in FFMPEG_PREFIXES_TO_FILTER_OUT:
+            if line.strip().startswith(prefix):
+                keep = False
+        if keep:
+            filtered.append(line)
+    return "\n".join(filtered)
+
+def main(video):
+    if video.endswith(".mkv"):
+        os.system("mkvmerge -i " + video)
+    else:
+        try:
+            result = subprocess.run(
+                ["ffmpeg", "-i", video],
+                check=True,                # Checks for command errors
+                text=True,                 # Returns output as string instead of bytes
+                stdout=subprocess.PIPE,    # Captures stdout (if necessary)
+                stderr=subprocess.PIPE     # Captures stderr
+            )
+
+            # Print the standard output (if needed)
+            print("Standard Output:", result.stdout)
+
+        except subprocess.CalledProcessError as e:
+            raw = e.stderr
+            print(process_ffmpeg_info(raw))
+            #print(raw)
+            # This block will run if the command returns a non-zero exit status
+            # print("Error Output:", e.stderr)
+        # raw = ""
+        # try:
+        #     raw = subprocess.check_output(["ffmpeg", "-i", video],
+        #         stderr=sys.stdout.buffer).decode()
+        # except subprocess.CalledProcessError:
+        #     pass
+        #print(process_ffmpeg_info(raw))
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])
