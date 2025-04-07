@@ -17,6 +17,7 @@ streams = [
     ["bbcworld", "http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_world_service.m3u8"],
     ["bfm", "https://audio.bfmtv.com/bfmradio_128.mp3"],
     ["bfmbusiness", "https://audio.bfmtv.com/bfmbusiness_128.mp3"],
+    ["cnn", "https://tunein.cdnstream1.com/2868_96.aac/playlist.m3u8"],
     ["europe1", "http://ais-live.cloud-services.paris:8000/europe1.mp3"],
     ["fip", radio_france_url("fip", fi)],
     ["franceculture", radio_france_url("franceculture", fi)],
