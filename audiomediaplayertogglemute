@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+import audio
+
+def main():
+    audio.send_command_to_music_player("ToggleMute")
+
+if __name__ == "__main__":
+    main()

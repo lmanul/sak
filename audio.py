@@ -1,3 +1,4 @@
+import os
 import shlex
 import subprocess
 
@@ -5,6 +6,10 @@ import dbus
 
 CMD_PREFIX = "org.mpris.MediaPlayer2.Player"
 OBJECT = "/org/mpris/MediaPlayer2"
+
+COMMANDS = [
+  "ToggleMute"
+]
 
 MUSIC_PLAYERS = [
   "clementine",
@@ -14,6 +19,14 @@ MUSIC_PLAYERS = [
 
 def send_command_to_music_player(cmd, print_reply=False,
         cmd_prefix=CMD_PREFIX, msg_payload=""):
+
+    if cmd == "ToggleMute":
+        current_vol = subprocess.check_output(["playerctl", "volume"]).decode().strip()
+        if current_vol.startswith("0.0"):
+            os.system("playerctl volume 1.0")
+        else:
+            os.system("playerctl volume 0.0")
+        return
 
     destination = ""
     for service in dbus.SessionBus().list_names():
