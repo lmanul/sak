@@ -7,6 +7,7 @@ import dbus
 CMD_PREFIX = "org.mpris.MediaPlayer2.Player"
 OBJECT = "/org/mpris/MediaPlayer2"
 
+# TODO: Use 'playerctl' for more stuff
 COMMANDS = [
   "ToggleMute"
 ]
