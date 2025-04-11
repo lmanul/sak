@@ -25,6 +25,16 @@ class MonitorRotation(IntEnum):
         if self == MonitorRotation.UPSIDE_DOWN:
             return "TODO"
 
+    def __str__(self):
+        if self == MonitorRotation.DEFAULT:
+            return "normal"
+        if self == MonitorRotation.RIGHT:
+            return "right"
+        if self == MonitorRotation.LEFT:
+            return "left"
+        if self == MonitorRotation.UPSIDE_DOWN:
+            return "upside down"
+
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
     def __init__(self, input_id, rotation=MonitorRotation.DEFAULT, scale=1,
@@ -65,8 +75,10 @@ class Monitor:
 
     def __str__(self):
         connected = "connected" if self.connected else "disconnected"
-        return (f"[Monitor {self.input_id} \"{self.description}\", "
-                f"max {self.max_resolution[0]}x{self.max_resolution[1]} "
+        return (f"[Monitor {self.input_id} \"{self.description}\" | "
+                f"max={self.max_resolution[0]}x{self.max_resolution[1]} | "
+                f"rotation={self.rotation} | "
+                f"primary={self.primary} | "
                 "" + connected + "]"
                )
 
