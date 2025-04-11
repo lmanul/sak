@@ -13,13 +13,18 @@ def adjust_vscode(up):
     settings = "bus/config/config/Code/User/settings.json"
     o = None
     with open(settings) as f:
-        o = json.load(f)
+        try:
+            o = json.load(f)
+        except json.decoder.JSONDecodeError as e:
+            print("Oops: " + str(e))
+            return
 
-    current_zoom = o["window.zoomLevel"]
-    new_zoom = current_zoom + (0.5 if up else -0.5)
-    new_zoom = max(0.2, new_zoom)
-    new_zoom = min(10, new_zoom)
-    o["window.zoomLevel"] = new_zoom
+    if "window.zoomLevel" in o:
+        current_zoom = o["window.zoomLevel"]
+        new_zoom = current_zoom + (0.5 if up else -0.5)
+        new_zoom = max(0.2, new_zoom)
+        new_zoom = min(10, new_zoom)
+        o["window.zoomLevel"] = new_zoom
 
     with open(settings, "w") as f:
         f.write(json.dumps(o, indent=2))
