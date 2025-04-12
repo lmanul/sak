@@ -25,6 +25,7 @@ streams = [
     ["franceinter", radio_france_url("franceinter", fi)],
     ["francemusique", radio_france_url("francemusique", fi)],
     ["kcsm", "http://ice5.securenetsystems.net/KCSM"],
+    ["lbc", "https://media-ssl.musicradio.com/LBCNewsUK?dax_version=release_5752&dax_player=GlobalPlayer&dax_platform=Web&delivery_type=streaming"],
     ["msnbc", "https://tunein.cdnstream1.com/3511_96.aac/playlist.m3u8"],
     ["npr", "https://fm939.wnyc.org/wnycfm-web"],
     ["radioclassique", "http://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3"],
