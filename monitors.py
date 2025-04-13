@@ -8,6 +8,25 @@ from enum import IntEnum
 
 MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+.*$')
 MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s.*$')
+SINGLE_RESOLUTION_PATTERN = re.compile(r'^(\d+)x(\d+)@(\d+)Hz$')
+
+class MonitorResolution():
+    def __init__(self, width, height, frequency):
+        self.width = width
+        self.height = height
+        self.frequency = frequency
+
+    def __str__(self):
+        return str(self.width) + "x" + str(self.height) + "@" + str(self.frequency)
+
+    def equals(self, other):
+        return self.width == other.width and \
+            self.height == other.height and \
+            int(self.frequency) - 2 <= int(other.frequency) and \
+            int(self.frequency) + 2 >= int(other.frequency)
+
+    def surface(self):
+        return int(self.height * self.width)
 
 class MonitorRotation(IntEnum):
     DEFAULT = 0
@@ -37,14 +56,14 @@ class MonitorRotation(IntEnum):
 
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
-    def __init__(self, input_id, rotation=MonitorRotation.DEFAULT, scale=1,
-                 resolution=(0, 0), max_resolution=(0, 0),
+    def __init__(self, input_id="", rotation=MonitorRotation.DEFAULT, scale=1,
+                 resolution=(0, 0),
                  description="Generic Monitor", primary=False, connected=True):
         self.input_id = input_id
         self.rotation = rotation
         self.scale = scale
         self.resolution = resolution
-        self.max_resolution = max_resolution
+        self.supported_resolutions = []
         self.description = description
         self.primary = primary
         self.connected = connected
@@ -52,8 +71,30 @@ class Monitor:
     def get_resolution_str(self):
         return str(self.resolution[0]) + "x" + str(self.resolution[1])
 
-    def get_max_resolution_str(self):
-        return str(self.max_resolution[0]) + "x" + str(self.max_resolution[1])
+    def add_supported_resolution(self, res):
+        for r in self.supported_resolutions:
+            if r.equals(res):
+                # Already listed
+                break
+        self.supported_resolutions.append(res)
+
+    def get_max_resolution(self):
+        max_surface = 0
+        current_max = None
+        for r in self.supported_resolutions:
+            if r.surface() > max_surface:
+                current_max = r
+                max_surface = r.surface()
+        return current_max
+        # return str(self.max_resolution[0]) + "x" + str(self.max_resolution[1])
+
+    def matches_other_according_to_supported_res(self, other):
+        match_count = 0
+        for r in self.supported_resolutions:
+            for s in other.supported_resolutions:
+                if r.equals(s):
+                    match_count += 1
+        return match_count == 2 * len(self.supported_resolutions)
 
     def to_xrandr_arg(self):
         return " ".join([
@@ -76,19 +117,62 @@ class Monitor:
     def __str__(self):
         connected = "connected" if self.connected else "disconnected"
         return (f"[Monitor {self.input_id} \"{self.description}\" | "
-                f"max={self.max_resolution[0]}x{self.max_resolution[1]} | "
+                f"max={self.get_max_resolution()} | "
                 f"rotation={self.rotation} | "
                 f"primary={self.primary} | "
+                f"{len(self.supported_resolutions)} supported res | "
                 "" + connected + "]"
                )
 
     def __repr__(self):
         return self.__str__()
 
+def get_monitors_from_hwinfo():
+    monitors = []
+    lines = subprocess.check_output(
+        shlex.split("hwinfo --monitor")).decode().split("\n")
+    current_monitor = None
+    for l in lines:
+        if l.strip() == "":
+            continue
+        if not l.startswith(" "):
+            # New monitor
+            if current_monitor is not None:
+                monitors.append(current_monitor)
+            current_monitor = Monitor()
+            continue
+        if l.startswith("  Model:"):
+            value = l.strip().split("Model: ")[1]
+            if value.startswith('"'):
+                value = value[1:]
+            if value.endswith('"'):
+                value = value[:-1]
+            current_monitor.description = value
+        if l.startswith("  Resolution:"):
+            value = l.strip().split("Resolution: ")[1]
+            matches = SINGLE_RESOLUTION_PATTERN.match(value)
+            r = MonitorResolution(
+                int(matches.group(1)), int(matches.group(2)), int(matches.group(3)))
+            current_monitor.add_supported_resolution(r)
+
+    # Add last leftover
+    monitors.append(current_monitor)
+    return monitors
+
 def get_monitors_x11():
     current_monitor = None
     current_max_surface = 0
+
+    monitors_from_hwinfo = get_monitors_from_hwinfo()
+    # for m in monitors_from_hwinfo:
+    #     print(m)
+    #     for r in m.supported_resolutions:
+    #         print(str(r) + " for " + m.description)
+    #     print("\n")
+
     # Why TF doesn't xrandr include descriptions?
+    # To disambuguate, we need to match supported resolutions from both ends.
+    # It's not perfect, let's hope it's reasonably unique.
     monitor_descriptions = [
         m.strip() for m in \
         subprocess.check_output(shlex.split("hwinfo --monitor --short")).decode().split("\n")[1:] \
@@ -122,7 +206,7 @@ def get_monitors_x11():
                     current_monitor.connected = True
                 surface = w * h
                 if surface > current_max_surface:
-                    current_monitor.max_resolution = (w, h)
+                    current_monitor.add_supported_resolution(MonitorResolution(w, h, 0))
                     current_max_surface = surface
             if line.startswith("Screen"):
                 continue
