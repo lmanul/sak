@@ -6,7 +6,7 @@ import util
 
 from enum import IntEnum
 
-MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+.*$')
+MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+(.*)$')
 MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s.*$')
 SINGLE_RESOLUTION_PATTERN = re.compile(r'^(\d+)x(\d+)@(\d+)Hz$')
 
@@ -20,13 +20,15 @@ class MonitorResolution():
         return str(self.width) + "x" + str(self.height) + "@" + str(self.frequency)
 
     def equals(self, other):
-        return self.width == other.width and \
+        is_equal = self.width == other.width and \
             self.height == other.height and \
             int(self.frequency) - 2 <= int(other.frequency) and \
             int(self.frequency) + 2 >= int(other.frequency)
+        # print("Testing " + str(self) + " and " + str(other) + ", outcome " + str(is_equal))
+        return is_equal
 
     def surface(self):
-        return int(self.height * self.width)
+        return int(self.height * self.width * self.frequency)
 
 class MonitorRotation(IntEnum):
     DEFAULT = 0
@@ -56,7 +58,7 @@ class MonitorRotation(IntEnum):
 
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
-    def __init__(self, input_id="", rotation=MonitorRotation.DEFAULT, scale=1,
+    def __init__(self, input_id="unknown_input_id", rotation=MonitorRotation.DEFAULT, scale=1,
                  resolution=(0, 0),
                  description="Generic Monitor", primary=False, connected=True):
         self.input_id = input_id
@@ -71,12 +73,14 @@ class Monitor:
     def get_resolution_str(self):
         return str(self.resolution[0]) + "x" + str(self.resolution[1])
 
+    # Returns whether the resolution was actually added
     def add_supported_resolution(self, res):
         for r in self.supported_resolutions:
             if r.equals(res):
                 # Already listed
-                break
+                return False
         self.supported_resolutions.append(res)
+        return True
 
     def get_max_resolution(self):
         max_surface = 0
@@ -88,18 +92,14 @@ class Monitor:
         return current_max
         # return str(self.max_resolution[0]) + "x" + str(self.max_resolution[1])
 
-    def matches_other_according_to_supported_res(self, other):
-        match_count = 0
-        for r in self.supported_resolutions:
-            for s in other.supported_resolutions:
-                if r.equals(s):
-                    match_count += 1
-        return match_count == 2 * len(self.supported_resolutions)
+    def get_max_resolution_str_no_frequency(self):
+        freq = self.get_max_resolution()
+        return str(freq.width) + "x" + str(freq.height)
 
     def to_xrandr_arg(self):
         return " ".join([
             "--output " + self.input_id,
-            "--mode " + self.get_max_resolution_str(),
+            "--mode " + str(self.get_max_resolution_str_no_frequency()),
             "--scale " + str(self.scale) + "x" + str(self.scale),
             "--rotate " + self.rotation.to_xrandr(),
             "--primary" if self.primary else "",
@@ -108,7 +108,7 @@ class Monitor:
     def to_wlrrandr_arg(self):
         return " ".join([
             "--output " + self.input_id,
-            "--mode " + self.get_max_resolution_str(),
+            "--mode " + self.get_max_resolution_str_no_frequency(),
             "--scale " + str(self.scale),
             "--transform " + str(self.rotation) if self.rotation != 0 else "",
             # TODO: what is the equivalent of "primary"?
@@ -126,6 +126,23 @@ class Monitor:
 
     def __repr__(self):
         return self.__str__()
+
+def find_best_match_from_supported_resolutions(needle, haystack):
+    best_match = None
+    best_match_count = 0
+    for m in haystack:
+        count = 0
+        # Only consider matches with the same max res
+        if not m.get_max_resolution().equals(needle.get_max_resolution()):
+            continue
+        for r in m.supported_resolutions:
+            for s in needle.supported_resolutions:
+                if r.equals(s):
+                    count += 1
+        if count > best_match_count:
+            best_match = m
+            best_match_count = count
+    return best_match
 
 def get_monitors_from_hwinfo():
     monitors = []
@@ -159,64 +176,77 @@ def get_monitors_from_hwinfo():
     monitors.append(current_monitor)
     return monitors
 
-def get_monitors_x11():
+def get_monitors_from_xrandr():
     current_monitor = None
-    current_max_surface = 0
+    monitors = []
+    xrandr_output = subprocess.check_output(shlex.split("xrandr")).decode()
+    for line in xrandr_output.split("\n"):
+        if line.strip() == "":
+            continue
+        if "connected" in line:
+            tokens = line.split(" ")
+            monitor_id = tokens[0]
+            connected = "disconnected" not in line
+            primary = "primary" in line
+            if current_monitor:
+                monitors.append(current_monitor)
+            current_monitor = Monitor(monitor_id, connected=connected, primary=primary)
+            # if connected and len(monitor_descriptions) > 0:
+            #     current_monitor.description = monitor_descriptions.pop(0)
+            current_max_surface = 0
+            continue
 
-    monitors_from_hwinfo = get_monitors_from_hwinfo()
-    # for m in monitors_from_hwinfo:
-    #     print(m)
-    #     for r in m.supported_resolutions:
-    #         print(str(r) + " for " + m.description)
-    #     print("\n")
+        resolution_matches = MODE_LINE_X11_PATTERN.match(line)
+        if resolution_matches:
+            w = int(resolution_matches.group(1))
+            h = int(resolution_matches.group(2))
+            # xrandr sees virtual monitors as disconnected, let's tweak that
+            if current_monitor.input_id.startswith("DVI-I-"):
+                current_monitor.connected = True
+            freqs = []
+            freqs_raw_str = resolution_matches.group(3)
+            freqs_raw = [f for f in freqs_raw_str.split(" ") if f.strip() != ""]
+            for freq_raw in freqs_raw:
+                if freq_raw.endswith("+"):
+                    freq_raw = freq_raw[:-1]
+                if freq_raw.endswith("*"):
+                    freq_raw = freq_raw[:-1]
+                freqs.append(freq_raw)
+            # print(str(w) + "x" + str(h))
+            # print(freqs)
+            for freq in freqs:
+                candidate = MonitorResolution(w, h, round(float(freq)))
+                was_added = current_monitor.add_supported_resolution(candidate)
+                # print("Added " + str(candidate) + ", successfully? " + str(was_added))
+        if line.startswith("Screen"):
+            continue
 
+    # Don't forget the last monitor
+    if current_monitor:
+        monitors.append(current_monitor)
+    return monitors
+
+def get_monitors_x11():
     # Why TF doesn't xrandr include descriptions?
     # To disambuguate, we need to match supported resolutions from both ends.
     # It's not perfect, let's hope it's reasonably unique.
-    monitor_descriptions = [
-        m.strip() for m in \
-        subprocess.check_output(shlex.split("hwinfo --monitor --short")).decode().split("\n")[1:] \
-        if m.strip() != ""
-    ]
-    monitors = []
+
     try:
-        xrandr_output = subprocess.check_output(shlex.split("xrandr")).decode()
-        for line in xrandr_output.split("\n"):
-            if line.strip() == "":
-                continue
-            if "connected" in line:
-                tokens = line.split(" ")
-                monitor_id = tokens[0]
-                connected = "disconnected" not in line
-                primary = "primary" in line
-                if current_monitor:
-                    monitors.append(current_monitor)
-                current_monitor = Monitor(monitor_id, connected=connected, primary=primary)
-                if connected and len(monitor_descriptions) > 0:
-                    current_monitor.description = monitor_descriptions.pop(0)
-                current_max_surface = 0
-                continue
-
-            resolution_matches = MODE_LINE_X11_PATTERN.match(line)
-            if resolution_matches:
-                w = int(resolution_matches.group(1))
-                h = int(resolution_matches.group(2))
-                # xrandr sees virtual monitors as disconnected, let's tweak that
-                if current_monitor.input_id.startswith("DVI-I-"):
-                    current_monitor.connected = True
-                surface = w * h
-                if surface > current_max_surface:
-                    current_monitor.add_supported_resolution(MonitorResolution(w, h, 0))
-                    current_max_surface = surface
-            if line.startswith("Screen"):
-                continue
-
-        # Don't forget the last monitor
-        if current_monitor:
-            monitors.append(current_monitor)
+        monitors_from_hwinfo = get_monitors_from_hwinfo()
+        monitors_from_xrandr = get_monitors_from_xrandr()
     except subprocess.CalledProcessError:
-        print("Headless mode, not using xrandr")
-    return monitors
+        print("Headless mode, not using xrandr or hwinfo")
+        return []
+
+    for m in monitors_from_xrandr:
+        if not m.connected:
+            continue
+        best_match = find_best_match_from_supported_resolutions(m, monitors_from_hwinfo)
+        # print("Best match for \n" + str(m) + " is \n" + str(best_match))
+        if best_match is not None:
+            m.description = best_match.description
+
+    return monitors_from_xrandr
 
 def get_monitors_wayland():
     monitors = []
