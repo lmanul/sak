@@ -1,13 +1,55 @@
 #!/usr/bin/python
 
+import audio
 import os
 import sys
 import time
 
+TMP_FILE = "/tmp/audiomediaplayershutuptimeout.txt"
+
+def get_timeout_target():
+    if os.path.exists(TMP_FILE):
+        with open(TMP_FILE) as f:
+            raw = f.read().strip()
+            if raw == "":
+                return 0
+            timeout = int(raw)
+            return timeout
+    else:
+        return 0
+
+def set_timeout_target(seconds):
+    print("Setting to " + str(seconds))
+    with open(TMP_FILE, "w") as f:
+        f.write(str(int(seconds)))
+
+def increase_timeout_target(seconds_increment):
+    print("Increasing by " + str(seconds_increment))
+    current = get_timeout_target()
+    if current == 0:
+        current = int(time.time())
+    set_timeout_target(current + seconds_increment)
+
 def main(seconds):
-    os.system("audiomediaplayertogglemute")
+    if not audio.media_player_is_muted():
+        os.system("audiomediaplayertogglemute")
+    increase_timeout_target(seconds)
+
     time.sleep(seconds)
-    os.system("audiomediaplayertogglemute")
+
+    while True:
+        current_timeout_target = get_timeout_target()
+        print("Waking up, it is now " + str(int(time.time())) + ", current target " + str(current_timeout_target))
+        # Allow for a 1-second error
+        if int(time.time()) >= current_timeout_target:
+            print("Elapsed, un-muting if necessary")
+            if audio.media_player_is_muted():
+                os.system("audiomediaplayertogglemute")
+            os.system("rm -f " + TMP_FILE)
+            break
+        else:
+            print("Not elapsed yet, sleeping for " + str(seconds))
+            time.sleep(seconds)
 
 if __name__ == "__main__":
     main(int(sys.argv[1]))
