@@ -59,7 +59,7 @@ class MonitorRotation(IntEnum):
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
     def __init__(self, input_id="unknown_input_id", rotation=MonitorRotation.DEFAULT, scale=1,
-                 resolution=(0, 0),
+                 resolution=(0, 0), force_off=False,
                  description="Generic Monitor", primary=False, connected=True):
         self.input_id = input_id
         self.rotation = rotation
@@ -69,6 +69,7 @@ class Monitor:
         self.description = description
         self.primary = primary
         self.connected = connected
+        self.force_off = force_off
 
     def get_resolution_str(self):
         return str(self.resolution[0]) + "x" + str(self.resolution[1])
@@ -97,6 +98,8 @@ class Monitor:
         return str(freq.width) + "x" + str(freq.height)
 
     def to_xrandr_arg(self):
+        if self.force_off:
+            return "--output " + self.input_id + " --off"
         return " ".join([
             "--output " + self.input_id,
             "--mode " + str(self.get_max_resolution_str_no_frequency()),
@@ -106,6 +109,8 @@ class Monitor:
         ])
 
     def to_wlrrandr_arg(self):
+        if self.force_off:
+            return "--output " + self.input_id + " --off"
         return " ".join([
             "--output " + self.input_id,
             "--mode " + self.get_max_resolution_str_no_frequency(),
