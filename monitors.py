@@ -216,6 +216,8 @@ def get_monitors_from_xrandr():
                     freq_raw = freq_raw[:-1]
                 if freq_raw.endswith("*"):
                     freq_raw = freq_raw[:-1]
+                if freq_raw.strip() == "":
+                    continue
                 freqs.append(freq_raw)
             # print(str(w) + "x" + str(h))
             # print(freqs)
