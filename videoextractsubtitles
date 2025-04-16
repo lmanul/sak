@@ -48,7 +48,7 @@ def extract_subtitles(input_file):
             subtitle_streams[index] = [lang_code]
         print(subtitle_streams)
         title_match = re.search(r'^\s+title\s+:\s*(.*)$', line)
-        if title_match:
+        if title_match and current_index in subtitle_streams:
             title = title_match.group(1).replace(" ", "_").replace("(", "_").replace(")", "_").lower()
             while "__" in title:
                 title = title.replace("__", "_")
