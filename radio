@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import audio
 import os
 import random
 import sys
@@ -35,18 +36,21 @@ streams = [
     ["wbgo", "https://wbgo.streamguys1.com/wbgo128"],
 ]
 
-stream = streams[int(random.random() * len(streams))][1]
-if len(sys.argv) > 1:
-    if sys.argv[1] == "list":
-        print("\t" + "\n\t".join([s[0] for s in streams]))
-        sys.exit(0)
-    for el in streams:
-        if sys.argv[1].lower() in el[0]:
-            print("Playing '" + el[0] + "'...")
-            stream = el[1]
-            break
-else:
-    print("I need an argument!")
-    sys.exit(1)
+if __name__ == "__main__":
+    stream = streams[int(random.random() * len(streams))][1]
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "list":
+            print("\t" + "\n\t".join([s[0] for s in streams]))
+            sys.exit(0)
+        for el in streams:
+            if sys.argv[1].lower() in el[0]:
+                print("Playing '" + el[0] + "'...")
+                stream = el[1]
+                break
+    else:
+        print("I need an argument!")
+        sys.exit(1)
 
-os.system("cvlc 2> /dev/null '" + stream + "'")
+    # if audio.media_player_is_muted():
+    #     audio.send_command_to_music_player("ToggleMute")
+    os.system("cvlc 2> /dev/null '" + stream + "'")
