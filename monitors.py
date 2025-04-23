@@ -20,12 +20,13 @@ class MonitorResolution():
         return str(self.width) + "x" + str(self.height) + "@" + str(self.frequency)
 
     def equals(self, other):
-        is_equal = self.width == other.width and \
-            self.height == other.height and \
+        is_equal = self.equals_without_frequency(other) and \
             int(self.frequency) - 2 <= int(other.frequency) and \
             int(self.frequency) + 2 >= int(other.frequency)
-        # print("Testing " + str(self) + " and " + str(other) + ", outcome " + str(is_equal))
         return is_equal
+
+    def equals_without_frequency(self, other):
+        return self.width == other.width and self.height == other.height
 
     def surface(self):
         return int(self.height * self.width * self.frequency)
@@ -91,7 +92,6 @@ class Monitor:
                 current_max = r
                 max_surface = r.surface()
         return current_max
-        # return str(self.max_resolution[0]) + "x" + str(self.max_resolution[1])
 
     def get_max_resolution_str_no_frequency(self):
         freq = self.get_max_resolution()
@@ -130,7 +130,7 @@ class Monitor:
                )
 
     def __repr__(self):
-        return self.__str__()
+        return "\n" + self.__str__()
 
 def find_best_match_from_supported_resolutions(needle, haystack):
     best_match = None
@@ -138,7 +138,7 @@ def find_best_match_from_supported_resolutions(needle, haystack):
     for m in haystack:
         count = 0
         # Only consider matches with the same max res
-        if not m.get_max_resolution().equals(needle.get_max_resolution()):
+        if not m.get_max_resolution().equals_without_frequency(needle.get_max_resolution()):
             continue
         for r in m.supported_resolutions:
             for s in needle.supported_resolutions:
@@ -196,8 +196,6 @@ def get_monitors_from_xrandr():
             if current_monitor:
                 monitors.append(current_monitor)
             current_monitor = Monitor(monitor_id, connected=connected, primary=primary)
-            # if connected and len(monitor_descriptions) > 0:
-            #     current_monitor.description = monitor_descriptions.pop(0)
             current_max_surface = 0
             continue
 
@@ -219,12 +217,9 @@ def get_monitors_from_xrandr():
                 if freq_raw.strip() == "":
                     continue
                 freqs.append(freq_raw)
-            # print(str(w) + "x" + str(h))
-            # print(freqs)
             for freq in freqs:
                 candidate = MonitorResolution(w, h, round(float(freq)))
                 was_added = current_monitor.add_supported_resolution(candidate)
-                # print("Added " + str(candidate) + ", successfully? " + str(was_added))
         if line.startswith("Screen"):
             continue
 
