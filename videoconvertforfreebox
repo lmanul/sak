@@ -17,5 +17,6 @@ cmd = ("ffmpeg -i " + bup + " "
        "" + subtitles_option + ""
        "-c:v libx264 "
        "-c:a aac "
-       "-filter:a loudnorm " + input)
+       "-filter:a \"loudnorm, aformat=channel_layouts=stereo\" " + input)
+print(cmd)
 os.system(cmd)
