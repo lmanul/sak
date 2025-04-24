@@ -1,10 +1,25 @@
 #!/usr/bin/python
 
-import os
+import shlex
+import subprocess
 import sys
 
+def process_output(output):
+    output_values = output.split(" ")
+    print(int(float(output_values[0])))
+    sys.exit(int(float(output_values[0])))
+
 def main(one, two):
-    os.system(f"compare {one} {two} diff.png")
+    try:
+        process = subprocess.run(
+            shlex.split(f"compare -metric RMSE {one} {two} diff.png"),
+            check=True,
+            capture_output=True,
+            text=True)
+        process_output(process.stderr)
+    except subprocess.CalledProcessError as e:
+        # Expected if images are different
+        process_output(e.stderr)
 
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
