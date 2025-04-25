@@ -9,11 +9,13 @@ import util
 
 if __name__ == "__main__":
     # What is the reference branch?
-    if len(sys.argv) > 1:
-        ref_branch = sys.argv[1]
-    else:
-        ref_branch = "master"
     branches = util.get_git_branches()
+    if len(sys.argv) == 1:
+        for default in ["master", "main"]:
+            if default in branches:
+                ref_branch = default
+                break
+
     cleaned_up = 0
     for branch in branches:
         if branch == ref_branch:

@@ -6,11 +6,15 @@ import util
 
 if __name__ == "__main__":
     # Which branch to rebase on?
-    if len(sys.argv) > 1:
-        main_branch = sys.argv[1]
-    else:
-        main_branch = "master"
     branches = util.get_git_branches()
+
+    if len(sys.argv) == 1:
+        for default in ["master", "main"]:
+            if default in branches:
+                main_branch = default
+                break
+
+
     for branch in branches:
         if branch == main_branch:
             continue
