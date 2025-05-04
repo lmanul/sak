@@ -13,6 +13,8 @@ if __name__ == "__main__":
             if default in branches:
                 main_branch = default
                 break
+    elif len(sys.argv) == 2:
+        main_branch = sys.argv[1]
 
 
     for branch in branches:
