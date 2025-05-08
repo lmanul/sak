@@ -26,6 +26,12 @@ def media_player_is_muted():
 def media_player_set_muted(muted):
     os.system("playerctl --player=vlc volume " + ("0.0" if muted else "1.0"))
 
+def get_file_duration_seconds(f):
+    return float(subprocess.check_output(shlex.split(
+      "ffprobe -v error -show_entries format=duration -of csv=p=0 "
+      "" + f + ""
+    )).decode())
+
 def send_command_to_music_player(cmd, print_reply=False,
         cmd_prefix=CMD_PREFIX, msg_payload=""):
 

@@ -1,0 +1,46 @@
+#!/usr/bin/python
+
+import audio
+import shlex
+import sys
+import subprocess
+
+SILENCE_MIN_DURATION_SECONDS = 1.5
+LEVEL_DB = "-30"
+TOO_CLOSE_TO_START_PERCENT = 2
+TOO_CLOSE_TO_END_PERCENT = 97
+
+def main(f):
+    total_duration_seconds = audio.get_file_duration_seconds(f)
+    output = subprocess.check_output(shlex.split(
+      "ffmpeg "
+      "-i " + f + " "
+      f"-af \"silencedetect=n={LEVEL_DB}dB:d={SILENCE_MIN_DURATION_SECONDS}\" -f null -"
+    ), stderr=subprocess.STDOUT).decode()
+
+    # Triplet of start, end, percent of file, duration
+    current = []
+    last_start = 0
+    max_duration = 0
+    for l in output.split("\n"):
+        if "] " not in l:
+            continue
+        (prefix, main) = l.split("] ", 1)
+        main = main.strip()
+        if main.startswith("silence_start"):
+            (key, value) = main.split(": ")
+            last_start = float(value)
+        elif main.startswith("silence_end"):
+            (end, duration) = [s.strip() for s in main.split(" | ")]
+            end = float(end.split(": ")[1].strip())
+            duration = float(duration.split(": ")[1].strip())
+            if duration > max_duration:
+                max_duration = duration
+                percent = int(last_start / total_duration_seconds * 100)
+                if percent < TOO_CLOSE_TO_START_PERCENT or percent > TOO_CLOSE_TO_END_PERCENT:
+                    continue
+                current = [last_start, end, percent, duration]
+    print(current)
+
+if __name__ == "__main__":
+    main(sys.argv[1])
