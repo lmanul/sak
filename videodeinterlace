@@ -1,0 +1,14 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+def main(v):
+    bup = v + ".bup"
+    os.system("mv " + v + " " + bup)
+    os.system(
+      "ffmpeg -i " + bup + " -vf \"yadif\" -c:a copy " + v
+    )
+
+if __name__ == "__main__":
+    main(sys.argv[1])
