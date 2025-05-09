@@ -5,12 +5,15 @@ import sys
 
 from os.path import isfile, join
 
-args = sys.argv[1:]
+def main():
+    for i in range(len(args)):
+        f = args[i]
+        extension = f[(f.rindex(".") + 1) :]
+        number = str(i).zfill(5)
+        new_name = number + "." + extension
+        print(str(f) + " -> " + new_name + "." + extension)
+        os.system("mv " + f + " " + new_name)
 
-for i in range(len(args)):
-    f = args[i]
-    extension = f[(f.rindex(".") + 1) :]
-    number = str(i).zfill(5)
-    new_name = number + "." + extension
-    print(str(f) + " -> " + new_name + "." + extension)
-    os.system("mv " + f + " " + new_name)
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    main(args)
