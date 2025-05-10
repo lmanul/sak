@@ -8,13 +8,16 @@ from os.path import isfile, join
 
 def main(args):
     ten_power = int(math.log10(len(args))) + 1
+    os.system("mkdir temporary_renametonumbers")
+    os.system("mv " + " ".join(args) + " temporary_renametonumbers")
     for i in range(len(args)):
         f = args[i]
         extension = f[(f.rindex(".") + 1) :]
-        number = str(i).zfill(ten_power)
-        new_name = number
-        print(str(f) + " -> " + new_name + "." + extension)
-        # os.system("mv " + f + " " + new_name)
+        number = str(i + 1).zfill(ten_power)
+        new_name = number + "." + extension
+        print(str(f) + " -> " + new_name)
+        os.system("mv temporary_renametonumbers/" + f + " " + new_name)
+    os.system("rmdir temporary_renametonumbers")
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:

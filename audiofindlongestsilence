@@ -7,8 +7,8 @@ import subprocess
 
 SILENCE_MIN_DURATION_SECONDS = 1.5
 LEVEL_DB = "-30"
-TOO_CLOSE_TO_START_PERCENT = 2
-TOO_CLOSE_TO_END_PERCENT = 97
+TOO_CLOSE_TO_START_PERCENT = 10
+TOO_CLOSE_TO_END_PERCENT = 90
 
 def main(f):
     total_duration_seconds = audio.get_file_duration_seconds(f)
