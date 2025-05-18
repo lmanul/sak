@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
-import audio
 import shlex
 import sys
 import subprocess
+
+import audio
 
 SILENCE_MIN_DURATION_SECONDS = 1.5
 LEVEL_DB = "-30"
@@ -35,10 +36,10 @@ def main(f):
             end = float(end.split(": ")[1].strip())
             duration = float(duration.split(": ")[1].strip())
             if duration > max_duration:
-                max_duration = duration
                 percent = int(last_start / total_duration_seconds * 100)
                 if percent < TOO_CLOSE_TO_START_PERCENT or percent > TOO_CLOSE_TO_END_PERCENT:
                     continue
+                max_duration = duration
                 current = [last_start, end, percent, duration]
     print(current)
 

@@ -21,7 +21,7 @@ def main(argv):
         os.system("open /Applications/GIMP.app")
     else:
         # os.system("/usr/bin/gimp-2.8 " + " ".join(full_arguments))
-        cmd = "/usr/bin/gimp-2.10"
+        cmd = "/usr/bin/gimp-3.0"
         if USE_EXPERIMENTAL:
             cmd = os.path.expanduser("~/jhbuild/install/bin/gimp")
         os.system(cmd + " " + " ".join(full_arguments))

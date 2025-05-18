@@ -1,0 +1,18 @@
+#!/usr/bin/python
+
+import audio
+import os
+
+def main():
+    longest_duration = 0
+    file_with_longest_duration = None
+    files = [f for f in os.listdir(".") if f.endswith(".mp3")]
+    for f in files:
+        d = audio.get_file_duration_seconds(f)
+        if d > longest_duration:
+            longest_duration = d
+            file_with_longest_duration = f
+    print(f"Longest: {file_with_longest_duration} with {longest_duration} seconds")
+
+if __name__ == "__main__":
+    main()
