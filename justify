@@ -1,0 +1,63 @@
+#!/usr/bin/python
+
+import sys
+
+COLUMNS = 80
+
+def split_line(l):
+    if len(l) <= COLUMNS:
+        return [l]
+    words = l.split(" ")
+    out = []
+    current = ""
+    for w in words:
+        if len(current + " " + w) > COLUMNS:
+            out.append(current)
+            # Indent
+            current = "  " + w.strip()
+        else:
+            if len(current) == 0:
+                current = w
+            else:
+                current += " " + w
+    if len(current) > 0:
+        out.append(current)
+    return out
+
+def main(path):
+    with open(path) as f:
+        lines = [l.strip() for l in f.readlines()]
+
+    formatted = []
+
+    current_line = ""
+    for l in lines:
+        if l == "":
+            # Flush
+            if len(current_line) > 0:
+                formatted += split_line(current_line)
+                current_line = ""
+            # Blank line. Use as-is
+            formatted.append("")
+        elif l.startswith("20") and l.count("-") == 2:
+            # Date. Use as-is
+            formatted.append(l)
+        elif l.startswith("#"):
+            # Title. Use as-is.
+            formatted.append(l)
+        elif l.startswith("===="):
+            # Separator. Use as-is.
+            formatted.append(l)
+        elif l.startswith("* "):
+            if len(current_line) > 0:
+                formatted += split_line(current_line)
+            current_line = l
+        else:
+            current_line += " " + l
+
+    if len(current_line) > 0:
+        formatted += split_line(current_line)
+    print("\n".join(formatted))
+
+if __name__ == "__main__":
+    main(sys.argv[1])
