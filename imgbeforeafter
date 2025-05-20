@@ -1,0 +1,40 @@
+#!/usr/bin/python
+
+import os
+import sys
+import util
+
+def main(before, after):
+    if os.path.exists("diff.png"):
+        os.system("mv diff.png diff.png.bup")
+
+    os.system(f"imgdiff {before} {after}")
+
+    width = util.get_image_dimensions(before)[0]
+    os.system(
+        "montage -tile 3x -geometry +10+10 "
+        "" + " ".join([before, after, "diff.png"]) + " "
+        "montage.in"
+    )
+    first_third = - width
+    second_third = 0
+    third_third = +width
+
+    font_size = width / 20
+    vertical_padding = width / 150
+    text_height = width / 10
+
+    cmd = (
+      "convert montage.in "
+      f"-gravity north -background white -splice 0x{text_height} "
+      "-font Palatino-Roman -pointsize " + str(font_size) + " "
+      f"-annotate +{first_third}+{vertical_padding} 'Before' "
+      f"-annotate +{second_third}+{vertical_padding} 'After' "
+      f"-annotate +{third_third}+{vertical_padding} 'Diff' "
+      "montage.png"
+    )
+    os.system(cmd)
+    os.system("rm -f montage.in diff.png")
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2])
