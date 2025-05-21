@@ -10,6 +10,8 @@ def main():
     os.system("wget 'https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64' -O " + FILE)
     os.system("sudo dpkg -i " + FILE)
     os.system("rm " + FILE)
+    # No garbage please
+    os.system("sudo rm /etc/apt/sources.list.d/vscode*")
 
 if __name__ == "__main__":
     main()
