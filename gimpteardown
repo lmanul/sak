@@ -28,6 +28,10 @@ if __name__ == "__main__":
         os.system("git checkout "
                   "sessionrc colorrc contextrc devicerc toolrc"
         )
+
+        if version == "3.0":
+            os.system("git checkout plug-in-settings/GimpProcedureConfigRun-file-jpeg-export.last")
+
         os.system(r"git checkout tool-options/\*")
 
     util.run_bin_cmd("regularcleanup")
