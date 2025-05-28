@@ -12,7 +12,9 @@ def main(argv):
         arguments = sys.argv[1:]
 
     orig_dir = os.getcwd()
-    full_arguments = []
+    full_arguments = [
+        # "--no-splash",
+    ]
     for a in arguments:
         full_arguments.append(os.path.join(orig_dir, a))
 
@@ -24,7 +26,9 @@ def main(argv):
         cmd = "/usr/bin/gimp-3.0"
         if USE_EXPERIMENTAL:
             cmd = os.path.expanduser("~/jhbuild/install/bin/gimp")
-        os.system(cmd + " " + " ".join(full_arguments))
+        full_cmd = cmd + " " + " ".join(full_arguments)
+        print(full_cmd)
+        os.system(full_cmd)
     util.run_bin_cmd("gimpteardown")
 
 if __name__ == "__main__":
