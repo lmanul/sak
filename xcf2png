@@ -1,51 +1,18 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 
 import os
+import sys
 
-from optparse import OptionParser
-
-
-HOME = os.path.expanduser("~")
-
-INITIAL_DIR = os.getcwd()
-
-parser = OptionParser()
-parser.add_option(
-    "-q",
-    "--quiet",
-    dest="quiet",
-    action="store_true",
-    help="Just do it, don't say a word",
-)
-(options, args) = parser.parse_args()
-XCF = args[0]
-XCF_PATH = os.path.join(INITIAL_DIR, XCF)
-PNG_PATH = XCF_PATH.replace(".xcf", ".png")
-
-os.chdir(HOME)
-TEMP_DIR_NAME = "xcf2png_" + str(os.getpid())
-os.mkdir(TEMP_DIR_NAME)
-os.chdir(TEMP_DIR_NAME)
-os.system("cp " + os.path.join(INITIAL_DIR, XCF) + " .")
-
-cmd = """/usr/bin/gimp-2.10 -n -i -b - <<EOF
-(let* ( (file's (cadr (file-glob "*.xcf" 1))) (filename "") (image 0) (layer 0) )
-  (while (pair? file's)
-    (set! image (car (gimp-file-load RUN-NONINTERACTIVE (car file's) (car file's))))
-    (set! layer (car (gimp-image-merge-visible-layers image CLIP-TO-IMAGE)))
-    (set! filename (string-append (substring (car file's) 0 (- (string-length (car file's)) 4)) ".png"))
-    (gimp-file-save RUN-NONINTERACTIVE image layer filename filename)
-    (gimp-image-delete image)
-    (set! file's (cdr file's))
+def main(xcf):
+    png = xcf.replace(".xcf", ".png")
+    os.system(
+      "convert "
+      "-alpha on "
+      "-background none "
+      "-layers merge "
+      "" + xcf + " "
+      " " + png + ""
     )
-  (gimp-quit 0)
-  )
-EOF"""
 
-if options.quiet:
-  os.system(cmd + " > /dev/null 2>&1")
-else:
-  os.system(cmd)
-os.system("mv *.png " + PNG_PATH)
-os.chdir("..")
-os.system("rm -rf " + TEMP_DIR_NAME)
+if __name__ == "__main__":
+    main(sys.argv[1])
