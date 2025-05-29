@@ -4,13 +4,13 @@ import os
 import sys
 
 def main(xcf):
-    png = xcf.replace(".xcf", ".png")
+    jpg = xcf.replace(".xcf", ".jpg")
     os.system(
       "convert "
       "-flatten "
       "-background white "
       "" + xcf + " "
-      " " + png + ""
+      " " + jpg + ""
     )
 
 if __name__ == "__main__":
