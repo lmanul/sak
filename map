@@ -7,20 +7,23 @@ import sys
 
 from multiprocessing.dummy import Pool as ThreadPool
 
-from optparse import OptionParser
+import argparse
 
-parser = OptionParser()
-parser.add_option(
-    "-s", "--single_thread", help="Only use one thread", dest="single_thread"
-)
-(options, args) = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument('-s', '--single_thread', action='store_true')
+
+# Add the first required argument
+parser.add_argument('command', type=str, help='The command to run')
+parser.add_argument('files', nargs='*', help='The files to run the command on')
+
+args = parser.parse_args()
 
 cols = shutil.get_terminal_size().columns
-command = args[0]
-n_args = len(args) - 1
+command = args.command
+n_args = len(args.files)
 n_cpus = multiprocessing.cpu_count()
 # Leave one CPU for doing some other stuff
-n_threads = 1 if options.single_thread else n_cpus - 1
+n_threads = 1 if args.single_thread else n_cpus - 1
 
 if n_args < 1:
     print("I need at least one argument in addition to the command")
@@ -52,5 +55,4 @@ def process(the_file):
     sys.stdout.flush()
     n_printed_progress_chars = n_progress_chars
 
-
-results = pool.map(process, sorted(args[1:]))
+results = pool.map(process, sorted(args.files))
