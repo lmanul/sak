@@ -3,16 +3,37 @@
 import os
 import sys
 
-def main(xcf):
-    png = xcf.replace(".xcf", ".png")
-    os.system(
-      "convert "
-      "-alpha on "
-      "-background none "
-      "-layers merge "
-      "" + xcf + " "
-      " " + png + ""
+SCHEME_SCRIPT = """
+(define (script-fu-count-layers filename)
+  (let* ((image (car (gimp-file-load RUN-NONINTERACTIVE filename filename))))
+    (gimp-message (string-append "Loaded image " filename))
+    (let* ((flattened (gimp-image-flatten image))
+          )
+      (
+        let ((png_filename (string-append (substring filename 0 (- (string-length filename) 4)) ".png")))
+        (gimp-message png_filename)
+
+        (
+          let ((layer (car (gimp-image-merge-visible-layers image CLIP-TO-IMAGE))))
+          (gimp-file-save RUN-NONINTERACTIVE image png_filename png_filename)
+        )
+      )
     )
+    (gimp-image-delete image)
+  )
+)
+
+"""
+
+def main(xcf):
+    cmd = (
+        "/usr/bin/gimp-3.0 -i --batch-interpreter=plug-in-script-fu-eval -b - << EOF"
+        "" + SCHEME_SCRIPT + ""
+        "(script-fu-count-layers \"" + xcf + "\")"
+        "(gimp-quit 0))"
+        "EOF"
+    )
+    os.system(cmd)
 
 if __name__ == "__main__":
     main(sys.argv[1])
