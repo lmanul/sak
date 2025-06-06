@@ -4,7 +4,7 @@ import os
 import sys
 import util
 
-def main(before, after):
+def one_pair(before, after, number):
     if os.path.exists("diff.png"):
         os.system("mv diff.png diff.png.bup")
 
@@ -31,10 +31,19 @@ def main(before, after):
       f"-annotate +{first_third}+{vertical_padding} 'Before' "
       f"-annotate +{second_third}+{vertical_padding} 'After' "
       f"-annotate +{third_third}+{vertical_padding} 'Diff' "
-      "montage.png"
+      "montage_" + str(number) + ".png"
     )
     os.system(cmd)
     os.system("rm -f montage.in diff.png")
 
+def main(args):
+    count = 1
+    for i in range(0, len(args), 2):
+        one_pair(args[i], args[i + 1], count)
+        count += 1
+
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    if len(sys.argv)  % 2 != 1:
+        print("Even number of args please")
+    else:
+        main(sys.argv[1:])
