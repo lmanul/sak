@@ -16,6 +16,7 @@ subtitles_option = ""
 cmd = ("ffmpeg -i " + bup + " "
        "" + subtitles_option + ""
        "-c:v libx264 "
+       "-vf \"scale=1920:1080\" "
        "-c:a aac "
        "-filter:a \"loudnorm, aformat=channel_layouts=stereo\" " + input)
 print(cmd)
