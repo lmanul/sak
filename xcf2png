@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-import os
 import sys
+
+import gimp
 
 SCHEME_SCRIPT = """
 (define (script-fu-count-layers filename)
@@ -26,14 +27,8 @@ SCHEME_SCRIPT = """
 """
 
 def main(xcf):
-    cmd = (
-        "/usr/bin/gimp-3.0 -i --batch-interpreter=plug-in-script-fu-eval -b - << EOF"
-        "" + SCHEME_SCRIPT + ""
-        "(script-fu-count-layers \"" + xcf + "\")"
-        "(gimp-quit 0))"
-        "EOF"
-    )
-    os.system(cmd)
+    gimp.run_script(SCHEME_SCRIPT, "(script-fu-count-layers \"" + xcf + "\")"
+)
 
 if __name__ == "__main__":
     main(sys.argv[1])
