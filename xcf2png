@@ -5,7 +5,7 @@ import sys
 import gimp
 
 SCHEME_SCRIPT = """
-(define (script-fu-count-layers filename)
+(define (xcf-to-png filename)
   (let* ((image (car (gimp-file-load RUN-NONINTERACTIVE filename filename))))
     (gimp-message (string-append "Loaded image " filename))
     (let* ((flattened (gimp-image-flatten image))
@@ -27,7 +27,7 @@ SCHEME_SCRIPT = """
 """
 
 def main(xcf):
-    gimp.run_script(SCHEME_SCRIPT, "(script-fu-count-layers \"" + xcf + "\")"
+    gimp.run_script(SCHEME_SCRIPT, "(xcf-to-png \"" + xcf + "\")"
 )
 
 if __name__ == "__main__":
