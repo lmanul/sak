@@ -17,5 +17,5 @@ def run_script_python(script_code, function_to_run):
         "\"" + script_code + "" + function_to_run + ";\" "
         "--quit"
     )
-    print(cmd)
+    # print(cmd)
     os.system(cmd)
