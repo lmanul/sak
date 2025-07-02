@@ -119,6 +119,9 @@ def process_one_file(f):
     remove_tag_if_present("TPE2", all_tags, f)  # Album artist
     remove_tag_if_present("TCOP", all_tags, f)  # Copyright
     remove_tag_if_present("TENC", all_tags, f)  # Encoded by
+    if "No ID3 tag" in all_tags:
+        # There is nothing, let's add something
+        silent("id3v2 --id3v2-only -t 'Unknown' " + f)
     if "No ID3v1" not in all_tags:
         # Delete v1 tags
         silent("id3v2 -s " + f)
