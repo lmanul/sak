@@ -7,12 +7,14 @@ import subprocess
 import sys
 
 home = os.path.expanduser("~")
+GEDIT_PREF_NAME = "org.gnome.gedit.preferences.editor editor-font"
+VSCODE_SETTINGS_FROM_BUS = "config/config/Code/User/settings.json"
+VSCODE_SETTINGS = "bus/" + VSCODE_SETTINGS_FROM_BUS
 
 def adjust_vscode(up):
     os.chdir(home)
-    settings = "bus/config/config/Code/User/settings.json"
     o = None
-    with open(settings) as f:
+    with open(VSCODE_SETTINGS) as f:
         try:
             o = json.load(f)
         except json.decoder.JSONDecodeError as e:
@@ -21,18 +23,32 @@ def adjust_vscode(up):
 
     if "window.zoomLevel" in o:
         current_zoom = o["window.zoomLevel"]
-        new_zoom = current_zoom + (0.5 if up else -0.5)
-        new_zoom = max(0.2, new_zoom)
+        if current_zoom < 0.5 and not up:
+            new_zoom = round(current_zoom / 2, 5)
+        else:
+            new_zoom = current_zoom + (0.5 if up else -0.5)
+        new_zoom = max(0.00001, new_zoom)
         new_zoom = min(10, new_zoom)
         o["window.zoomLevel"] = new_zoom
 
-    with open(settings, "w") as f:
+    with open(VSCODE_SETTINGS, "w") as f:
         f.write(json.dumps(o, indent=2))
 
-def adjust_gedit(up):
-    pref_name = "org.gnome.gedit.preferences.editor editor-font"
+def set_gedit_font_size(new_size):
     current = subprocess.check_output(shlex.split(
-        "gsettings get " + pref_name
+        "gsettings get " + GEDIT_PREF_NAME
+    )).decode().strip()
+
+    if current.startswith("'"):
+        current = current[1:]
+    if current.endswith("'"):
+        current = current[:-1]
+    font = " ".join(current.split(" ")[:-1])
+    os.system("gsettings set " + GEDIT_PREF_NAME + " \"" + font + " " + str(new_size) + "\"")
+
+def adjust_gedit(up):
+    current = subprocess.check_output(shlex.split(
+        "gsettings get " + GEDIT_PREF_NAME
     )).decode().strip()
 
     if current.startswith("'"):
@@ -44,7 +60,7 @@ def adjust_gedit(up):
     new_size = current_size + (2 if up else -2)
     new_size = max(6, new_size)
     new_size = min(50, new_size)
-    os.system("gsettings set " + pref_name + " \"" + font + " " + str(new_size) + "\"")
+    set_gedit_font_size(new_size)
 
 def main(up):
     # print("Adjusting text size " + ("up" if up else "down"))
@@ -52,5 +68,11 @@ def main(up):
     adjust_gedit(up)
 
 if __name__ == "__main__":
+    if sys.argv[1] == 'reset':
+        os.chdir(home)
+        set_gedit_font_size(18)
+        os.chdir("bus")
+        os.system("git checkout " + VSCODE_SETTINGS_FROM_BUS)
+
     up = sys.argv[1] in ["u", "+"]
     main(up)

@@ -1,0 +1,15 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    print("~" * 80)
+    print("docker volume ls:\n")
+    os.system("docker volume ls")
+    print("~" * 80)
+    print("docker ps -a:\n")
+    os.system("docker ps -a")
+    print("~" * 80)
+
+if __name__ == "__main__":
+    main()
