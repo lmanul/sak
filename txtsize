@@ -73,6 +73,6 @@ if __name__ == "__main__":
         set_gedit_font_size(18)
         os.chdir("bus")
         os.system("git checkout " + VSCODE_SETTINGS_FROM_BUS)
-
-    up = sys.argv[1] in ["u", "+"]
-    main(up)
+    else:
+        up = sys.argv[1] in ["u", "+"]
+        main(up)
