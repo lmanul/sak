@@ -2,14 +2,17 @@
 
 import os
 
+home = os.path.expanduser("~")
+
 def main():
     os.system("wget -O firefox.tar.xz 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US'")
     print("Extracting...")
     os.system("xz -d firefox.tar.xz")
     os.system("tar xvf firefox.tar")
-    os.system("rm -rf ~/bus/bin/firefox")
-    os.system("mv firefox ~/bus/bin/")
+    os.system("rm -rf " + home + "/bus/bin/firefox")
+    os.system("mv firefox " + home + "/bus/bin/")
     os.system("rm firefox.tar")
+    os.system("chmod +x " + home + "/bus/bin/firefox/firefox")
 
 if __name__ == "__main__":
     main()
