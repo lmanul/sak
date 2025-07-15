@@ -126,3 +126,29 @@ def select_target_workspace(n_rows, n_cols, current, direction):
             target = current + n_cols
 
     return target
+
+def move_mouse_to_center_of_monitor(monitor_id):
+    """Move the mouse to the center of the specified monitor."""
+
+    offset_x = 0
+    connected_monitors = [m for m in monitors.get_monitors() if m.connected]
+    print(connected_monitors)
+
+    monitor_to_focus = None
+    for m in connected_monitors:
+        if monitor_id == m.input_id:
+            monitor_to_focus = m
+            break
+        else:
+            offset_x += m.get_resolution().width
+    if not monitor_to_focus:
+        print("Could not find monitor " + monitor_id)
+    print(monitor_to_focus)
+    res = monitor_to_focus.get_resolution()
+
+    center_x = offset_x + res.width / 2
+    center_y = res.height / 2
+    try:
+        subprocess.run(['xdotool', 'mousemove', str(center_x), str(center_y)])
+    except subprocess.CalledProcessError as e:
+        print("Error moving mouse:", e)

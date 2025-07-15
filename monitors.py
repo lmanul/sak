@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import shlex
@@ -74,6 +75,11 @@ class Monitor:
 
     def get_resolution_str(self):
         return str(self.resolution[0]) + "x" + str(self.resolution[1])
+
+    def get_resolution(self):
+        if (len(self.supported_resolutions) == 1):
+            return self.supported_resolutions[0]
+        return self.get_max_resolution()
 
     # Returns whether the resolution was actually added
     def add_supported_resolution(self, res):
@@ -296,9 +302,27 @@ def get_monitors_wayland():
         monitors.append(current_monitor)
     return monitors
 
-# Returns an array of arrays: the first array is connected monitor ids,
-# the second is disconnected monitor ids.
+def monitor_from_bspwm_monitor_object(obj):
+    monitor = Monitor()
+    monitor.input_id = obj["name"]
+    if "wired" in obj:
+        monitor.connected = obj["wired"]
+    monitor.add_supported_resolution(MonitorResolution(obj["rectangle"]["width"], obj["rectangle"]["height"], 60))
+    return monitor
+
+def get_monitors_bspwm():
+    monitors = []
+    monitor_ids = subprocess.check_output(shlex.split("bspc query -M --names")).decode().strip().split("\n")
+    for monitor_id in monitor_ids:
+        json_str = subprocess.check_output(shlex.split("bspc query -T -m '" + monitor_id + "'")).decode()
+        obj = json.loads(json_str)
+        monitors.append(monitor_from_bspwm_monitor_object(obj))
+    return monitors
+
 def get_monitors():
+    if os.getenv("XDG_SESSION_DESKTOP") == "bspwm":
+        # This is faster, bspwm caches stuff
+        return get_monitors_bspwm()
     if util.is_wayland():
         return get_monitors_wayland()
     else:
