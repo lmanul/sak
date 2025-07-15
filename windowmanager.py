@@ -132,7 +132,6 @@ def move_mouse_to_center_of_monitor(monitor_id):
 
     offset_x = 0
     connected_monitors = [m for m in monitors.get_monitors() if m.connected]
-    print(connected_monitors)
 
     monitor_to_focus = None
     for m in connected_monitors:
@@ -143,7 +142,6 @@ def move_mouse_to_center_of_monitor(monitor_id):
             offset_x += m.get_resolution().width
     if not monitor_to_focus:
         print("Could not find monitor " + monitor_id)
-    print(monitor_to_focus)
     res = monitor_to_focus.get_resolution()
 
     center_x = offset_x + res.width / 2

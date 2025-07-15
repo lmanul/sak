@@ -69,6 +69,7 @@ def switch(current, target):
     # Restore focused monitor
     debug("Refocusing monitor " + str(focused_monitor))
     windowmanager.focus_monitor_with_id(focused_monitor)
+    windowmanager.move_mouse_to_center_of_monitor(focused_monitor)
     icon_filename = (
         "workspace_"
         "" + str(N_ROWS) + "x"
