@@ -1,0 +1,38 @@
+#!/usr/bin/python
+"""
+Splits audio files on their longest silence, until the resulting
+number of files matches the input or until we can no longer split.
+"""
+
+import os
+import sys
+
+import audio
+
+def get_current_files():
+    return [f for f in os.listdir(".") if f.endswith(".mp3")]
+
+def get_current_file_count():
+    return len(get_current_files())
+
+def main(initial_files, target):
+    current_files = get_current_files()
+    current_count = len(current_files)
+    while current_count < target_count:
+        print("Current file count: " + str(current_count))
+        [longestduration, longest] = audio.find_longest_file(current_files)
+        print("Splitting longest file " + longest + "...")
+        audio.split_file_on_longest_silence(longest, delete_backup=True)
+        current_files = get_current_files()
+        previous_count = current_count
+        current_count = len(current_files)
+        if previous_count == current_count:
+            print("Not making any progress, stopping at count " + str(current_count))
+
+if __name__ == "__main__":
+    target_count = int(sys.argv[1])
+    current_count = get_current_file_count()
+    if target_count <= current_count:
+        print(f"There are currently {current_count} <= {target_count} files")
+    else:
+        main(os.listdir("."), target_count)

@@ -1,38 +1,9 @@
 #!/usr/bin/python
 
-import ast
-import os
-import shlex
-import subprocess
-import sys
-import util
-
-def seconds_to_ffmpeg_time(seconds: float) -> str:
-    minutes = int(seconds // 60)
-    hours = int(minutes // 60)
-    remaining_minutes = int(minutes % 60)
-    remaining_seconds = int(seconds % 60)
-    milliseconds = int((seconds % 1) * 1000)
-    return f"{hours}:{remaining_minutes:02}:{remaining_seconds:02}.{milliseconds:03}"
-
+import audio
 
 def main(f):
-    output = subprocess.check_output(shlex.split(
-        "audiofindlongestsilence " + f
-    )).decode()
-    if output.strip() == "[]":
-        print("Didn't find longest silence, skipping " + f)
-        return
-    (_, end, percent, _) = ast.literal_eval(output)
-    split_point_seconds = end - 0.5
-    split_point = seconds_to_ffmpeg_time(split_point_seconds)
-    print("Splitting " + f + " at " + split_point + f" ({percent}%)")
-
-    part_1 = f.replace(".mp3", "_1.mp3")
-    part_2 = f.replace(".mp3", "_2.mp3")
-    util.silent(f"ffmpeg -i {f} -to {split_point} -c copy {part_1}")
-    util.silent(f"ffmpeg -i {f} -ss {split_point} -c copy {part_2}")
-    os.system("mv " + f + " " + f + ".bup")
+    audio.split_file_on_longest_silence(f)
 
 if __name__ == "__main__":
     main(sys.argv[1])
