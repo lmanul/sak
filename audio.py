@@ -32,6 +32,17 @@ def get_file_duration_seconds(f):
       "" + f + ""
     )).decode())
 
+# Returns (longest_duration_seconds, file_with_longest_duration)
+def find_longest_file(files):
+    longest_duration = 0
+    file_with_longest_duration = None
+    for f in files:
+        d = get_file_duration_seconds(f)
+        if d > longest_duration:
+            longest_duration = d
+            file_with_longest_duration = f
+    return [longest_duration, file_with_longest_duration]
+
 def send_command_to_music_player(cmd, print_reply=False,
         cmd_prefix=CMD_PREFIX, msg_payload=""):
 
