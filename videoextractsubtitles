@@ -25,9 +25,9 @@ def extract_subtitles(input_file):
     for line in lines:
         match = re.search(SUBTITLE_TRACK_REGEXP, line)
         if match:
-            print(line)
-            print(match.group(1))
-            print(match.group(2))
+            # print(line)
+            # print(match.group(1))
+            # print(match.group(2))
             matched_once = True
 
     if not matched_once:
@@ -49,9 +49,7 @@ def extract_subtitles(input_file):
         print(subtitle_streams)
         title_match = re.search(r'^\s+title\s+:\s*(.*)$', line)
         if title_match and current_index in subtitle_streams:
-            title = title_match.group(1).replace(" ", "_").replace("(", "_").replace(")", "_").lower()
-            while "__" in title:
-                title = title.replace("__", "_")
+            title = util.sanitize_for_filename(title_match.group(1)).lower()
             subtitle_streams[current_index].append(title)
 
     if DEBUG:
