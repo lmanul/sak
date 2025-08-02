@@ -27,7 +27,7 @@ def remove_track_by_number(n, info, new_file, bup_file):
         os.system(cmd)
 
 def main():
-    input_file = sys.argv[2]
+    input_file = sys.argv[1]
     info = subprocess.check_output(shlex.split("mkvmerge -i " + input_file)).decode()
     if len(sys.argv) < 3:
         print("Give me a track to remove. Here is the list: " + str(info))
@@ -36,11 +36,11 @@ def main():
     bup = input_file + ".bup"
     os.system("mv " + input_file + " " + bup)
 
-    if sys.argv[1].isdigit():
-        track_number = int(sys.argv[1])
+    if sys.argv[2].isdigit():
+        track_number = int(sys.argv[2])
         remove_track_by_number(track_number, info, input_file, bup)
     else:
-        track_id = sys.argv[1]
+        track_id = sys.argv[2]
         remove_track_by_id(track_id, input_file, bup)
 
 if __name__ == "__main__":
