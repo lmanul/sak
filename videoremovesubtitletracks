@@ -8,8 +8,8 @@ import sys
 
 TRACK_ID_REGEXP = r"Track\s+ID\s+(.+)\:\s+.*"
 
-track = int(sys.argv[1])
-input = sys.argv[2]
+input = sys.argv[1]
+track = int(sys.argv[2])
 bup = input + ".bup"
 
 info = subprocess.check_output(shlex.split("mkvmerge -i " + input)).decode()
