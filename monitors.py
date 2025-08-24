@@ -314,7 +314,8 @@ def get_monitors_bspwm():
     monitors = []
     monitor_ids = subprocess.check_output(shlex.split("bspc query -M --names")).decode().strip().split("\n")
     for monitor_id in monitor_ids:
-        json_str = subprocess.check_output(shlex.split("bspc query -T -m '" + monitor_id + "'")).decode()
+        cmd = "bspc query -T -m '" + monitor_id + "'"
+        json_str = subprocess.check_output(shlex.split(cmd)).decode()
         obj = json.loads(json_str)
         monitors.append(monitor_from_bspwm_monitor_object(obj))
     return monitors
@@ -322,7 +323,11 @@ def get_monitors_bspwm():
 def get_monitors():
     if os.getenv("XDG_SESSION_DESKTOP") == "bspwm":
         # This is faster, bspwm caches stuff
-        return get_monitors_bspwm()
+        try:
+            return get_monitors_bspwm()
+        except subprocess.CalledProcessError:
+            print("bspc monitors failed, this is going to be slow!")
+            pass
     if util.is_wayland():
         return get_monitors_wayland()
     else:
