@@ -312,7 +312,9 @@ def monitor_from_bspwm_monitor_object(obj):
 
 def get_monitors_bspwm():
     monitors = []
-    monitor_ids = subprocess.check_output(shlex.split("bspc query -M --names")).decode().strip().split("\n")
+    # Note: note using --names, some names then create issues with the next
+    # query command
+    monitor_ids = subprocess.check_output(shlex.split("bspc query -M")).decode().strip().split("\n")
     for monitor_id in monitor_ids:
         cmd = "bspc query -T -m '" + monitor_id + "'"
         json_str = subprocess.check_output(shlex.split(cmd)).decode()
