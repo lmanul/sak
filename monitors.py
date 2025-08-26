@@ -11,6 +11,9 @@ MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+(.*)$')
 MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s.*$')
 SINGLE_RESOLUTION_PATTERN = re.compile(r'^(\d+)x(\d+)@(\d+)Hz$')
 
+SHM_DIR = "/dev/shm/monitors/"
+SHM_PATH = SHM_DIR + "monitors"
+
 class MonitorResolution():
     def __init__(self, width, height, frequency):
         self.width = width
@@ -19,6 +22,17 @@ class MonitorResolution():
 
     def __str__(self):
         return str(self.width) + "x" + str(self.height) + "@" + str(self.frequency)
+
+    def serialize(self):
+        return str(self)
+
+    @staticmethod
+    def deserialize(serialized):
+        if serialized == "None":
+            return None
+        (res, freq) = serialized.split("@")
+        (w, h) = res.split("x")
+        return MonitorResolution(int(w), int(h), int(freq))
 
     def equals(self, other):
         is_equal = self.equals_without_frequency(other) and \
@@ -58,16 +72,40 @@ class MonitorRotation(IntEnum):
         if self == MonitorRotation.UPSIDE_DOWN:
             return "upside down"
 
+    def serialize(self):
+        if self == MonitorRotation.DEFAULT:
+            return "0"
+        if self == MonitorRotation.RIGHT:
+            return "270"
+        if self == MonitorRotation.LEFT:
+            return "90"
+        if self == MonitorRotation.UPSIDE_DOWN:
+            return "180"
+
+    @staticmethod
+    def deserialize(serialized):
+        n = int(serialized)
+        if n == 0:
+            return MonitorRotation.DEFAULT
+        elif n == 90:
+            return MonitorRotation.LEFT
+        elif n == 270:
+            return MonitorRotation.RIGHT
+        else:
+            return MonitorRotation.UPSIDE_DOWN
+
 class Monitor:
     "Represents a monitor, with id, orientation, resolution"
     def __init__(self, input_id="unknown_input_id", rotation=MonitorRotation.DEFAULT, scale=1,
-                 resolution=(0, 0), force_off=False,
+                 resolution=(0, 0), resolution_obj=None, force_off=False,
                  description="Generic Monitor", primary=False, connected=True):
         self.input_id = input_id
         self.rotation = rotation
         self.scale = scale
         self.resolution = resolution
         self.supported_resolutions = []
+        if resolution_obj:
+            self.add_supported_resolution(resolution_obj)
         self.description = description
         self.primary = primary
         self.connected = connected
@@ -137,6 +175,29 @@ class Monitor:
 
     def __repr__(self):
         return "\n" + self.__str__()
+
+    def serialize(self):
+        return "|".join([
+            "c" if self.connected else "d",
+            self.input_id,
+            self.description,
+            str(self.get_max_resolution()),
+            MonitorRotation.serialize(self.rotation),
+        ])
+
+    @staticmethod
+    def deserialize(serialized):
+        (conn, input_id, desc, maxres, rot) = serialized.split("|")
+        resolution_obj = MonitorResolution.deserialize(maxres)
+
+        return Monitor(
+            input_id=input_id,
+            rotation=MonitorRotation.deserialize(rot),
+            resolution_obj=resolution_obj,
+            description=desc,
+            connected=(conn == "c")
+        )
+
 
 def find_best_match_from_supported_resolutions(needle, haystack):
     best_match = None
@@ -310,6 +371,24 @@ def monitor_from_bspwm_monitor_object(obj):
     monitor.add_supported_resolution(MonitorResolution(obj["rectangle"]["width"], obj["rectangle"]["height"], 60))
     return monitor
 
+def save_monitors(monitors):
+    if not os.path.exists(SHM_PATH):
+        if not os.path.exists(SHM_DIR):
+            os.system("mkdir " + SHM_DIR)
+    serialized = "\n".join([m.serialize() for m in monitors])
+    with open(SHM_PATH, "w") as f:
+        f.write(serialized)
+
+def load_monitors():
+    monitors = []
+    with open(SHM_PATH) as f:
+        buffer = f.read()
+        all_serialized = buffer.split("\n")
+        for serialized in all_serialized:
+            m = Monitor.deserialize(serialized)
+            monitors.append(m)
+    return monitors
+
 def get_monitors_bspwm():
     monitors = []
     # Note: note using --names, some names then create issues with the next
@@ -323,17 +402,27 @@ def get_monitors_bspwm():
     return monitors
 
 def get_monitors():
-    if os.getenv("XDG_SESSION_DESKTOP") == "bspwm":
-        # This is faster, bspwm caches stuff
-        try:
-            return get_monitors_bspwm()
-        except subprocess.CalledProcessError:
-            print("bspc monitors failed, this is going to be slow!")
-            pass
-    if util.is_wayland():
-        return get_monitors_wayland()
+    monitors = []
+    fresh = False
+    if os.path.exists(SHM_PATH):
+        monitors = load_monitors()
+    # Rely on our own caching instead
+    # elif os.getenv("XDG_SESSION_DESKTOP") == "bspwmm":
+    #     # This is faster, bspwm caches stuff
+    #     try:
+    #         monitors = get_monitors_bspwm()
+    #     except subprocess.CalledProcessError:
+    #         print("bspc monitors failed, this is going to be slow!")
+    #     fresh = True
+    elif util.is_wayland():
+        monitors = get_monitors_wayland()
+        fresh = True
     else:
-        return get_monitors_x11()
+        monitors = get_monitors_x11()
+        fresh = True
+    if len(monitors) > 0 and fresh:
+        save_monitors(monitors)
+    return monitors
 
 # Returns an array of tuples. There is one tuple per screen, and each tuple is
 # (id, width_px, width_mm, height_px, height_mm)

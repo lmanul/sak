@@ -1,0 +1,10 @@
+#!/usr/bin/python
+
+import monitors
+import os
+
+def main():
+    os.system("rm " + monitors.SHM_PATH)
+
+if __name__ == "__main__":
+    main()
