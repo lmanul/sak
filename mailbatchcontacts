@@ -7,8 +7,8 @@ import time
 
 TESTING = False
 HOME = os.path.expanduser("~")
-BATCH_SIZE = 20
-SECONDS_BETWEEN_BATCHES = 2 if TESTING else 300
+BATCH_SIZE = 15
+SECONDS_BETWEEN_BATCHES = 2 if TESTING else 600
 
 class Contact:
     "Represents a single contact, with name and email."
