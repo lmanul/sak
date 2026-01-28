@@ -1,0 +1,10 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    # Needed to avoid having Inkscape crash when opening files
+    os.system("ulimit -Sn 4096 && /usr/bin/inkscape")
+
+if __name__ == "__main__":
+    main()
