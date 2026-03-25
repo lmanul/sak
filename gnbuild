@@ -44,6 +44,10 @@ def main():
             "--buildtype=release",
             "-Db_lto=true",
         ]
+    elif proj == "thunar":
+        util.ensure_installed([
+            "libxfce4ui-2-dev",
+        ])
     elif proj == "gimp":
         os.system("git submodule update --init")
         os.chdir("../babl")
