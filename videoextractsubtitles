@@ -59,7 +59,8 @@ def extract_subtitles(input_file):
     for index in subtitle_streams:
         lang_suffix = subtitle_streams[index][0]
         if len(subtitle_streams[index]) > 1:
-            (lang_code, lang_title) = subtitle_streams[index]
+            lang_code = subtitle_streams[index][0]
+            lang_title = subtitle_streams[index][1]
             lang_suffix = lang_code + "_" + lang_title
         output_file = f"{input_file_no_extension}.{lang_suffix}.srt"
         extract_command = [
