@@ -6,7 +6,15 @@ def main():
     # Sigh
     # Removing for now, relying on apparmor having been uninstalled
     # os.system("sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0")
-    os.system("/usr/bin/code")
+
+    args = []
+    if os.environ["DESKTOP_SESSION"] in ["hyprland"]:
+        # args.append("--enable-features=UseOzonePlatform,WaylandWindowDecorations")
+        # args.append("--ozone-platform-hint=auto")
+        args.append("--ozone-platform=wayland")
+
+    cmd = "/usr/bin/code " + " ".join(args)
+    os.system(cmd)
 
 if __name__ == "__main__":
     main()
