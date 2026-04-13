@@ -24,12 +24,12 @@ def get_scanner_airscan_id():
             if m:
                 return m.group(1)
 
-def main(resolution, scanner_id):
+def main(resolution, scanner_id, out_filename):
     if DEBUG:
         print(scanner_id)
     print("Scanning. You may need to 'sudo apt remove ippusbxd'")
     print("If I have the wrong scanner, list them with 'scanimage -L'")
-    output = "scanned_image_" + random_id() + ".png"
+    output = out_filename + ".png"
     cmd = (
         "scanimage "
         "--format png "
@@ -47,5 +47,6 @@ def main(resolution, scanner_id):
 
 if __name__ == "__main__":
     resolution = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_RESOLUTION
+    out_filename = sys.argv[2] if len(sys.argv) > 2 else "scanned_" + random_id()
     scan_id = get_scanner_airscan_id()
-    main(resolution, scan_id)
+    main(resolution, scan_id, out_filename)
