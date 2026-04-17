@@ -8,7 +8,7 @@ import util
 from enum import IntEnum
 
 MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+(.*)$')
-MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s.*$')
+MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s(\d+\.\d+)\sHz.*$')
 SINGLE_RESOLUTION_PATTERN = re.compile(r'^(\d+)x(\d+)@(\d+)Hz$')
 
 SHM_DIR = "/dev/shm/monitors/"
@@ -347,10 +347,11 @@ def get_monitors_wayland():
         elif resolution_matches:
             w = int(resolution_matches.group(1))
             h = int(resolution_matches.group(2))
+            f = int(float(resolution_matches.group(3)))
             surface = w * h
-            if surface > current_max_surface:
-                current_monitor.max_resolution = (w, h)
-                current_max_surface = surface
+            res = MonitorResolution(w, h, f)
+            current_monitor.add_supported_resolution(res)
+            current_max_surface = surface
 
         elif line.strip().startswith("Make:"):
             current_make = line.split(": ")[1]
@@ -406,14 +407,6 @@ def get_monitors():
     fresh = False
     if os.path.exists(SHM_PATH):
         monitors = load_monitors()
-    # Rely on our own caching instead
-    # elif os.getenv("XDG_SESSION_DESKTOP") == "bspwmm":
-    #     # This is faster, bspwm caches stuff
-    #     try:
-    #         monitors = get_monitors_bspwm()
-    #     except subprocess.CalledProcessError:
-    #         print("bspc monitors failed, this is going to be slow!")
-    #     fresh = True
     elif util.is_wayland():
         monitors = get_monitors_wayland()
         fresh = True
