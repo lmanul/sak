@@ -216,6 +216,9 @@ def find_best_match_from_supported_resolutions(needle, haystack):
             best_match_count = count
     return best_match
 
+def round_to_nearest_10(n):
+    return round(n / 10) * 10
+
 def get_monitors_from_hwinfo():
     monitors = []
     lines = subprocess.check_output(
@@ -285,8 +288,9 @@ def get_monitors_from_xrandr():
                     continue
                 freqs.append(freq_raw)
             for freq in freqs:
-                candidate = MonitorResolution(w, h, round(float(freq)))
-                was_added = current_monitor.add_supported_resolution(candidate)
+                candidate = MonitorResolution(
+                    w, h, round_to_nearest_10(round(float(freq))))
+                current_monitor.add_supported_resolution(candidate)
         if line.startswith("Screen"):
             continue
 
@@ -347,7 +351,7 @@ def get_monitors_wayland():
         elif resolution_matches:
             w = int(resolution_matches.group(1))
             h = int(resolution_matches.group(2))
-            f = int(float(resolution_matches.group(3)))
+            f = round_to_nearest_10(int(float(resolution_matches.group(3))))
             surface = w * h
             res = MonitorResolution(w, h, f)
             current_monitor.add_supported_resolution(res)
