@@ -81,7 +81,7 @@ def switch(current, target):
         "" + str(target) + ""
         ".svg"
     )
-    icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
+    icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "icons", "workspace_icons",
         icon_filename)
     windowmanager.notify("", icon_path, NOTIF_ID)
 

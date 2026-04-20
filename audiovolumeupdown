@@ -15,12 +15,16 @@ def main(up_or_down):
     level_out_of_ten = int(current / 10)
     icon = "🔊" if up_or_down == "u" else "🔉"
     message = (
-        "" + icon + ""
+        # "" + icon + ""
         "" + (level_out_of_ten * "▮") + ((10 - level_out_of_ten) * "▯") + ""
         " "
         "" + str(current) + ""
     )
-    windowmanager.notify(message, icon_path=None, replace_id=NOTIF_ID)
+    if up_or_down == "u":
+        icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "icons", "audio-volume-high.svg")
+    else:
+        icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "icons", "audio-volume-low.svg")
+    windowmanager.notify(message, icon_path, replace_id=NOTIF_ID)
     os.system("/usr/bin/play -q " + HOME + "/bus/reference/sounds/water_droplet.mp3")
 
 

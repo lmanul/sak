@@ -4,13 +4,23 @@ import os
 
 import audio
 import util
+import windowmanager
 
-# Also use this as a shortcut to stop ffmpeg stuff.
-if util.is_process_running("ffmpeg"):
-    os.system("killall ffmpeg")
-elif util.is_process_running("ffplay"):
-    os.system("killall ffplay")
-# elif util.is_process_running("mpd"):
-    # os.system("mpc toggle")
-else:
-    audio.send_command_to_music_player("PlayPause")
+NOTIF_ID = 78365
+
+def main():
+    # Also use this as a shortcut to stop ffmpeg stuff.
+    if util.is_process_running("ffmpeg"):
+        os.system("killall ffmpeg")
+    elif util.is_process_running("ffplay"):
+        os.system("killall ffplay")
+    # elif util.is_process_running("mpd"):
+        # os.system("mpc toggle")
+    else:
+        audio.send_command_to_music_player("PlayPause")
+    icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "icons", "play_pause.svg")
+    windowmanager.notify("", icon_path, NOTIF_ID)
+
+if __name__ == "__main__":
+    main()
+
