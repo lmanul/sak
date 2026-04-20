@@ -6,6 +6,7 @@ import sys
 import windowmanager
 
 HOME = os.path.expanduser("~")
+NOTIF_ID = 8234
 
 def main(up_or_down):
     sign = "+" if up_or_down == "u" else "-"
@@ -19,7 +20,7 @@ def main(up_or_down):
         " "
         "" + str(current) + ""
     )
-    windowmanager.notify(message)
+    windowmanager.notify(message, icon_path=None, replace_id=NOTIF_ID)
     os.system("/usr/bin/play -q " + HOME + "/bus/reference/sounds/water_droplet.mp3")
 
 
