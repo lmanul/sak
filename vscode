@@ -12,6 +12,7 @@ def main():
         # args.append("--enable-features=UseOzonePlatform,WaylandWindowDecorations")
         # args.append("--ozone-platform-hint=auto")
         args.append("--ozone-platform=wayland")
+        args.append("--disable-gpu")
 
     cmd = "/usr/bin/code " + " ".join(args)
     os.system(cmd)
