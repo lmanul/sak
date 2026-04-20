@@ -1,6 +1,0 @@
-#!/usr/bin/python
-"""Lowers the system's audio volume."""
-
-import os
-
-os.system("audiovolumeupdown d")

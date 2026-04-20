@@ -9,6 +9,7 @@ import windowmanager
 from virtualdesktops import ARABIC, ROMAN, CHINESE, DEVANAGARI, THAI
 
 DEBUG = True
+NOTIF_ID = 9273
 
 N_ROWS = 3
 N_COLS = 3
@@ -82,7 +83,7 @@ def switch(current, target):
     )
     icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "workspace_icons",
         icon_filename)
-    windowmanager.notify(" ", icon_path)
+    windowmanager.notify("", icon_path, NOTIF_ID)
 
 def switch_with_direction(current, direction):
     start = util.current_time_milliseconds()
