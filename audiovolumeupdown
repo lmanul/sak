@@ -13,7 +13,7 @@ def main(up_or_down):
     current = int(subprocess.check_output(["audiovolumeget"]).decode())
     level_out_of_ten = int(current / 10)
     icon = "🔊" if up_or_down == "u" else "🔉"
-    windowmanager.notify(icon + " " + (level_out_of_ten * "▮") + ((10 - level_out_of_ten) * "▯"))
+    windowmanager.notify(icon + (level_out_of_ten * "▮") + ((10 - level_out_of_ten) * "▯") + " " + str(current))
     os.system("/usr/bin/play -q " + HOME + "/bus/reference/sounds/water_droplet.mp3")
 
 

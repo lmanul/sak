@@ -4,10 +4,10 @@ import re
 import shlex
 import subprocess
 
-PATTERN = re.compile(r".*\[(\d+)%.*")
+PATTERN = re.compile(r".*\s+/\s+(\d+)%\s+/\s+.*")
 
 def main():
-    raw = subprocess.check_output(shlex.split("amixer sget Master")).decode()
+    raw = subprocess.check_output(shlex.split("pactl get-sink-volume @DEFAULT_SINK@")).decode()
     for l in raw.split("\n"):
         matches = PATTERN.match(l)
         if matches:
