@@ -1,0 +1,22 @@
+#!/usr/bin/python
+"""Raises the system's audio volume."""
+import os
+import subprocess
+import sys
+import windowmanager
+
+HOME = os.path.expanduser("~")
+
+def main(up_or_down):
+    sign = "+" if up_or_down == "u" else "-"
+    os.system("pactl -- set-sink-volume @DEFAULT_SINK@ " + sign + "5%")
+    current = int(subprocess.check_output(["audiovolumeget"]).decode())
+    level_out_of_ten = int(current / 10)
+    icon = "🔊" if up_or_down == "u" else "🔉"
+    windowmanager.notify(icon + " " + (level_out_of_ten * "▮") + ((10 - level_out_of_ten) * "▯"))
+    os.system("/usr/bin/play -q " + HOME + "/bus/reference/sounds/water_droplet.mp3")
+
+
+if __name__ == "__main__":
+    up_or_down = sys.argv[1]
+    main(up_or_down)
