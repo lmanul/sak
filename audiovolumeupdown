@@ -12,13 +12,11 @@ def main(up_or_down):
     sign = "+" if up_or_down == "u" else "-"
     os.system("pactl -- set-sink-volume @DEFAULT_SINK@ " + sign + "5%")
     current = int(subprocess.check_output(["/home/manucornet/repos/sak/audiovolumeget"]).decode())
-    level_out_of_ten = int(current / 10)
+    level_out_of_twenty = int(current / 5)
     icon = "🔊" if up_or_down == "u" else "🔉"
     message = (
         # "" + icon + ""
-        "" + (level_out_of_ten * "▮") + ((10 - level_out_of_ten) * "▯") + ""
-        " "
-        "" + str(current) + ""
+        "" + (level_out_of_twenty * "▮") + ((20 - level_out_of_twenty) * "▯") + ""
     )
     if up_or_down == "u":
         icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "icons", "audio-volume-high.svg")
