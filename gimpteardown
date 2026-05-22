@@ -16,7 +16,7 @@ def config_dir_for_version(version):
 #    "gimp-2.8")
 
 if __name__ == "__main__":
-    for version in ["2.10", "3.0"]:
+    for version in ["2.10", "3.0", "3.2"]:
         print("Version " + version + "...")
         gimp_config_dir = config_dir_for_version(version)
         os.chdir(gimp_config_dir)
