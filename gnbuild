@@ -21,6 +21,9 @@ def build(proj, setup_flags):
     os.system("ninja -C " + gnome.BUILD_DIR + " install")
 
 def build_babl_gegl(proj):
+    util.ensure_installed([
+        "libjson-glib-dev",
+    ])
     setup_flags = [
         "--prefix=" + gnome.JHBUILD_INSTALL_DIR,
         "--buildtype=release",
@@ -57,14 +60,17 @@ def main():
         build_babl_gegl("gegl")
         os.chdir(d)
         util.ensure_installed([
+            "libappstream-glib-dev",
+            "libappstream-dev",
             "libghc-gi-atk-dev",
+            "libgegl-dev",
             "libgexiv2-dev",
             "libgtk-3-dev",
             "libmypaint-dev",
-            "mypaint-brushes",
-            "libappstream-glib-dev",
-            "libxmu-dev",
             "libpoppler-glib-dev",
+            "librsvg2-dev",
+            "libxmu-dev",
+            "mypaint-brushes",
             "xsltproc",
         ])
         setup_flags += [
