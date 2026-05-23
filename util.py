@@ -421,7 +421,7 @@ def date_to_string(d):
     return ".".join([str(d.year), str(d.month).zfill(2), str(d.day).zfill(2)])
 
 def is_wayland():
-    return os.environ["XDG_SESSION_TYPE"] == "wayland" and os.environ["XDG_SESSION_DESKTOP"] != "ubuntu"
+    return "WAYLAND_DISPLAY" in os.environ and os.environ["WAYLAND_DISPLAY"].strip() != ""
 
 def ensure_installed(packages):
     if is_linux():
