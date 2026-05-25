@@ -21,7 +21,7 @@ if __name__ == "__main__":
         gimp_config_dir = config_dir_for_version(version)
         os.chdir(gimp_config_dir)
         os.system("git checkout gimprc")
-        if version == "3.0":
+        if version in ["3.0", "3.2"]:
             os.system("git checkout shortcutsrc")
         else:
             os.system("git checkout menurc")
