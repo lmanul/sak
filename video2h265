@@ -3,18 +3,25 @@
 import os
 import sys
 
+# Faster encoding, but larger files
+GPU_ACCEL_NV = False
+
 def main(arg):
+
     bup = arg + ".bup"
     os.system("mv " + arg + " " + bup)
     dest = arg
     if dest.endswith(".avi"):
         dest = arg.replace(".avi", ".mp4")
+    video_codec = "hevc_nvenc" if GPU_ACCEL_NV else "libx265"
+    in_accel_opt = "-hwaccel cuda" if GPU_ACCEL_NV else ""
+    quality_opt = "-preset p5" if GPU_ACCEL_NV else "-crf 28"
     cmd = (
         "ffmpeg "
+        "" + in_accel_opt + " "
         "-i " + bup + " "
-        "-c:v libx265 "
-        # Quality
-        "-crf 28 "
+        "-c:v " + video_codec + " "
+        "" + quality_opt + " "
         "-c:a aac "
         "-b:a 128k "
         "" + dest + ""
