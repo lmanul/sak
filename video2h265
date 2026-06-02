@@ -6,6 +6,9 @@ import sys
 def main(arg):
     bup = arg + ".bup"
     os.system("mv " + arg + " " + bup)
+    dest = arg
+    if dest.endswith(".avi"):
+        dest = arg.replace(".avi", ".mp4")
     cmd = (
         "ffmpeg "
         "-i " + bup + " "
@@ -14,7 +17,7 @@ def main(arg):
         "-crf 28 "
         "-c:a aac "
         "-b:a 128k "
-        "" + arg + ""
+        "" + dest + ""
     )
     os.system(cmd)
 
