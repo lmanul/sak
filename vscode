@@ -13,6 +13,8 @@ def main():
         # args.append("--ozone-platform-hint=auto")
         args.append("--ozone-platform=wayland")
         args.append("--disable-gpu")
+    else:
+        args.append("--ozone-platform=x11")
 
     cmd = "/usr/bin/code " + " ".join(args)
     os.system(cmd)
