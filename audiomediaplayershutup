@@ -32,7 +32,7 @@ def increase_timeout_target(seconds_increment):
 
 def main(seconds):
     if not audio.media_player_is_muted():
-        os.system("audiomediaplayertogglemute")
+        os.system("~/repos/sak/audiomediaplayertogglemute")
     increase_timeout_target(seconds)
 
     time.sleep(seconds)
@@ -44,7 +44,7 @@ def main(seconds):
         if int(time.time()) >= current_timeout_target:
             print("Elapsed, un-muting if necessary")
             if audio.media_player_is_muted():
-                os.system("audiomediaplayertogglemute")
+                os.system("~/repos/sak/audiomediaplayertogglemute")
             os.system("rm -f " + TMP_FILE)
             break
         else:

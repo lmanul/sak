@@ -32,11 +32,11 @@ def seconds_to_ffmpeg_time(seconds: float) -> str:
 
 def media_player_is_muted():
     current_vol = subprocess.check_output(
-         ["playerctl", "--player=vlc", "volume"]).decode().strip()
+         ["playerctl", "volume"]).decode().strip()
     return current_vol.startswith("0.0")
 
 def media_player_set_muted(muted):
-    os.system("playerctl --player=vlc volume " + ("0.0" if muted else "1.0"))
+    os.system("playerctl volume " + ("0.0" if muted else "1.0"))
 
 def get_file_duration_seconds(f):
     return float(subprocess.check_output(shlex.split(
