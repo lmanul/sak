@@ -16,7 +16,7 @@ def main(up_or_down):
     icon = "🔊" if up_or_down == "u" else "🔉"
     message = (
         # "" + icon + ""
-        "" + (level_out_of_twenty * "▮") + ((20 - level_out_of_twenty) * "▯") + ""
+        "" + (level_out_of_twenty * "●") + ((20 - level_out_of_twenty) * "○") + ""
     )
     if up_or_down == "u":
         icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "icons", "audio-volume-high.svg")
