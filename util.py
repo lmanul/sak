@@ -460,12 +460,14 @@ def make_time_graph(values, out_file, names=[], minimum=None, maximum=None):
 
     colors = [
         "#8c00e2",  # purple
+        "#43e4ff",  # light sky blue
         "#1981d4",  # dark sky blue
         "#007806",  # dark deep green
         "#8fba00",  # dark apple green
         "#f2ee00",  # darkish yellow
         "#ea8500",  # orange
         "#e32d14",  # red
+        "#851000",  # dark red
         "#ff72db",  # pink
         "#00d69e",  # turquoise
         "#1618db",  # dark army blue
