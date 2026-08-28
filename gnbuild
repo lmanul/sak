@@ -23,6 +23,7 @@ def build(proj, setup_flags):
 def build_babl_gegl(proj):
     util.ensure_installed([
         "libjson-glib-dev",
+        "libjpeg-turbo8-dev",
     ])
     setup_flags = [
         "--prefix=" + gnome.JHBUILD_INSTALL_DIR,
@@ -84,6 +85,8 @@ def main():
 
     if proj == "gtk":
         build_gtk()
+    elif proj in ["babl", "gegl"]:
+        build_babl_gegl(proj)
     else:
         build(proj, setup_flags)
 
