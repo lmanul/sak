@@ -4,8 +4,7 @@ import os
 
 def main():
     # Sigh
-    # Removing for now, relying on apparmor having been uninstalled
-    # os.system("sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0")
+    os.system("sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0")
 
     args = []
     if os.environ["DESKTOP_SESSION"] in ["hyprland"]:
