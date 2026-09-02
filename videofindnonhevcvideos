@@ -1,0 +1,29 @@
+#!/usr/bin/python
+
+import os
+import subprocess
+
+
+def main():
+    vids = []
+    for root, _, files in os.walk("."):
+        for f in files:
+            if f.endswith((".mp4", ".avi")):
+                vids.append(os.path.join(root, f))
+    hevc = 0
+    for v in vids:
+        out = subprocess.check_output(["videoinfo", v]).decode()
+        if "h264" in out:
+            print(v + ": h264")
+        elif "FMP4" in out:
+            print(v + ": fmp4")
+        elif "XVID" in out:
+            print(v + ": xvid")
+        elif "hevc" in out:
+            hevc += 1
+        else:
+            print("Not sure: " + out)
+    print("HEVC: " + str(hevc))
+
+if __name__ == "__main__":
+    main()
