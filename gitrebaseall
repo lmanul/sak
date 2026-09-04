@@ -20,6 +20,9 @@ if __name__ == "__main__":
     for branch in branches:
         if branch == main_branch:
             continue
+        if branch.startswith("+"):
+            # Ignore worktrees for now
+            continue
         print("Branch \u001b[32m" + branch + "\u001b[0m " + "...")
         result = os.system("git checkout " + branch)
         if result != 0:

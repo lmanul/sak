@@ -2,6 +2,30 @@
 
 import os
 import subprocess
+from multiprocessing import Pool
+
+
+def human_size(size):
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if size < 1024:
+            return f"{size:.1f}{unit}"
+        size /= 1024
+    return f"{size:.1f}PB"
+
+
+def check_video(v):
+    size = os.path.getsize(v)
+    out = subprocess.check_output(["videoinfo", v]).decode()
+    if "h264" in out:
+        return (v, size, v + ": h264", False)
+    elif "FMP4" in out:
+        return (v, size, v + ": fmp4", False)
+    elif "XVID" in out:
+        return (v, size, v + ": xvid", False)
+    elif "hevc" in out:
+        return (v, size, None, True)
+    else:
+        return (v, size, "Not sure: " + out, False)
 
 
 def main():
@@ -10,19 +34,21 @@ def main():
         for f in files:
             if f.endswith((".mp4", ".avi")):
                 vids.append(os.path.join(root, f))
+
+    with Pool() as pool:
+        results = pool.map(check_video, vids)
+
     hevc = 0
-    for v in vids:
-        out = subprocess.check_output(["videoinfo", v]).decode()
-        if "h264" in out:
-            print(v + ": h264")
-        elif "FMP4" in out:
-            print(v + ": fmp4")
-        elif "XVID" in out:
-            print(v + ": xvid")
-        elif "hevc" in out:
+    lines = []
+    for _, size, message, is_hevc in results:
+        if is_hevc:
             hevc += 1
         else:
-            print("Not sure: " + out)
+            lines.append((size, message))
+
+    lines.sort(key=lambda x: x[0])
+    for size, line in lines:
+        print(f"[{human_size(size)}] {line}")
     print("HEVC: " + str(hevc))
 
 if __name__ == "__main__":
