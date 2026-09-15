@@ -1,12 +1,17 @@
 #!/usr/bin/python3
 
+import json
 import multiprocessing
 import os
 import re
 import subprocess
+import numpy as np
 import util
 
 DEBUG = True
+
+# When False, sets of near-identical episodes are only printed out.
+ACTUALLY_DELETE_DUPES = False
 
 HOME = os.path.expanduser("~")
 
@@ -17,12 +22,29 @@ FOLDERS = []
 for f in FOLDERS_RAW:
     FOLDERS.append(f[:-1] if f.endswith("/") else f)
 DATE_PATTERN = r"^\d\d\d\d\-\d\d\-\d\d"
+AUDIO_EXTENSIONS = (".mp3", ".m4a")
+
+def is_audio_file(f):
+    return f.lower().endswith(AUDIO_EXTENSIONS)
 
 TAGS_DB = {}
 SEEN_DURATIONS = []
 SEEN_FP = []
 FNULL = open(os.devnull, "w")
 OVERRIDE_DATES_CURRENTLY_IN_FILENAME = True
+
+# Audio de-duping parameters. Fingerprints are chromaprint frames (~8 per second).
+# Two episodes are duplicates when most of the shorter one is found in the longer
+# one, and the longer one is not mostly made of other content (ads, silence...).
+DUPE_MIN_SHORTER_COVERAGE = 0.8
+DUPE_MIN_LONGER_COVERAGE = 0.5
+# Frames match when fewer than this fraction of their 32 bits differ (on average
+# over a sliding window). Unrelated audio sits around 0.5.
+FP_MAX_BIT_ERROR = 0.25
+FP_WINDOW_FRAMES = 16
+# Ads inserted in the middle shift alignment, so try several offsets.
+FP_CANDIDATE_OFFSETS = 10
+FP_HASH_SHIFT = 12
 
 def podcast_hash(the_file):
     return subprocess.check_output(["md5sum", the_file]).decode().split(" ")[0]
@@ -67,10 +89,29 @@ def get_tag_from_cache(fp, tag):
             return TAGS_DB[fp][tag]
     return None
 
+def process_ffprobe_tags(fp, e):
+    # id3v2/eyeD3 don't understand m4a's atom-based metadata; ffprobe does,
+    # and exposes it under generic lowercase keys (title, artist, date...)
+    # which happen to line up with the eyeD3 fallback keys used elsewhere.
+    if fp not in TAGS_DB:
+        TAGS_DB[fp] = {}
+    try:
+        raw = subprocess.check_output(
+            ["ffprobe", "-v", "error", "-show_entries", "format_tags",
+             "-of", "json", e], stderr=FNULL).decode()
+        tags = json.loads(raw).get("format", {}).get("tags", {})
+    except (subprocess.CalledProcessError, json.JSONDecodeError):
+        return
+    for (tag, value) in tags.items():
+        TAGS_DB[fp][tag.lower()] = value.strip() if isinstance(value, str) else value
+
 def get_tag(e, tag):
     fp = podcast_hash(e)
     # Assume we've retrieved all the tags at once
     if fp in TAGS_DB:
+        return get_tag_from_cache(fp, tag)
+    if e.lower().endswith(".m4a"):
+        process_ffprobe_tags(fp, e)
         return get_tag_from_cache(fp, tag)
     try:
 	      data = subprocess.check_output(["id3v2", "-l", e]).decode().strip()
@@ -110,6 +151,15 @@ def harvest_date_from_tag(t):
             return harvest_date_from_tag(t.split(" ")[0])
     return None
 
+def harvest_date_from_filename(e):
+    # Some feeds (e.g. Radio France m4a downloads) carry no date tag at all,
+    # but embed one as DD.MM.YYYY in the original filename.
+    m = re.search(r"(\d\d)\.(\d\d)\.(20\d\d)", os.path.basename(e))
+    if m:
+        (day, month, year) = m.groups()
+        return "-".join([year, month, day])
+    return None
+
 def get_date(e):
     y = get_tag(e, "TYER")
     d = get_tag(e, "TDAT")
@@ -124,13 +174,16 @@ def get_date(e):
         m = d[2:]
         d = d[:2]
         return "-".join([y, m, d])
-    for t in ["recording date", "release date", "TDAT"]:
+    for t in ["recording date", "release date", "TDAT", "date"]:
         candidate = get_tag(e, t)
         if candidate:
             candidate = candidate.strip()
             if len(candidate) == 4:
                 # We just have a year
                 return candidate + "-01-01"
+            if re.match(DATE_PATTERN, candidate) is not None:
+                # Already in YYYY-MM-DD form, e.g. ffprobe's "date" tag.
+                return candidate[:10]
             dateparts = candidate.split("-")
             if len(dateparts) != 3:
                 return None
@@ -140,17 +193,19 @@ def get_date(e):
                 return date
     # except UnicodeDecodeError:
         # noop = "hop"
-    return None
+    return harvest_date_from_filename(e)
 
 def get_duration(e):
-    duration = "unknown"
+    # ffprobe reads both mp3 and m4a, unlike mp3info which is mp3-only.
     try:
-        duration = subprocess.check_output(["mp3info", "-p", "'%m:%s\n'", e]).decode()
-        duration = duration.replace("'", "").replace(":", "m").strip()
-        duration = [d.zfill(2) for d in duration.split("m")]
-    except subprocess.CalledProcessError:
+        raw = subprocess.check_output(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+             "-of", "csv=p=0", e], stderr=FNULL).decode().strip()
+        total_seconds = int(float(raw))
+    except (subprocess.CalledProcessError, ValueError):
         print("Couldn't get duration for " + e)
-    return "m".join(duration)
+        return "unknown"
+    return "%02dm%02d" % (total_seconds // 60, total_seconds % 60)
 
 def process_one_episode(e):
     if DEBUG:
@@ -181,7 +236,8 @@ def process_one_episode(e):
         parts = [date_prefix]
     parts.append(title)
     parts.append(duration)
-    final_name = "_".join(parts) + ".mp3"
+    ext = os.path.splitext(e)[1].lower()
+    final_name = "_".join(parts) + ext
     final_name = util.sanitize_for_filename(final_name)
     if e != final_name:
         cmd = "mv '" + e + "' '" + final_name + "'"
@@ -194,7 +250,7 @@ def keep_only_latest_episode_in_folder_matching_name(name):
     for f in FOLDERS:
         if name.lower() in f.lower():
             os.chdir(f)
-            episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
+            episodes = sorted([f for f in os.listdir() if is_audio_file(f)])
             if len(episodes) > 1:
                 cmd = "rm " + " ".join(["'" + e + "'" for e in episodes[:-1]])
                 os.system(cmd)
@@ -217,12 +273,119 @@ def static_file_rename_and_cleanup():
     os.system("sed -i '/>>>/d' done")
     os.system("sed -i '/===/d' done")
 
+def get_audio_fingerprint(the_file):
+    try:
+        raw = subprocess.check_output(
+            ["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", the_file, "-vn",
+             "-f", "chromaprint", "-fp_format", "raw", "-"],
+            stderr=FNULL)
+    except subprocess.CalledProcessError:
+        return None
+    fp = np.frombuffer(raw, dtype="<u4")
+    if len(fp) < FP_WINDOW_FRAMES:
+        return None
+    return fp
+
+def candidate_offsets(short, long):
+    # Offsets (position in long - position in short) at which many frames share
+    # the same top bits.
+    long_keys = long >> FP_HASH_SHIFT
+    order = np.argsort(long_keys, kind="stable")
+    sorted_keys = long_keys[order]
+    short_keys = short >> FP_HASH_SHIFT
+    lo = np.searchsorted(sorted_keys, short_keys, side="left")
+    counts = np.searchsorted(sorted_keys, short_keys, side="right") - lo
+    # Very common values (silence, mostly) match everywhere, ignore them.
+    idx = np.nonzero((counts > 0) & (counts <= 8))[0]
+    if len(idx) == 0:
+        return []
+    c = counts[idx]
+    within = np.arange(c.sum()) - np.repeat(np.cumsum(c) - c, c)
+    long_pos = order[np.repeat(lo[idx], c) + within]
+    offsets = long_pos - np.repeat(idx, c)
+    histogram = np.bincount(offsets + len(short))
+    result = []
+    for o in np.argsort(histogram)[::-1]:
+        if histogram[o] < 2 or len(result) >= FP_CANDIDATE_OFFSETS:
+            break
+        o = int(o) - len(short)
+        if all(abs(o - r) > 2 for r in result):
+            result.append(o)
+    return result
+
+def fingerprint_coverage(a, b):
+    # Returns (fraction of shorter matched in longer, fraction of longer matched)
+    (short, long) = (a, b) if len(a) <= len(b) else (b, a)
+    offsets = candidate_offsets(short, long)
+    if not offsets:
+        return (0.0, 0.0)
+    window = np.ones(FP_WINDOW_FRAMES) / FP_WINDOW_FRAMES
+    errors = np.full((len(offsets), len(short)), 1.0)
+    for (i, o) in enumerate(offsets):
+        start = max(0, -o)
+        end = min(len(short), len(long) - o)
+        if end <= start:
+            continue
+        bits = np.full(len(short), 32.0)
+        bits[start:end] = np.bitwise_count(short[start:end] ^ long[start + o:end + o])
+        errors[i] = np.convolve(bits / 32, window, mode="same")
+    best = np.argmin(errors, axis=0)
+    matched = np.nonzero(errors[best, np.arange(len(short))] <= FP_MAX_BIT_ERROR)[0]
+    long_positions = np.unique(matched + np.array(offsets)[best[matched]])
+    return (len(matched) / len(short), len(long_positions) / len(long))
+
+def find_duplicate_episodes(folder):
+    files = sorted([
+        os.path.join(folder, f) for f in os.listdir(folder)
+        if not f.startswith(".") and os.path.isfile(os.path.join(folder, f))])
+    if len(files) < 2:
+        return []
+    with multiprocessing.Pool(max(1, multiprocessing.cpu_count() // 2)) as pool:
+        fingerprints = pool.map(get_audio_fingerprint, files)
+    episodes = [(f, fp) for (f, fp) in zip(files, fingerprints) if fp is not None]
+    # Union-find over pairs of duplicates
+    parent = list(range(len(episodes)))
+    def root(i):
+        while parent[i] != i:
+            i = parent[i]
+        return i
+    for i in range(len(episodes)):
+        for j in range(i + 1, len(episodes)):
+            (fp1, fp2) = (episodes[i][1], episodes[j][1])
+            # Cheap filter: can't satisfy both coverage thresholds
+            if min(len(fp1), len(fp2)) * DUPE_MIN_SHORTER_COVERAGE < \
+                    max(len(fp1), len(fp2)) * DUPE_MIN_LONGER_COVERAGE:
+                continue
+            (shorter_cov, longer_cov) = fingerprint_coverage(fp1, fp2)
+            if DEBUG and shorter_cov > 0.2:
+                print("  %.2f / %.2f  %s  %s" % (
+                    shorter_cov, longer_cov,
+                    os.path.basename(episodes[i][0]), os.path.basename(episodes[j][0])))
+            if shorter_cov >= DUPE_MIN_SHORTER_COVERAGE and longer_cov >= DUPE_MIN_LONGER_COVERAGE:
+                parent[root(j)] = root(i)
+    groups = {}
+    for i in range(len(episodes)):
+        groups.setdefault(root(i), []).append(episodes[i])
+    # Longest first: that's the one we keep
+    return [sorted(g, key=lambda e: -len(e[1])) for g in groups.values() if len(g) > 1]
+
+def dedupe_episodes(folder):
+    for group in find_duplicate_episodes(folder):
+        print("Duplicate episodes in " + folder + ":")
+        for (i, (f, fp)) in enumerate(group):
+            seconds = int(len(fp) * 0.1238)  # chromaprint frame duration
+            print("  %s %dm%02ds  %s" % (
+                "keep  " if i == 0 else "delete", seconds // 60, seconds % 60,
+                os.path.basename(f)))
+            if i > 0 and ACTUALLY_DELETE_DUPES:
+                os.remove(f)
+
 def remove_empty_folders():
     for f in FOLDERS:
         if not os.path.exists(f):
             continue
         os.chdir(f)
-        episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
+        episodes = sorted([f for f in os.listdir() if is_audio_file(f)])
         os.chdir("..")
         if len(episodes) == 0:
             os.system("rmdir '" + f + "'")
@@ -246,13 +409,14 @@ if __name__ == "__main__":
             continue
         print(f + "...")
         os.chdir(f)
-        episodes = sorted([f for f in os.listdir() if f.endswith(".mp3")])
+        episodes = sorted([f for f in os.listdir() if is_audio_file(f)])
         n_threads = multiprocessing.cpu_count() - 1
         pool = multiprocessing.Pool(n_threads)
         results = pool.map(process_one_episode, episodes)
         pool.close()
         pool.join()
         os.chdir("..")
+        dedupe_episodes(f)
 
     if not SINGLE_FOLDER:
         # Call 'keep_only_latest_episode_in_folder_matching_name' here if needed
