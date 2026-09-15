@@ -450,13 +450,7 @@ def color(text, color_name):
 # |values| is a list of series. A series is a list of points. A point is a
 # [date, value] pair. A date is formatted as YYYY.MM.DD.
 def make_time_graph(values, out_file, names=[], minimum=None, maximum=None):
-    import leather
-    leather.theme.legend_font_family = 'Roboto'
-    leather.theme.legend_font_size = '12'
-    leather.theme.legend_color = '#999999'
-    leather.theme.tick_font_family = 'Roboto'
-    leather.theme.tick_font_size = '12'
-    leather.theme.tick_color = '#aaa'
+    import plotly.graph_objects as go
 
     colors = [
         "#8c00e2",  # purple
@@ -480,39 +474,84 @@ def make_time_graph(values, out_file, names=[], minimum=None, maximum=None):
                 " series but " + str(len(names)) + " names. Aborting."
             )
             return
-    # Find the earliest and latest dates in all series.
-    first_date_string = values[0][0][0]
-    last_date_string = values[0][-1][0]
-    for series in values:
-        for point in series:
-            if point[0] < first_date_string:
-                first_date_string = point[0]
-            if point[0] > last_date_string:
-                last_date_string = point[0]
-    first_date_parts = [int(v) for v in first_date_string.split("-")]
-    last_date_parts = [int(v) for v in last_date_string.split("-")]
-    first_date = datetime.combine(date(*first_date_parts), datetime.min.time())
-    last_date = datetime.combine(date(*last_date_parts), datetime.min.time())
-    chart = leather.Chart("")
-    chart.add_x_scale(first_date, last_date)
-    if minimum is not None and maximum is not None:
-      chart.add_y_scale(minimum, maximum)
+    fig = go.Figure()
+    all_dates = []
+    all_y_values = []
     for i in range(len(values)):
         name = names[i] if len(names) > i else ""
-        series = []
+        dates = []
+        y_values = []
         for point in values[i]:
             date_parts = [int(p) for p in point[0].split("-")]
-            d = datetime.combine(date(*date_parts), datetime.min.time())
-            value = float(point[1])
-            series.append([d, value])
-        chart.add_line(
-            series, name=name, width=0.75, stroke_color=colors[i % len(colors)]
-        )
-    chart.to_svg("temp.svg")
-    if out_file.endswith(".svg"):
-        os.system("mv temp.svg " + out_file)
-    elif out_file.endswith(".png"):
-        os.system("convert -density 800 temp.svg " + out_file)
-        os.system("rm temp.svg")
+            dates.append(datetime.combine(date(*date_parts), datetime.min.time()))
+            y_values.append(float(point[1]))
+        fig.add_trace(go.Scatter(
+            x=dates,
+            y=y_values,
+            mode="lines",
+            name=name,
+            line={"width": 1, "color": colors[i % len(colors)]},
+        ))
+        all_dates.extend(dates)
+        all_y_values.extend(y_values)
+
+    # Derive the y-axis range from the data itself (padded a bit) rather than
+    # hard-coded limits. minimum/maximum, when given, only widen that range
+    # (never clip it) so lines never get cut off.
+    data_min = min(all_y_values)
+    data_max = max(all_y_values)
+    if minimum is not None:
+        data_min = min(data_min, minimum)
+    if maximum is not None:
+        data_max = max(data_max, maximum)
+    y_padding = (data_max - data_min) * 0.05 or 1
+    y_range = [data_min - y_padding, data_max + y_padding]
+
+    # Size the figure from the date span covered by the data, instead of a
+    # fixed size: more days means a wider chart, up to a sane cap.
+    span_days = (max(all_dates) - min(all_dates)).days + 1
+    width = max(600, min(1800, 300 + span_days * 15))
+    height = max(400, min(900, int(width * 0.55)))
+    # Scale the font with the figure size (9pt was tuned for a 1000px-wide
+    # chart), so a wide chart doesn't end up with illegibly small labels.
+    font_size = max(8, min(16, round(9 * width / 1000)))
+    margin = {
+        "l": round(40 * font_size / 9),
+        "r": 10,
+        "t": 10,
+        "b": round(30 * font_size / 9),
+    }
+    plot_width = width - margin["l"] - margin["r"]
+    plot_height = height - margin["t"] - margin["b"]
+    # Aim for roughly one tick label per this many pixels, so tick density
+    # scales with the chart's actual size instead of a fixed count.
+    px_per_x_tick = 90
+    px_per_y_tick = 40
+    x_nticks = max(plot_width // px_per_x_tick, 3)
+    y_nticks = max(plot_height // px_per_y_tick, 3)
+    # If the pixel-derived tick budget would average out to more than a year
+    # per tick, Plotly's "nice" auto-spacing can jump to multi-year ticks.
+    # Force yearly ticks in that case so there's always at least one per year.
+    xaxis = {"tickfont": {"color": "#aaa"}}
+    if span_days > 365 * x_nticks:
+        xaxis["dtick"] = "M12"
+    else:
+        xaxis["nticks"] = x_nticks
+    fig.update_layout(
+        template="plotly_white",
+        width=width,
+        height=height,
+        font={"family": "Roboto", "size": font_size, "color": "#999999"},
+        legend={"font": {"color": "#999999"}},
+        margin=margin,
+        xaxis=xaxis,
+        yaxis={
+            "tickfont": {"color": "#aaa"},
+            "nticks": y_nticks,
+            "range": y_range,
+        },
+    )
+    if out_file.endswith((".svg", ".png")):
+        fig.write_image(out_file, scale=2)
     else:
         print("Sorry, I don't recognize the extension for '" + out_file + "'")
