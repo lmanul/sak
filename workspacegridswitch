@@ -8,7 +8,7 @@ import windowmanager
 
 from virtualdesktops import ARABIC, ROMAN, CHINESE, DEVANAGARI, THAI
 
-DEBUG = True
+DEBUG = False
 NOTIF_ID = 9273
 
 N_ROWS = 3
