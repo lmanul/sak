@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+
+import sys
+import video
+
+def describe(number, track):
+    name = " (" + track["name"] + ")" if "name" in track else ""
+    return "  %d: %s%s" % (number, track["language"], name)
+
+def print_tracks(tracks):
+    print("Subtitle tracks in this file:")
+    for number in sorted(tracks):
+        print(describe(number, tracks[number]))
+
+def pick_track(tracks, language):
+    matches = {n: t for n, t in tracks.items() if t["language"] == language}
+    if len(matches) == 1:
+        return next(iter(matches))
+    print("Several '" + language + "' subtitle tracks to choose from:")
+    for number in sorted(matches):
+        print(describe(number, matches[number]))
+    while True:
+        answer = input("Which one do you want for '" + language + "'? ")
+        if answer.strip().isdigit() and int(answer) in matches:
+            return int(answer)
+        print("Please pick one of: " + ", ".join(str(n) for n in sorted(matches)))
+
+def main():
+    if len(sys.argv) != 4:
+        print("Usage: videomkdualsub <video.mkv> <top language> <bottom language>")
+        return
+    mkv, top_lang, bottom_lang = sys.argv[1:4]
+    if not mkv.endswith(".mkv"):
+        print("I only deal with MKV files for now, sorry.")
+        return
+
+    tracks = video.get_mkv_subtitle_tracks(mkv)
+    languages = [t["language"] for t in tracks.values()]
+    missing = [l for l in (top_lang, bottom_lang) if l not in languages]
+    if missing:
+        print("No subtitle track for: " + ", ".join(missing))
+        print_tracks(tracks)
+        return
+
+    top = tracks[pick_track(tracks, top_lang)]
+    bottom = tracks[pick_track(tracks, bottom_lang)]
+
+    cues = video.merge_srt_cues(
+        video.parse_srt(video.extract_subtitle_track_as_srt(mkv, top["id"])),
+        video.parse_srt(video.extract_subtitle_track_as_srt(mkv, bottom["id"])))
+
+    out = mkv[:-len(".mkv")] + "." + top_lang + "-" + bottom_lang + ".srt"
+    with open(out, "w", encoding="utf-8") as f:
+        f.write(video.format_srt(cues))
+    print("Wrote " + str(len(cues)) + " cues to " + out)
+
+if __name__ == "__main__":
+    main()
