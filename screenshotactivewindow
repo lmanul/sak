@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import os
+
+def main():
+    if os.getenv("XDG_SESSION_TYPE") == "wayland":
+        os.system("sleep 3; grim -g \"$(hyprctl activewindow -j | jq -r '\"\\(.at[0]),\\(.at[1]) \\(.size[0])x\\(.size[1])\"')\" \"screenshot-$(date +%Y%m%d-%H%M%S).png\"")
+    else:
+        os.system("scrot -u -d 3")
+
+if __name__ == "__main__":
+    main()
