@@ -52,6 +52,9 @@ def main():
         util.ensure_installed([
             "libxfce4ui-2-dev",
         ])
+        # Also:
+        # export PKG_CONFIG_PATH="/home/manucornet/.local/xfce-git/lib/x86_64-linux-gnu/pkgconfig:/home/manucornet/.local/xfce-git/share/pkgconfig:$PKG_CONFIG_PATH"
+        # LD_LIBRARY_PATH="/home/manucornet/.local/xfce-git/lib/x86_64-linux-gnu" XDG_DATA_DIRS="/home/manucornet/.local/xfce-git/share:${XDG_DATA_DIRS:-/usr/share}"
     elif proj == "gimp":
         os.system("git submodule update --init")
         os.chdir("../babl")
