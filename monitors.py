@@ -141,27 +141,41 @@ class Monitor:
         freq = self.get_max_resolution()
         return str(freq.width) + "x" + str(freq.height)
 
-    def to_xrandr_arg(self):
+    # Size of the monitor in the global layout, taking rotation and scale into
+    # account. xrandr's scale multiplies the framebuffer size, while
+    # wlr-randr's scale divides it.
+    def get_layout_size(self, wayland=False):
+        res = self.get_max_resolution()
+        (w, h) = (res.width, res.height)
+        if self.rotation in (MonitorRotation.LEFT, MonitorRotation.RIGHT):
+            (w, h) = (h, w)
+        if wayland:
+            return (round(w / self.scale), round(h / self.scale))
+        return (round(w * self.scale), round(h * self.scale))
+
+    def to_xrandr_arg(self, pos=(0, 0)):
         if self.force_off:
             return "--output " + self.input_id + " --off"
-        return " ".join([
+        return " ".join(filter(None, [
             "--output " + self.input_id,
             "--mode " + str(self.get_max_resolution_str_no_frequency()),
             "--scale " + str(self.scale) + "x" + str(self.scale),
             "--rotate " + self.rotation.to_xrandr(),
+            "--pos " + str(pos[0]) + "x" + str(pos[1]),
             "--primary" if self.primary else "",
-        ])
+        ]))
 
-    def to_wlrrandr_arg(self):
+    def to_wlrrandr_arg(self, pos=(0, 0)):
         if self.force_off:
             return "--output " + self.input_id + " --off"
-        return " ".join([
+        return " ".join(filter(None, [
             "--output " + self.input_id,
             "--mode " + self.get_max_resolution_str_no_frequency(),
             "--scale " + str(self.scale),
             "--transform " + str(self.rotation) if self.rotation != 0 else "",
+            "--pos " + str(pos[0]) + "," + str(pos[1]),
             # TODO: what is the equivalent of "primary"?
-        ])
+        ]))
 
     def __str__(self):
         connected = "connected" if self.connected else "disconnected"
@@ -198,6 +212,21 @@ class Monitor:
             connected=(conn == "c")
         )
 
+
+# Lays out active monitors horizontally from left to right, vertically centered
+# so that a horizontal line through the middle crosses the center of every
+# monitor. Returns a list of (monitor, (x, y)) tuples.
+def get_centered_layout(monitors, wayland=False):
+    active = [m for m in monitors
+              if m.connected and not m.force_off and m.get_max_resolution()]
+    sizes = [m.get_layout_size(wayland) for m in active]
+    max_height = max([h for (_, h) in sizes], default=0)
+    layout = []
+    x = 0
+    for (m, (w, h)) in zip(active, sizes):
+        layout.append((m, (x, (max_height - h) // 2)))
+        x += w
+    return layout
 
 def find_best_match_from_supported_resolutions(needle, haystack):
     best_match = None
