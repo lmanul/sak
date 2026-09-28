@@ -4,6 +4,7 @@ import os
 
 import gnome
 import util
+import sys
 
 def build_gtk():
     # Also needed: libgstreamer-plugins-bad1.0-dev
@@ -32,6 +33,15 @@ def build_babl_gegl(proj):
     ]
     build(proj, setup_flags)
 
+def clone_or_update(url):
+    os.chdir(os.path.expanduser("~") + "/repos/")
+    repo_name = url.split("/")[-1].split(".git")[0]
+    if os.path.exists(repo_name):
+        os.chdir(repo_name)
+        os.system("git pull")
+    else:
+        os.system("git clone '" + url + "'")
+
 def main():
     if not os.path.exists(gnome.JHBUILD_INSTALL_DIR):
         os.system("mkdir -p " + gnome.JHBUILD_INSTALL_DIR)
@@ -52,6 +62,17 @@ def main():
         util.ensure_installed([
             "libxfce4ui-2-dev",
         ])
+        deps = [
+          "xfce4-dev-tools",
+          "libxfce4util",
+          "xfconf",
+          "libxfce4ui",
+        ]
+        for d in deps:
+            clone_or_update("https://gitlab.xfce.org/xfce/" + d)
+            build(d, setup_flags)
+        print("In prog")
+        sys.exit(0)
         # Also:
         # export PKG_CONFIG_PATH="/home/manucornet/.local/xfce-git/lib/x86_64-linux-gnu/pkgconfig:/home/manucornet/.local/xfce-git/share/pkgconfig:$PKG_CONFIG_PATH"
         # LD_LIBRARY_PATH="/home/manucornet/.local/xfce-git/lib/x86_64-linux-gnu" XDG_DATA_DIRS="/home/manucornet/.local/xfce-git/share:${XDG_DATA_DIRS:-/usr/share}"
