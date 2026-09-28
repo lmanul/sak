@@ -12,8 +12,8 @@ def build_gtk():
     os.chdir(gnome.BUILD_DIR)
     os.system("ninja")
 
-def build(proj, setup_flags):
-    print("Building " + proj + "...")
+def build_with_meson(proj, setup_flags):
+    print("\n\nBuilding " + proj + "...")
     os.system(
         "meson setup " + gnome.BUILD_DIR + " --prefix=" + gnome.JHBUILD_INSTALL_DIR + " "
         "" + " ".join(setup_flags) + ""
@@ -31,16 +31,18 @@ def build_babl_gegl(proj):
         "--buildtype=release",
         "-Db_lto=true"
     ]
-    build(proj, setup_flags)
+    build_with_meson(proj, setup_flags)
 
 def clone_or_update(url):
     os.chdir(os.path.expanduser("~") + "/repos/")
     repo_name = url.split("/")[-1].split(".git")[0]
+    current_d = os.getcwd()
     if os.path.exists(repo_name):
         os.chdir(repo_name)
         os.system("git pull")
     else:
         os.system("git clone '" + url + "'")
+    os.chdir(current_d)
 
 def main():
     if not os.path.exists(gnome.JHBUILD_INSTALL_DIR):
@@ -61,21 +63,19 @@ def main():
     elif proj == "thunar":
         util.ensure_installed([
             "libxfce4ui-2-dev",
+            "xfce4-dev-tools",
+            "docbook-xsl",
+            "docbook-xml",
+            "xsltproc",
         ])
         deps = [
-          "xfce4-dev-tools",
-          "libxfce4util",
-          "xfconf",
-          "libxfce4ui",
+          #"libxfce4util",
+          #"libxfce4ui",
+          #"xfconf",
         ]
         for d in deps:
             clone_or_update("https://gitlab.xfce.org/xfce/" + d)
-            build(d, setup_flags)
-        print("In prog")
-        sys.exit(0)
-        # Also:
-        # export PKG_CONFIG_PATH="/home/manucornet/.local/xfce-git/lib/x86_64-linux-gnu/pkgconfig:/home/manucornet/.local/xfce-git/share/pkgconfig:$PKG_CONFIG_PATH"
-        # LD_LIBRARY_PATH="/home/manucornet/.local/xfce-git/lib/x86_64-linux-gnu" XDG_DATA_DIRS="/home/manucornet/.local/xfce-git/share:${XDG_DATA_DIRS:-/usr/share}"
+            build_with_meson(d, setup_flags)
     elif proj == "gimp":
         os.system("git submodule update --init")
         os.chdir("../babl")
@@ -112,7 +112,7 @@ def main():
     elif proj in ["babl", "gegl"]:
         build_babl_gegl(proj)
     else:
-        build(proj, setup_flags)
+        build_with_meson(proj, setup_flags)
 
 if __name__ == "__main__":
     main()
