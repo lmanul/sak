@@ -6,6 +6,7 @@ import monitors
 import util
 import virtualdesktops
 
+
 # Returns true if the XDG session desktop is as expected
 def check_desktop(expected):
     return os.getenv("XDG_SESSION_DESKTOP") == expected
