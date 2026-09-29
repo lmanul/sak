@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+
 import windowmanager
 
 HOME = os.path.expanduser("~")
@@ -12,17 +13,12 @@ def main(up_or_down):
     sign = "+" if up_or_down == "u" else "-"
     os.system("pactl -- set-sink-volume @DEFAULT_SINK@ " + sign + "5%")
     current = int(subprocess.check_output(["/home/manucornet/repos/sak/audiovolumeget"]).decode())
-    level_out_of_twenty = int(current / 5)
     icon = "🔊" if up_or_down == "u" else "🔉"
-    message = (
-        # "" + icon + ""
-        "" + (level_out_of_twenty * "●") + ((20 - level_out_of_twenty) * "○") + ""
-    )
     if up_or_down == "u":
         icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "icons", "audio-volume-high.svg")
     else:
         icon_path = os.path.join(os.path.expanduser("~"), "bus", "reference", "icons", "audio-volume-low.svg")
-    windowmanager.notify(message, icon_path, replace_id=NOTIF_ID)
+    windowmanager.notify("", icon_path, replace_id=NOTIF_ID, progress=current)
     os.system("/usr/bin/play -q " + HOME + "/bus/reference/sounds/water_droplet.mp3")
 
 

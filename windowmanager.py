@@ -96,12 +96,13 @@ def ensure_workspace(index, n_rows, n_cols):
         cmd = "hyprctl dispatch workspaceopt persistent"
         os.system(cmd)
 
-def notify(text, icon_path=None, replace_id=None):
+def notify(text, icon_path=None, replace_id=None, progress=None):
     time_ms = 500
     if is_bspwm() or is_hyprland():
         # Should work for both as long as "dunst" is running.
         icon_option = "" if icon_path is None else "--icon " + icon_path
         replace_option = "" if replace_id is None else "--replace-id=\"" + str(replace_id) + "\""
+        progress_option = "" if progress is None else f"--hint=int:value:{round(progress)}"
         # In BSPWM, the icon is enough, no need for text for now.
         cmd = (
             "notify-send "
@@ -109,7 +110,8 @@ def notify(text, icon_path=None, replace_id=None):
             f"--expire-time={time_ms} "
             f"'{text}' "
             f"{icon_option} "
-            f"{replace_option}"
+            f"{replace_option} "
+            f"{progress_option}"
         )
         os.system(cmd)
 
