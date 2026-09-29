@@ -70,12 +70,14 @@ def main():
         ])
         deps = [
           #"libxfce4util",
-          #"libxfce4ui",
+          "libxfce4ui",
           #"xfconf",
         ]
-        for d in deps:
-            clone_or_update("https://gitlab.xfce.org/xfce/" + d)
-            build_with_meson(d, setup_flags)
+        for dep in deps:
+            clone_or_update("https://gitlab.xfce.org/xfce/" + dep)
+            os.chdir(os.path.expanduser("~") + "/repos/" + dep)
+            build_with_meson(dep, setup_flags + ["-Dvala=disabled"])
+            os.chdir(d)
     elif proj == "gimp":
         os.system("git submodule update --init")
         os.chdir("../babl")
