@@ -10,11 +10,14 @@
   "author": "Manu Cornet",
   "license": "ISC",
   "dependencies": {
-    "puppeteer": "^23.0.1",
+    "puppeteer": "^25.12.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "devDependencies": {
     "eslint": "^9.8.0"
+  },
+  "allowScripts": {
+    "puppeteer@25.12.0": true
   }
 }
