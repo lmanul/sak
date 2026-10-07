@@ -94,8 +94,8 @@ def ensure_workspace(index, n_rows, n_cols):
         os.system(cmd)
         cmd = f"hyprctl dispatch renameworkspace {index} {name}"
         os.system(cmd)
-        cmd = "hyprctl dispatch workspaceopt persistent"
-        os.system(cmd)
+        # cmd = "hyprctl dispatch workspaceopt persistent"
+        # os.system(cmd)
 
 def notify(text, icon_path=None, replace_id=None, progress=None):
     time_ms = 500
