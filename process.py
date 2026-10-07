@@ -40,4 +40,6 @@ class Process:
         "Returns whether this process matches the given search query"
         if query in self.cmd:
             return True
+        if query in self.args:
+            return True
         return False
