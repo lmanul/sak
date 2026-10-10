@@ -3,9 +3,16 @@
 import sys
 import video
 
+def usable(track):
+    return track["text"] or track["codec"] == video.PGS_CODEC
+
 def describe(number, track):
     name = " (" + track["name"] + ")" if "name" in track else ""
-    return "  %d: %s%s" % (number, track["language"], name)
+    image = ""
+    if not track["text"]:
+        image = " [" + track["codec"] + ", " + (
+            "images, will go through OCR" if usable(track) else "images, can't read those") + "]"
+    return "  %d: %s%s%s" % (number, track["language"], name, image)
 
 def print_tracks(tracks):
     print("Subtitle tracks in this file:")
@@ -13,7 +20,8 @@ def print_tracks(tracks):
         print(describe(number, tracks[number]))
 
 def pick_track(tracks, language):
-    matches = {n: t for n, t in tracks.items() if t["language"] == language}
+    matches = {n: t for n, t in tracks.items()
+               if t["language"] == language and usable(t)}
     if len(matches) == 1:
         return next(iter(matches))
     print("Several '" + language + "' subtitle tracks to choose from:")
@@ -25,11 +33,24 @@ def pick_track(tracks, language):
             return int(answer)
         print("Please pick one of: " + ", ".join(str(n) for n in sorted(matches)))
 
+def read_cues(mkv, track, simplified):
+    if track["text"]:
+        cues = video.parse_srt(video.extract_subtitle_track_as_srt(mkv, track["id"]))
+    else:
+        print("Reading the '" + track["language"] + "' subtitles off their images...")
+        cues = video.ocr_pgs_subtitle_track(mkv, track["id"], track["language"])
+    if simplified and track["language"] in ("chi", "zho"):
+        cues = video.to_simplified_chinese(cues)
+    return cues
+
 def main():
-    if len(sys.argv) != 4:
-        print("Usage: videomkdualsub <video.mkv> <top language> <bottom language>")
+    args = [a for a in sys.argv[1:] if a != "--simplified"]
+    simplified = len(args) < len(sys.argv) - 1
+    if len(args) != 3:
+        print("Usage: videomkdualsub [--simplified] <video.mkv> <top language> <bottom language>")
+        print("  --simplified: convert Chinese subtitles to simplified characters")
         return
-    mkv, top_lang, bottom_lang = sys.argv[1:4]
+    mkv, top_lang, bottom_lang = args
     if not mkv.endswith(".mkv"):
         print("I only deal with MKV files for now, sorry.")
         return
@@ -41,13 +62,22 @@ def main():
         print("No subtitle track for: " + ", ".join(missing))
         print_tracks(tracks)
         return
+    usable_languages = [t["language"] for t in tracks.values() if usable(t)]
+    unusable = [l for l in (top_lang, bottom_lang) if l not in usable_languages]
+    if unusable:
+        print("Only image-based subtitle tracks I can't read for: " + ", ".join(unusable))
+        print_tracks(tracks)
+        return
 
     top = tracks[pick_track(tracks, top_lang)]
     bottom = tracks[pick_track(tracks, bottom_lang)]
 
-    cues = video.merge_srt_cues(
-        video.parse_srt(video.extract_subtitle_track_as_srt(mkv, top["id"])),
-        video.parse_srt(video.extract_subtitle_track_as_srt(mkv, bottom["id"])))
+    try:
+        cues = video.merge_srt_cues(read_cues(mkv, top, simplified),
+                                    read_cues(mkv, bottom, simplified))
+    except video.OcrError as e:
+        print(e)
+        return
 
     out = mkv[:-len(".mkv")] + "." + top_lang + "-" + bottom_lang + ".srt"
     with open(out, "w", encoding="utf-8") as f:
