@@ -6,6 +6,7 @@ import sys
 if __name__ == "__main__":
     movie = sys.argv[1]
     subs = sys.argv[2]
+    font_size = int(sys.argv[3]) if len(sys.argv) > 3 else 24
     dot_index = movie.rfind(".")
     out = movie[:dot_index] + "_burned" + movie[dot_index:]
     if out.endswith("mkv"):
@@ -15,7 +16,7 @@ if __name__ == "__main__":
 
     cmd = ("ffmpeg "
            "-i " + movie + " "
-           "-vf subtitles=" + subs + ":force_style='FontSize=24' "
+           "-vf subtitles=" + subs + ":force_style='FontSize=" + str(font_size) + "' "
            "" + out)
 
     # print(cmd)
