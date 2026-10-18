@@ -200,4 +200,14 @@ def focus_window_under_cursor():
         not (c["floating"] or c["pinned"]),
         c["focusHistoryID"],
     ))
-    os.system("hyprctl dispatch focuswindow address:" + top["address"])
+    # Focusing a window warps the cursor to it by default, which we don't want
+    # here, so temporarily disable warps.
+    no_warps = subprocess.check_output(
+        ["hyprctl", "getoption", "cursor:no_warps", "-j"])
+    no_warps = json.loads(no_warps)["int"]
+    batch = (
+        "keyword cursor:no_warps 1;"
+        f" dispatch focuswindow address:{top['address']};"
+        f" keyword cursor:no_warps {no_warps}"
+    )
+    subprocess.run(["hyprctl", "--batch", batch], stdout=subprocess.DEVNULL, check=False)
