@@ -1,3 +1,4 @@
+import json
 import os
 import shlex
 import subprocess
@@ -161,3 +162,42 @@ def move_mouse_to_center_of_monitor(monitor_id):
         subprocess.run(['xdotool', 'mousemove', str(center_x), str(center_y)])
     except subprocess.CalledProcessError as e:
         print("Error moving mouse:", e)
+
+def focus_window_under_cursor():
+    """Focus the window currently under the mouse pointer, if any."""
+    if not is_hyprland():
+        return
+
+    def hyprctl_json(what):
+        return json.loads(subprocess.check_output(["hyprctl", what, "-j"]))
+
+    cursor = hyprctl_json("cursorpos")
+    x, y = cursor["x"], cursor["y"]
+    # Only windows on workspaces that are currently shown can be under the cursor.
+    visible_ws_ids = set()
+    special_ws_ids = set()
+    for m in hyprctl_json("monitors"):
+        visible_ws_ids.add(m["activeWorkspace"]["id"])
+        if m["specialWorkspace"]["id"] != 0:
+            special_ws_ids.add(m["specialWorkspace"]["id"])
+    candidates = []
+    for c in hyprctl_json("clients"):
+        if not c["mapped"] or c["hidden"]:
+            continue
+        ws_id = c["workspace"]["id"]
+        if ws_id not in visible_ws_ids and ws_id not in special_ws_ids and not c["pinned"]:
+            continue
+        (cx, cy), (w, h) = c["at"], c["size"]
+        if cx <= x < cx + w and cy <= y < cy + h:
+            candidates.append(c)
+    if not candidates:
+        return
+    # Pick the topmost window: special workspace, then fullscreen, then
+    # floating/pinned, then tiled. Ties go to the most recently focused.
+    top = min(candidates, key=lambda c: (
+        c["workspace"]["id"] not in special_ws_ids,
+        not c["fullscreen"],
+        not (c["floating"] or c["pinned"]),
+        c["focusHistoryID"],
+    ))
+    os.system("hyprctl dispatch focuswindow address:" + top["address"])

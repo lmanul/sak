@@ -73,6 +73,8 @@ def switch(current, target):
         windowmanager.move_mouse_to_center_of_monitor(focused_monitor)
     except AttributeError:
         print("Failed to move mouse")
+    windowmanager.focus_window_under_cursor()
+    log_time(start, "Focused window under cursor")
     icon_filename = (
         "workspace_"
         "" + str(N_ROWS) + "x"
