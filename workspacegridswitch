@@ -2,11 +2,10 @@
 
 import os
 import sys
+
 import util
-
 import windowmanager
-
-from virtualdesktops import ARABIC, ROMAN, CHINESE, DEVANAGARI, THAI
+from virtualdesktops import ARABIC, CHINESE, DEVANAGARI, ROMAN, THAI
 
 DEBUG = False
 NOTIF_ID = 9273
