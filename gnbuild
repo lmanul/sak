@@ -21,6 +21,10 @@ def build_with_meson(proj, setup_flags):
     os.system("ninja -C " + gnome.BUILD_DIR)
     os.system("ninja -C " + gnome.BUILD_DIR + " install")
 
+def build_with_make(proj, setup_flags):
+    os.system("./autogen.sh")
+    os.system("make")
+
 def build_babl_gegl(proj):
     util.ensure_installed([
         "libjson-glib-dev",
@@ -78,6 +82,13 @@ def main():
             os.chdir(os.path.expanduser("~") + "/repos/" + dep)
             build_with_meson(dep, setup_flags + ["-Dvala=disabled"])
             os.chdir(d)
+    elif proj == "atril":
+        util.ensure_installed([
+            "libcaja-extension-dev",
+            "libgail-3-dev",
+            "libmate-desktop-dev",
+            "libsynctex-dev",
+        ])
     elif proj == "gimp":
         os.system("git submodule update --init")
         os.chdir("../babl")
@@ -113,6 +124,8 @@ def main():
         build_gtk()
     elif proj in ["babl", "gegl"]:
         build_babl_gegl(proj)
+    elif proj in ["atril"]:
+        build_with_make(proj, setup_flags)
     else:
         build_with_meson(proj, setup_flags)
 
