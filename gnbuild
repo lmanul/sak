@@ -125,7 +125,7 @@ def main():
     elif proj in ["babl", "gegl"]:
         build_babl_gegl(proj)
     elif proj in ["atril"]:
-        build_with_make(proj, setup_flags)
+        build_with_meson(proj, setup_flags)
     else:
         build_with_meson(proj, setup_flags)
 
