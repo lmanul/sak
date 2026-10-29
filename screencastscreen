@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+import windowmanager
+
+def main():
+    if windowmanager.is_hyprland():
+        os.system("wf-recorder -o \"$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')\"")
+
+if __name__ == "__main__":
+    main()

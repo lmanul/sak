@@ -1,0 +1,204 @@
+#!/usr/bin/python
+
+"""Merge overlapping scrolling screenshots into one tall image.
+
+Usage: vertical_montage IMAGE [IMAGE ...]   (at most 50, in scroll order)
+
+Persistent elements (status bar, sticky header, navigation bar) are detected
+as rows that stay identical from one screenshot to the next, and are dropped
+from every screenshot but the first (header) and the last (footer).
+"""
+
+import os
+import sys
+
+import numpy as np
+from PIL import Image
+
+MAX_IMAGES = 50
+PIXEL_TOLERANCE = 8  # max per-channel difference for two pixels to be "equal"
+ROW_MATCH_FRACTION = 0.85  # fraction of equal pixels for a row to be "equal"
+PERSISTENT_PAIR_FRACTION = 0.6  # fraction of pairs where a row must be equal
+DUPLICATE_FRACTION = 0.98  # fraction of equal rows for two shots to be dupes
+COARSE = 4  # downscale factor for the coarse search
+TIE_EPSILON = 1.0  # scores within this of the best prefer a larger overlap
+BAD_MATCH = 12.0  # mean abs difference above which the match is suspicious
+
+
+def load(path, width):
+    img = Image.open(path).convert('RGB')
+    if width is not None and img.width != width:
+        img = img.resize(
+            (width, round(img.height * width / img.width)), Image.LANCZOS)
+    return np.asarray(img)
+
+
+def gray(a):
+    return (a[..., 0] * 0.299 + a[..., 1] * 0.587 +
+            a[..., 2] * 0.114).astype(np.float32)
+
+
+def downscale(g, f):
+    h, w = (g.shape[0] // f) * f, (g.shape[1] // f) * f
+    return g[:h, :w].reshape(h // f, f, w // f, f).mean(axis=(1, 3))
+
+
+def equal_rows(a, b):
+    """Boolean per row: is row of `a` (mostly) identical to that of `b`?"""
+    h = min(a.shape[0], b.shape[0])
+    close = (np.abs(a[:h].astype(np.int16) - b[:h]).max(axis=2)
+             <= PIXEL_TOLERANCE)
+    return close.mean(axis=1) >= ROW_MATCH_FRACTION
+
+
+def persistent_bands(images):
+    """Return (header_height, footer_height) shared by the screenshots."""
+    height = min(i.shape[0] for i in images)
+    votes = np.zeros(height)
+    bvotes = np.zeros(height)
+    pairs = 0
+    for a, b in zip(images, images[1:]):
+        eq = equal_rows(a[:height], b[:height])
+        if eq.mean() >= DUPLICATE_FRACTION:
+            continue  # nothing scrolled: tells nothing about what is fixed
+        votes += eq
+        # Bottom-aligned too, in case the screenshots differ in height.
+        bvotes += equal_rows(a[-height:], b[-height:])
+        pairs += 1
+    if pairs == 0:
+        return 0, 0
+    top = votes / pairs >= PERSISTENT_PAIR_FRACTION
+    bottom = bvotes / pairs >= PERSISTENT_PAIR_FRACTION
+
+    header = footer = 0
+    while header < height and top[header]:
+        header += 1
+    while footer < height and bottom[height - 1 - footer]:
+        footer += 1
+    if header + footer >= height:
+        return 0, 0
+    return header, footer
+
+
+def mean_diff(a, b):
+    return float(np.abs(a - b).mean())
+
+
+def pick(scores):
+    """Pick the best offset, preferring large overlaps among near-ties."""
+    best = min(s for s, _ in scores)
+    near = [(t, s) for s, t in scores if s <= best + TIE_EPSILON]
+    return min(near, key=lambda ts: (ts[0], ts[1]))[0] if near else None
+
+
+def best_offset(tail, core):
+    """Row of `tail` where the top of `core` best lines up, and its score."""
+    hc = core.shape[0]
+    n = tail.shape[0]
+    tg, cg = gray(tail), gray(core)
+
+    # Coarse search.
+    tc, cc = downscale(tg, COARSE), downscale(cg, COARSE)
+    min_ov = max(6, cc.shape[0] // 40)
+    min_ov = min(min_ov, cc.shape[0], tc.shape[0])
+    scores = []
+    for t in range(0, tc.shape[0] - min_ov + 1):
+        ov = min(tc.shape[0] - t, cc.shape[0])
+        scores.append((mean_diff(tc[t:t + ov], cc[:ov]), t))
+    # Keep the few best coarse local minima: block averaging blurs the
+    # score, so the true offset need not be the lowest one.
+    candidates = []
+    for s, t in sorted(scores):
+        if all(abs(t - u) > 2 for u in candidates):
+            candidates.append(t)
+        if len(candidates) == 5:
+            break
+
+    # Fine search around each candidate.
+    scores = {}
+    for c in candidates:
+        for t in range(max(0, c * COARSE - COARSE),
+                       min(n - 1, c * COARSE + COARSE) + 1):
+            ov = min(n - t, hc)
+            if ov >= 1 and t not in scores:
+                scores[t] = mean_diff(tg[t:t + ov], cg[:ov])
+    best = pick([(s, t) for t, s in scores.items()])
+    return best, scores[best]
+
+
+def output_name(paths):
+    names = [os.path.basename(p) for p in paths]
+    stem = os.path.commonprefix(names)
+    ext = os.path.splitext(names[0])[1] or '.png'
+    # Do not keep a half-eaten extension of the common prefix.
+    if len(set(names)) == 1:
+        stem = os.path.splitext(stem)[0]
+    stem = stem.rstrip(' _-.')
+    name = (stem + '_' if stem else '') + 'vertical_montage' + ext
+    return os.path.join(os.path.dirname(os.path.abspath(paths[0])), name)
+
+
+def main(argv):
+    paths = argv[1:]
+    if not paths or len(paths) > MAX_IMAGES:
+        print(__doc__.strip().splitlines()[2], file=sys.stderr)
+        return 2
+
+    first = load(paths[0], None)
+    width = first.shape[1]
+    images = [first] + [load(p, width) for p in paths[1:]]
+
+    header, footer = persistent_bands(images) if len(images) > 1 else (0, 0)
+    print(f'persistent header: {header}px, footer: {footer}px',
+          file=sys.stderr)
+
+    strips = []  # non-overlapping pieces of the montage, top to bottom
+    total = 0
+
+    def tail_rows(count):
+        out, have = [], 0
+        for s in reversed(strips):
+            out.append(s)
+            have += s.shape[0]
+            if have >= count:
+                break
+        return np.concatenate(out[::-1])[-count:]
+
+    last = len(images) - 1
+    for i, img in enumerate(images):
+        h = img.shape[0]
+        top = 0 if i == 0 else header
+        bottom = h if i == last else h - footer
+        if i == 0:
+            strips.append(img[:bottom])
+            total = bottom
+            continue
+        core = img[header:h - footer]
+        tail = tail_rows(core.shape[0])
+        t, score = best_offset(tail, core)
+        if score > BAD_MATCH:
+            print(f'warning: {paths[i]}: poor match (diff {score:.1f}); '
+                  'appending without overlap', file=sys.stderr)
+            t = tail.shape[0]
+            start = total
+        else:
+            start = total - tail.shape[0] + t
+        # Rows of this screenshot (from `top`) that extend past the montage.
+        new_from = (total - start) + header
+        if new_from < bottom:
+            strips.append(img[max(new_from, top):bottom])
+            total += bottom - max(new_from, top)
+        print(f'{paths[i]}: offset {start} (diff {score:.2f})',
+              file=sys.stderr)
+
+    montage = Image.fromarray(np.concatenate(strips))
+    out = output_name(paths)
+    save_args = {'quality': 95} if out.lower().endswith(
+        ('.jpg', '.jpeg')) else {}
+    montage.save(out, **save_args)
+    print(out)
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
