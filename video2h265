@@ -13,6 +13,8 @@ def main(arg):
     dest = arg
     if dest.endswith(".avi"):
         dest = arg.replace(".avi", ".mp4")
+    if dest.endswith(".webm"):
+        dest = arg.replace(".webm", ".mp4")
     video_codec = "hevc_nvenc" if GPU_ACCEL_NV else "libx265"
     in_accel_opt = "-hwaccel cuda" if GPU_ACCEL_NV else ""
     quality_opt = "-preset p5" if GPU_ACCEL_NV else "-crf 28"
