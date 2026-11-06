@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+import windowmanager
+
+def main():
+    if os.getenv("XDG_SESSION_TYPE") == "wayland":
+        os.system("wf-recorder -g \"$(slurp)\"")
+
+if __name__ == "__main__":
+    main()
