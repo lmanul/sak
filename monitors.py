@@ -8,7 +8,7 @@ import util
 from enum import IntEnum
 
 MODE_LINE_X11_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+(.*)$')
-MODE_LINE_WAYLAND_PATTERN = re.compile(r'^\s+(\d+)x(\d+)\s+px,\s(\d+\.\d+)\sHz.*$')
+MODE_LINE_WAYLAND_PATTERN = re.compile(r'^(\d+)x(\d+)\s+px,\s(\d+\.\d+)\sHz.*$')
 SINGLE_RESOLUTION_PATTERN = re.compile(r'^(\d+)x(\d+)@(\d+)Hz$')
 
 SHM_DIR = "/dev/shm/monitors/"
@@ -183,6 +183,7 @@ class Monitor:
                 f"max={self.get_max_resolution()} | "
                 f"rotation={self.rotation} | "
                 f"primary={self.primary} | "
+                f"scale={self.scale} | "
                 f"{len(self.supported_resolutions)} supported res | "
                 "" + connected + "]"
                )
@@ -360,11 +361,10 @@ def get_monitors_wayland():
     current_model = "Monitor"
     current_is_disabled = False
     for line in randr_output.split("\n"):
-        resolution_matches = MODE_LINE_WAYLAND_PATTERN.match(line)
-
         if line.strip() == "":
             continue
-        elif not line.startswith("  "):
+
+        if not line.startswith("  "):
             parts = line.split(" ")
             current_output = parts[0]
             if current_monitor:
@@ -372,12 +372,11 @@ def get_monitors_wayland():
             current_monitor = Monitor(current_output)
             current_is_disabled = False
             current_max_surface = 0
+            continue
 
-        elif "Enabled" in line:
-            current_is_disabled = ("no" in line)
-            current_monitor.connected = not current_is_disabled
-
-        elif resolution_matches:
+        line = line.strip()
+        resolution_matches = MODE_LINE_WAYLAND_PATTERN.match(line)
+        if resolution_matches:
             w = int(resolution_matches.group(1))
             h = int(resolution_matches.group(2))
             f = round_to_nearest_10(int(float(resolution_matches.group(3))))
@@ -385,13 +384,24 @@ def get_monitors_wayland():
             res = MonitorResolution(w, h, f)
             current_monitor.add_supported_resolution(res)
             current_max_surface = surface
+            continue
 
-        elif line.strip().startswith("Make:"):
-            current_make = line.split(": ")[1]
+        if ": " in line:
+            (key, value) = line.split(": ", 1)
 
-        elif line.strip().startswith("Model:"):
-            current_model = line.split(": ")[1]
-            current_monitor.description = current_make + " " + current_model
+            if key == "Enabled":
+                current_is_disabled = ("no" in line)
+                current_monitor.connected = not current_is_disabled
+
+            if key == "Make":
+                current_make = line.split(": ")[1]
+
+            if key == "Model":
+                current_model = line.split(": ")[1]
+                current_monitor.description = current_make + " " + current_model
+
+            if key == "Scale":
+                current_monitor.scale = round(float(line.split(": ")[1]), 2)
 
     if current_monitor:
         monitors.append(current_monitor)
