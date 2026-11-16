@@ -29,6 +29,7 @@ def build_babl_gegl(proj):
     util.ensure_installed([
         "libjson-glib-dev",
         "libjpeg-turbo8-dev",
+        "libsdl3-dev",
     ])
     setup_flags = [
         "--prefix=" + gnome.JHBUILD_INSTALL_DIR,
